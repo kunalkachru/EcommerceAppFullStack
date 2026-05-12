@@ -11,7 +11,6 @@ import { View, Text, FlatList, Image, TouchableOpacity, TextInput, StyleSheet } 
 import RNPickerSelect from "react-native-picker-select";
 import Slider from "@react-native-community/slider";
 import products from '../data/products';
-import BottomTabNavigator from '../navigation/BottomTabNavigator'
 
 const categoriesSet = new Set(['All']); 
 products.forEach((item) => {

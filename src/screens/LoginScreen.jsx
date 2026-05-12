@@ -20,7 +20,7 @@ const LoginScreen = ({ navigation }) => {
     if (user) {
       navigation.replace("Main"); 
     }
-  }, [user, token, loading, error]); // Runs when auth state changes
+  }, [user, token, loading, error, navigation]); // Runs when auth state changes
 
 
   return (
