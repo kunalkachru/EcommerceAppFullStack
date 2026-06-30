@@ -14,6 +14,11 @@ const morgan = require("morgan");
 const rateLimit = require("express-rate-limit");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const {
+  searchByImageBase64,
+  warmVisualSearchIndex,
+  getStatus,
+} = require("./visualSearch");
 
 const PORT = Number(process.env.PORT) || 5001;
 const JWT_SECRET = process.env.JWT_SECRET || "dev-only-change-me";
@@ -69,7 +74,7 @@ function authMiddleware(req, res, next) {
 const app = express();
 app.use(helmet());
 app.use(cors());
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "12mb" }));
 app.use(morgan("tiny"));
 
 const authLimiter = rateLimit({
@@ -79,8 +84,39 @@ const authLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const visualSearchLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many visual searches — try again shortly." },
+});
+
 app.get("/health", (_req, res) => {
-  res.json({ ok: true });
+  res.json({ ok: true, visualSearch: getStatus() });
+});
+
+app.get("/api/visual-search/status", (_req, res) => {
+  res.json(getStatus());
+});
+
+app.post("/api/visual-search", visualSearchLimiter, async (req, res) => {
+  const { imageBase64 } = req.body || {};
+  if (!imageBase64 || typeof imageBase64 !== "string") {
+    return res.status(400).json({ message: "imageBase64 is required" });
+  }
+  if (imageBase64.length > 10_000_000) {
+    return res.status(413).json({ message: "Image too large (max ~7MB)" });
+  }
+  try {
+    const result = await searchByImageBase64(imageBase64, { limit: 8 });
+    res.json(result);
+  } catch (err) {
+    console.error("[visual-search]", err);
+    res.status(500).json({
+      message: err.message || "Visual search failed",
+    });
+  }
 });
 
 app.post("/api/users/register", authLimiter, async (req, res) => {
@@ -194,4 +230,5 @@ app.delete("/api/cart/clear", authMiddleware, (req, res) => {
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`Ecommerce API listening on http://0.0.0.0:${PORT}`);
+  warmVisualSearchIndex();
 });

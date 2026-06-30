@@ -64,6 +64,7 @@ yarn-error.log
 
 # Local API data (generated at runtime)
 server/data/
+server/.env
 
 # testing
 /coverage

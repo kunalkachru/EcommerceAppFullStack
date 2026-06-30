@@ -1,6 +1,7 @@
 //get all categories from product json
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { useRoute } from "@react-navigation/native";
 import {
   View,
   Text,
@@ -18,12 +19,20 @@ import { useCatalogProducts } from "../redux/api/catalogApi";
 const sortOptions = ["Default", "Price: Low to High", "Price: High to Low"];
 
 const ProductListScreen = ({ navigation }) => {
+  const route = useRoute();
   const { products, isLoading, error, isOfflineFallback, refetch } =
     useCatalogProducts();
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOption, setSortOption] = useState("Default");
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const q = route.params?.searchQuery;
+    if (typeof q === "string" && q.length > 0) {
+      setSearchQuery(q);
+    }
+  }, [route.params?.searchQuery]);
 
   const categories = useMemo(() => {
     const set = new Set(["All"]);

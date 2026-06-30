@@ -29,6 +29,11 @@ jest.mock("@react-native-async-storage/async-storage", () => {
   };
 });
 
+jest.mock("react-native-image-picker", () => ({
+  launchCamera: jest.fn(),
+  launchImageLibrary: jest.fn(),
+}));
+
 jest.mock("./src/redux/api/catalogApi", () => {
   const fallbackProducts = require("./src/data/products").default;
   return {
