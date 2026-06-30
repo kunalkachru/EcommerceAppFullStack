@@ -1,27 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../redux/authSlice"; // Import login action
+import { loginUser } from "../redux/authSlice";
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
-  const { user, token, loading, error } = useSelector((state) => state.auth); // Get auth state
+  const { user, loading, error } = useSelector((state) => state.auth);
 
   const handleLogin = () => {
-    console.log("login user details: ", email, password);
     dispatch(loginUser({ email, password }));
   };
-  //Use useEffect to check Redux state after login
-  useEffect(() => {
-    console.log("Redux Auth State:", { user, token, loading, error });
-    // Redirect to Home on successful login
-    if (user) {
-      navigation.replace("Main"); 
-    }
-  }, [user, token, loading, error, navigation]); // Runs when auth state changes
 
+  useEffect(() => {
+    if (user) {
+      navigation.replace("Main");
+    }
+  }, [user, navigation]);
 
   return (
     <View style={styles.container}>
@@ -52,7 +55,7 @@ const LoginScreen = ({ navigation }) => {
         </TouchableOpacity>
       )}
 
-      {error && <Text style={styles.errorText}>{error}</Text>}
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
 
       <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
         <Text style={styles.linkText}>Don't have an account? Sign Up</Text>

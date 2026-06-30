@@ -1,30 +1,35 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { persistReducer } from "redux-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
-import { clearCart, fetchCart } from "./cartSlice";
+import apiClient from "../services/apiClient";
+import { clearCart, clearCartLocal, fetchCart } from "./cartSlice";
 
-// Register User
+async function bootstrapCart(dispatch, token) {
+  try {
+    await dispatch(
+      fetchCart({ authHeader: `Bearer ${token}` })
+    ).unwrap();
+  } catch {
+    dispatch(clearCartLocal());
+  }
+}
+
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
-  async ({ name, email, password }, { rejectWithValue }) => {
+  async ({ name, email, password }, { dispatch, rejectWithValue }) => {
     try {
-      console.log("Registering user:", name, email, password);
-      const response = await axios.post("http://10.0.2.2:5001/api/users/register", {
+      const response = await apiClient.post("/api/users/register", {
         name,
         email,
         password,
       });
 
-      console.log("Signup Response:", response.data);
+      const { _id, name: userName, email: userEmail, token } = response.data;
+      await bootstrapCart(dispatch, token);
 
       return {
-        user: {
-          _id: response.data._id,
-          name: response.data.name,
-          email: response.data.email,
-        },
-        token: response.data.token,
+        user: { _id, name: userName, email: userEmail },
+        token,
       };
     } catch (error) {
       console.error("Signup Error:", error.response?.data || error.message);
@@ -33,28 +38,21 @@ export const registerUser = createAsyncThunk(
   }
 );
 
-// Login User
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async ({ email, password }, { dispatch, rejectWithValue }) => {
     try {
-      console.log(`Logging in User: ${email}`);
-      const response = await axios.post("http://10.0.2.2:5001/api/users/login", {
+      const response = await apiClient.post("/api/users/login", {
         email,
         password,
       });
 
-      console.log("Login Successful:", response.data);
-
-      dispatch(fetchCart());
+      const { _id, name, email: userEmail, token } = response.data;
+      await bootstrapCart(dispatch, token);
 
       return {
-        user: {
-          _id: response.data._id,
-          name: response.data.name,
-          email: response.data.email,
-        },
-        token: response.data.token,
+        user: { _id, name, email: userEmail },
+        token,
       };
     } catch (error) {
       console.error("Login API Error:", error.response?.data || error.message);
@@ -63,7 +61,6 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// Auth Slice
 const authSlice = createSlice({
   name: "auth",
   initialState: { user: null, token: null, loading: false, error: null },
@@ -77,7 +74,6 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Signup cases
       .addCase(registerUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -91,7 +87,10 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // Login cases
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
@@ -104,17 +103,25 @@ const authSlice = createSlice({
   },
 });
 
-// Logout User (Clears Cart)
-export const logoutUser = () => async (dispatch) => {
+export const logoutUser = () => async (dispatch, getState) => {
+  const { token } = getState().auth;
+  if (token) {
+    try {
+      await dispatch(clearCart()).unwrap();
+    } catch {
+      dispatch(clearCartLocal());
+    }
+  } else {
+    dispatch(clearCartLocal());
+  }
   await AsyncStorage.removeItem("persist:auth");
-  dispatch(clearCart());
   dispatch(authSlice.actions.logout());
 };
 
-// Persist Auth
 const persistConfig = {
   key: "auth",
   storage: AsyncStorage,
+  ...(process.env.NODE_ENV === "test" ? { timeout: 0 } : {}),
 };
 export const persistedAuthReducer = persistReducer(persistConfig, authSlice.reducer);
 

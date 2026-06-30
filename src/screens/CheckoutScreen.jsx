@@ -32,17 +32,6 @@ const CheckoutScreen = ({ navigation }) => {
       return;
     }
 
-    // Navigate to Order Summary
-    navigation.navigate("Products", { 
-      screen: "OrderSummary", 
-      params:{
-        shippingInfo,
-        cartItems,
-        grandTotal,
-        paymentMethod,
-      }
-    });
-
     navigation.navigate("OrderSummary", {
       shippingInfo,
       cartItems,

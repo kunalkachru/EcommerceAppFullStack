@@ -51,7 +51,7 @@ const ProductDetailScreen = ({ route }) => {
     return (
         <View style={styles.container}>
             {/* Product Image */}
-            <Image source={{ uri: product.image }} style={styles.image} />
+            <Image source={{ uri: product.image }} style={styles.image} resizeMode="contain" />
 
             {/* Product Info */}
             <Text style={styles.name}>{product.title}</Text>
