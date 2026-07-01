@@ -1,62 +1,83 @@
 # Demo Videos
 
-Short screen recordings (<60 seconds) for presentation and reviewer onboarding.
+Two short screen recordings (<60s each) for presentation and reviewer onboarding.
 
 ---
 
-## Files
+## Files (exactly two)
 
-| Video | Platform | Content | Status |
-|-------|----------|---------|--------|
-| `android/app-flow-demo.mp4` | Android | Login → browse → cart → checkout → orders | ✅ Recorded |
-| `android/ml-features-demo.mp4` | Android | Text search → voice/LLM → photo search | ⏳ Re-record: `npm run record:demo:android` (emulator required) |
-| `ios/app-flow-demo.mp4` | iOS | Same app flow on simulator | ⏳ Re-record: `npm run record:demo:ios` |
-| `ios/ml-features-demo.mp4` | iOS | Same ML demo on simulator | ⏳ Re-record: `npm run record:demo:ios` |
+| Video | Content |
+|-------|---------|
+| [app-flow-demo.mp4](./app-flow-demo.mp4) | Login → browse → cart → checkout → orders |
+| [ml-features-demo.mp4](./ml-features-demo.mp4) | Text search → LLM + key → voice/photo search |
 
 Screenshot fallbacks: [docs/e2e/](../e2e/)
 
+These MP4s are **committed for repo consumers** but **not packaged** into Android/iOS release builds or future cloud images (see [DEPLOYMENT.md](../DEPLOYMENT.md#demo-assets-repo-only--not-in-app-builds)).
+
+Re-record on **either** Android emulator or iOS simulator — both scripts write the same two filenames.
+
 ---
 
-## Re-record
+## Secrets (consumers — not in scripts)
 
-**Prerequisites:** API running (`npm run server`), Metro running (`npm start`), app installed on device/simulator.
+Scripts **never** contain API keys. Each developer creates a local gitignored file:
 
 ```bash
-# Android (requires emulator-5554 or set ADB_DEVICE)
-npm run record:demo:android
-
-# iOS (requires booted simulator)
-npm run record:demo:ios
+# src/.env (never commit)
+OPENAI_API_KEY=sk-...
+OPENROUTER_API_KEY=sk-or-...
 ```
 
-Output is written to this directory. Videos are capped at ~55 seconds via platform record limits.
+| Script | Purpose |
+|--------|---------|
+| `npm run verify:llm-live` | Server-side live LLM verification |
+| `npm run record:demo:ios` | Passes key to Maestro as `DEMO_LLM_API_KEY` |
+| `npm run record:demo:android` | Reads key for LLM toggle during ML demo |
+
+Demo login (`test@example.com` / `secret123`) is a public demo account, not a secret.
+
+See [CONFIGURATION.md](../CONFIGURATION.md).
 
 ---
 
-## Manual fallback
+## Re-record (live on-screen)
 
-If automation fails, record manually:
+### Android (recommended — adb automation)
 
-**Android:** `adb shell screenrecord --time-limit 55 /sdcard/demo.mp4` then `adb pull ...`
+1. Start **Pixel** emulator (visible window)
+2. `npm run server` + `npm start`
+3. Optional: `npm run seed:emulator-photos`
+4. ```bash
+   npm run record:demo:android
+   RECORD_ONLY=app-flow npm run record:demo:android
+   RECORD_ONLY=ml-features npm run record:demo:android
+   ```
 
-**iOS:** `xcrun simctl io booted recordVideo --force demo.mp4` — stop with Ctrl+C before 60s
+### iOS (Maestro automation)
 
-Follow the script in [DEMO_PRESENTATION.md](../DEMO_PRESENTATION.md).
+1. Boot **iPhone** simulator
+2. `npm run server` + `npm start`
+3. Install app: `npx react-native run-ios --udid <booted-udid>`
+4. Install [Maestro](https://maestro.mobile.dev) (first time)
+5. ```bash
+   npm run record:demo:ios
+   RECORD_ONLY=app-flow npm run record:demo:ios
+   ```
 
 ---
 
-## Size limits
-
-Target ≤15 MB per file. If larger, compress:
+## Fallback (no device)
 
 ```bash
-ffmpeg -i input.mp4 -vcodec libx264 -crf 28 -preset fast output.mp4
+npm run build:demo:videos
 ```
+
+Builds both MP4s from e2e screenshots (slideshow, not interactive). Prefer live recordings.
 
 ---
 
 ## Related
 
-- [DEMO_PRESENTATION.md](../DEMO_PRESENTATION.md) — live demo script
-- [ML_SEARCH.md](../ML_SEARCH.md) — search architecture
-- [docs/e2e/](../e2e/) — screenshot fallbacks
+- [DEMO_PRESENTATION.md](../DEMO_PRESENTATION.md)
+- [ML_SEARCH.md](../ML_SEARCH.md)

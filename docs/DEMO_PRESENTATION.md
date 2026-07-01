@@ -30,12 +30,12 @@ Live demo script, talking points, and video references for stakeholders and code
 
 ## Demo videos (<60 seconds each)
 
-| Platform | App flow | ML features |
-|----------|----------|-------------|
-| Android | [android/app-flow-demo.mp4](./demo/videos/android/app-flow-demo.mp4) | [android/ml-features-demo.mp4](./demo/videos/android/ml-features-demo.mp4) |
-| iOS | [ios/app-flow-demo.mp4](./demo/videos/ios/app-flow-demo.mp4) | [ios/ml-features-demo.mp4](./demo/videos/ios/ml-features-demo.mp4) |
+| Video | Content |
+|-------|---------|
+| [app-flow-demo.mp4](./demo/videos/app-flow-demo.mp4) | Login → browse → cart → checkout → orders |
+| [ml-features-demo.mp4](./demo/videos/ml-features-demo.mp4) | Text search → LLM reasoning + key → voice/photo search |
 
-Re-record: `npm run record:demo:android` · `npm run record:demo:ios`
+Re-record on Android: `npm run record:demo:android` · iOS: `npm run record:demo:ios` (same two output files)
 
 Fallback screenshots: [docs/e2e/](./e2e/)
 

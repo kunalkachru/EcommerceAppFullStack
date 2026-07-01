@@ -16,7 +16,9 @@
     "verify:emulator": "node scripts/verify-emulator-ml.mjs",
     "seed:emulator-photos": "node scripts/seed-emulator-photos.mjs",
     "record:demo:android": "node scripts/record-demo-android.mjs",
-    "record:demo:ios": "bash scripts/record-demo-ios.sh",
+    "record:demo:ios": "node scripts/record-demo-ios.mjs",
+    "build:demo:videos": "bash scripts/build-demo-videos-from-e2e.sh",
+    "wait:record:android": "bash scripts/wait-and-record-android.sh",
     "test": "jest"
   },
   "dependencies": {

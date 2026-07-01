@@ -178,6 +178,18 @@ To deploy beyond local demo, you would need:
 
 None of the above is automated in this repository yet.
 
+### Demo assets (repo only — not in app builds)
+
+Short demo videos under `docs/demo/videos/` are **documentation for reviewers**. They are **not** imported by app code and are excluded from production packaging:
+
+| Layer | How they stay out |
+|-------|-------------------|
+| Metro JS bundle | `metro.config.js` `blockList` for `docs/demo/videos/` and `docs/e2e/` |
+| Android / iOS release | Native builds only ship `android/app/src/main/assets` and Xcode Resources — `docs/` is never copied |
+| Future Docker / cloud API | `.dockerignore` excludes `docs/demo/videos/`, e2e screenshots, and test photos |
+
+Re-record locally with `npm run record:demo:android` or `npm run record:demo:ios`. LLM keys for ML demos come from your gitignored `src/.env`, not from scripts.
+
 ---
 
 ## Verification after deploy

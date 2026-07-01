@@ -11,7 +11,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-OUT_DIR="$ROOT/docs/demo/videos/ios"
+OUT_DIR="$ROOT/docs/demo/videos"
 BUNDLE_ID="org.reactjs.native.example.EcommerceAppFullStack"
 RECORD_SEC=55
 
@@ -73,4 +73,4 @@ echo ""
 echo "--- Next: ML demo (text search → photo → voice card) ---"
 
 echo ""
-echo "Done — videos in docs/demo/videos/ios/"
+echo "Done — docs/demo/videos/ (app-flow-demo.mp4, ml-features-demo.mp4)"

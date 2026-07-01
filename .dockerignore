@@ -1,0 +1,18 @@
+# Documentation-only assets — keep in git for reviewers, exclude from cloud images
+docs/demo/videos/
+docs/e2e/
+docs/test-photos/
+
+# Local secrets and generated runtime data
+**/.env
+server/.env
+server/data/
+src/.env
+
+node_modules/
+**/Pods/
+vendor/bundle/
+android/build/
+ios/build/
+coverage/
+.git/

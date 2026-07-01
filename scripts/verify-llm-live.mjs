@@ -3,13 +3,13 @@
  * Live LLM reasoning verification — requires real API keys in src/.env (gitignored).
  * Loads OPENAI_API_KEY and optionally OPENROUTER_API_KEY; never logs key material.
  */
-import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadClientEnv, CLIENT_ENV_PATH } from "./load-env.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
-const ENV_PATH = join(ROOT, "src", ".env");
+const ENV_PATH = CLIENT_ENV_PATH;
 const API = process.env.API_URL || "http://127.0.0.1:5001";
 
 const results = [];
@@ -21,19 +21,6 @@ function pass(id, d) {
 function fail(id, d) {
   results.push({ id, ok: false, d });
   console.error(`✗ ${id}: ${d}`);
-}
-
-function loadEnvFile(path) {
-  if (!existsSync(path)) return {};
-  const out = {};
-  for (const line of readFileSync(path, "utf8").split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) continue;
-    const eq = trimmed.indexOf("=");
-    if (eq <= 0) continue;
-    out[trimmed.slice(0, eq).trim()] = trimmed.slice(eq + 1).trim();
-  }
-  return out;
 }
 
 async function postVoice(query, { apiKey, provider, baseUrl, model } = {}) {
@@ -88,9 +75,9 @@ async function main() {
   }
   pass("server-health", `CLIP index ${health.visualSearch?.indexCount ?? 0}`);
 
-  const env = loadEnvFile(ENV_PATH);
-  const openaiKey = env.OPENAI_API_KEY || process.env.OPENAI_API_KEY;
-  const openrouterKey = env.OPENROUTER_API_KEY || process.env.OPENROUTER_API_KEY;
+  const env = loadClientEnv();
+  const openaiKey = env.OPENAI_API_KEY;
+  const openrouterKey = env.OPENROUTER_API_KEY;
 
   if (!openaiKey && !openrouterKey) {
     fail("env-keys", `No keys in ${ENV_PATH} — set OPENAI_API_KEY or OPENROUTER_API_KEY`);

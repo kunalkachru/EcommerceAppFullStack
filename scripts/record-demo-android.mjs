@@ -20,11 +20,13 @@ import {
   sleep,
   launchApp,
   swipe,
+  inputText,
 } from "./e2e-adb.mjs";
+import { loadClientEnv, resolveDemoLlmKey, CLIENT_ENV_PATH } from "./load-env.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
-const OUT_DIR = join(ROOT, "docs", "demo", "videos", "android");
+const OUT_DIR = join(ROOT, "docs", "demo", "videos");
 const DEVICE = process.env.ADB_DEVICE || "emulator-5554";
 const ADB = `adb -s ${DEVICE}`;
 const RECORD_SEC = 55;
@@ -107,12 +109,70 @@ async function login() {
 }
 
 function tapSearchField() {
-  const xml = dumpUi();
-  const edits = findNodes(xml, { className: "EditText" });
-  const search = edits.find((n) => n.hint?.includes("Search products") || n.text?.includes("Search"));
-  const target = search || edits[0];
-  if (!target) throw new Error("Search field not found");
-  tap(target.center.x, target.center.y);
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const xml = dumpUi();
+    const edits = findNodes(xml, { className: "EditText" });
+    const search = edits.find(
+      (n) =>
+        n.hint?.includes("Search products") ||
+        n.text?.includes("Search products") ||
+        n.text?.includes("below 45")
+    );
+    const target = search || edits[0];
+    if (target) {
+      tap(target.center.x, target.center.y);
+      return;
+    }
+    swipe(720, 1200, 720, 600, 300);
+    sleep(1200);
+  }
+  // Pixel 7 Pro fallback (search bar ~y=780)
+  tap(720, 780);
+}
+
+function enableLlmWithKeyFromEnv() {
+  const key = resolveDemoLlmKey(loadClientEnv());
+  if (!key) {
+    console.warn(`⚠ No LLM key in ${CLIENT_ENV_PATH} — skipping LLM demo steps`);
+    return false;
+  }
+
+  tapTab(0);
+  sleep(2000);
+  swipe(720, 1600, 720, 400, 400);
+  sleep(800);
+
+  const llmRow = findNodes(dumpUi()).find((n) => n.text?.includes("AI reasoning"));
+  if (llmRow) tap(llmRow.center.x + 280, llmRow.center.y);
+  sleep(1000);
+
+  const openrouter = findNodes(dumpUi(), { text: "OpenRouter" });
+  if (openrouter[0]) tap(openrouter[0].center.x, openrouter[0].center.y);
+  sleep(800);
+
+  const keyField = findNodes(dumpUi(), { className: "EditText" }).find(
+    (n) => n.hint?.includes("sk-") || n.text?.includes("sk-")
+  );
+  const field = keyField || findNodes(dumpUi(), { className: "EditText" })[0];
+  if (field) {
+    tap(field.center.x, field.center.y);
+    sleep(300);
+    clearAndType(key.slice(0, 40));
+    inputText(key.slice(40).replace(/@/g, "\\@"));
+    hideKeyboard();
+  }
+
+  const typed = findNodes(dumpUi()).find((n) => n.hint?.includes("Or type"));
+  if (typed) {
+    tap(typed.center.x, typed.center.y);
+    sleep(300);
+    clearAndType("it's a fifty dollars jacket blue please");
+    hideKeyboard();
+  }
+  const findBtn = findNodes(dumpUi(), { text: "Find products" });
+  if (findBtn[0]) tap(findBtn[0].center.x, findBtn[0].center.y);
+  sleep(5000);
+  return true;
 }
 
 async function recordVideo(name, flowFn) {
@@ -197,20 +257,20 @@ async function runAppFlowDemo() {
 
 async function runMlFeaturesDemo() {
   launchApp();
-  sleep(4500);
+  sleep(5000);
   await login();
 
   tapTab(1);
-  sleep(2000);
+  sleep(4000);
   tapSearchField();
   sleep(400);
   clearAndType("wireless headphones below 100");
   hideKeyboard();
-  sleep(5000);
+  sleep(4000);
 
-  tapTab(0);
-  sleep(2000);
-  swipe(720, 1800, 720, 600, 350);
+  enableLlmWithKeyFromEnv();
+
+  swipe(720, 1400, 720, 500, 350);
   sleep(800);
 
   const gallery = findNodes(dumpUi(), { text: "Gallery" });
@@ -247,10 +307,15 @@ async function main() {
   await ensureApi();
   await clearCart();
 
-  await recordVideo("app-flow-demo.mp4", runAppFlowDemo);
-  await recordVideo("ml-features-demo.mp4", runMlFeaturesDemo);
+  const only = process.env.RECORD_ONLY || "";
+  if (!only || only === "app-flow") {
+    await recordVideo("app-flow-demo.mp4", runAppFlowDemo);
+  }
+  if (!only || only === "ml-features") {
+    await recordVideo("ml-features-demo.mp4", runMlFeaturesDemo);
+  }
 
-  console.log("\nDone — videos in docs/demo/videos/android/");
+  console.log("\nDone — docs/demo/videos/ (app-flow-demo.mp4, ml-features-demo.mp4)");
 }
 
 main().catch((err) => {

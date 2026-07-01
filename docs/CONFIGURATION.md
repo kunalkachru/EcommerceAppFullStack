@@ -114,3 +114,25 @@ Current catalog size: **~389 products**, CLIP indexed **~385**.
 - **Camera / photo library** — image search and visual search
 
 See platform manifests for exact permission strings.
+
+---
+
+## Demo / verification scripts
+
+Scripts under `scripts/` are for **local development and CI**. They never embed API keys — each consumer creates gitignored env files:
+
+| File | Used by |
+|------|---------|
+| `src/.env` | `verify:llm-live`, `record:demo:ios`, `record:demo:android` (LLM key paste in ML demo) |
+| `server/.env` | `npm run server` (JWT, optional server LLM fallback) |
+
+Example `src/.env`:
+
+```env
+OPENROUTER_API_KEY=sk-or-...
+# or OPENAI_API_KEY=sk-...
+```
+
+Demo login credentials (`test@example.com` / `secret123`) are public demo data, not secrets.
+
+See [demo/videos/README.md](./demo/videos/README.md) for recording demo MP4s locally.

@@ -45,7 +45,7 @@ Start here for onboarding, review, or handoff to Codex/Claude.
 | **[docs/DEMO_PRESENTATION.md](./docs/DEMO_PRESENTATION.md)** | Live demo script, talking points, reviewer checklist |
 | **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** | System architecture (client, API, data flow) |
 | **[docs/ML_SEARCH.md](./docs/ML_SEARCH.md)** | Multimodal search pipelines (text, voice, CLIP) |
-| [docs/demo/videos/README.md](./docs/demo/videos/README.md) | Demo screen recordings (Android + iOS) |
+| [docs/demo/videos/README.md](./docs/demo/videos/README.md) | Two demo screen recordings (app flow + ML) |
 
 ### Planning & architecture
 
@@ -140,8 +140,8 @@ Catalog: **~389 products** · CLIP indexed: **~385** · Demo coverage products: 
 | `npm run verify:llm-live` | **Live LLM reasoning** (requires keys in `src/.env`) |
 | `npm run snapshot-catalog` | Refresh offline catalog JSON |
 | `npm run seed:emulator-photos` | Seed test photos to Android emulator |
-| `npm run record:demo:android` | Record Android demo videos to `docs/demo/videos/android/` |
-| `npm run record:demo:ios` | Record iOS demo videos to `docs/demo/videos/ios/` |
+| `npm run record:demo:android` | Record both demo videos (Android emulator → `docs/demo/videos/`) |
+| `npm run record:demo:ios` | Record both demo videos (iOS simulator → same two files) |
 
 ---
 
