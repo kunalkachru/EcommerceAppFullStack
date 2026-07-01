@@ -34,8 +34,38 @@ jest.mock("react-native-image-picker", () => ({
   launchImageLibrary: jest.fn(),
 }));
 
+jest.mock("@react-native-voice/voice", () => ({
+  default: {
+    onSpeechStart: null,
+    onSpeechEnd: null,
+    onSpeechError: null,
+    onSpeechResults: null,
+    onSpeechPartialResults: null,
+    start: jest.fn(() => Promise.resolve()),
+    stop: jest.fn(() => Promise.resolve()),
+    destroy: jest.fn(() => Promise.resolve()),
+    removeAllListeners: jest.fn(),
+  },
+}));
+
 jest.mock("./src/redux/api/catalogApi", () => {
-  const fallbackProducts = require("./src/data/products").default;
+  const fallbackProducts =
+    require("./src/data/catalog-fallback.json").products?.slice(0, 20) ??
+    require("./src/data/products").default;
+
+  function getTopCategories(products, limit = 8) {
+    const counts = new Map();
+    products.forEach((p) => {
+      if (p.category) {
+        counts.set(p.category, (counts.get(p.category) || 0) + 1);
+      }
+    });
+    return [...counts.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, limit)
+      .map(([category]) => category);
+  }
+
   return {
     catalogApi: {
       reducerPath: "catalogApi",
@@ -57,13 +87,21 @@ jest.mock("./src/redux/api/catalogApi", () => {
       isError: false,
       refetch: jest.fn(),
     }),
+    useGetCatalogMetaQuery: () => ({
+      data: { total: fallbackProducts.length },
+      isLoading: false,
+      isError: false,
+      refetch: jest.fn(),
+    }),
     useCatalogProducts: () => ({
       products: fallbackProducts,
       isLoading: false,
       isFetching: false,
       error: null,
       isOfflineFallback: false,
+      catalogTotal: fallbackProducts.length,
       refetch: jest.fn(),
     }),
+    getTopCategories,
   };
 });

@@ -6,10 +6,10 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import fallbackProducts from "../data/products";
+import catalogFallback from "../data/catalog-fallback.json";
 
 const ITEM_WIDTH = 120;
-const featured = fallbackProducts.slice(0, 6);
+const featured = (catalogFallback?.products ?? []).slice(0, 6);
 
 const FeaturedProductsStrip = () => (
   <View style={styles.wrap}>

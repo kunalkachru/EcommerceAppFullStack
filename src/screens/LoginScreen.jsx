@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import FeaturedProductsStrip from "../components/FeaturedProductsStrip";
 import { storeUpdates } from "../data/promos";
 
 const LoginScreen = ({ navigation }) => {
+  const scrollRef = useRef(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch();
@@ -32,12 +33,17 @@ const LoginScreen = ({ navigation }) => {
     }
   }, [user, navigation]);
 
+  const scrollToSignIn = () => {
+    scrollRef.current?.scrollToEnd({ animated: true });
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.flex}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
@@ -47,6 +53,9 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.tagline}>
             Deals, new arrivals & your cart — all in one place
           </Text>
+          <TouchableOpacity style={styles.signInJump} onPress={scrollToSignIn}>
+            <Text style={styles.signInJumpText}>Sign in ↓</Text>
+          </TouchableOpacity>
         </View>
 
         <PromoCarousel />
@@ -62,6 +71,9 @@ const LoginScreen = ({ navigation }) => {
 
         <View style={styles.formCard}>
           <Text style={styles.title}>Sign in</Text>
+          <Text style={styles.demoHint}>
+            Demo account: test@example.com / secret123
+          </Text>
 
           <TextInput
             style={styles.input}
@@ -136,6 +148,25 @@ const styles = StyleSheet.create({
     color: "#5c6370",
     marginTop: 6,
     lineHeight: 22,
+  },
+  signInJump: {
+    alignSelf: "flex-start",
+    marginTop: 14,
+    backgroundColor: "#007BFF",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  signInJumpText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  demoHint: {
+    fontSize: 13,
+    color: "#5c6370",
+    marginBottom: 14,
+    lineHeight: 18,
   },
   updatesBox: {
     backgroundColor: "#e8f4fd",

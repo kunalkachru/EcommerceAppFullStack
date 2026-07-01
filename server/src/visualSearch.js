@@ -1,6 +1,6 @@
 /**
  * CLIP-based visual search (Xenova/transformers.js).
- * Compares the query photo against catalog images + titles in a shared embedding space.
+ * Compares query photos against merged catalog embeddings (image + rich text).
  */
 /* eslint-env node */
 /* global Buffer */
@@ -14,11 +14,11 @@ const {
   AutoTokenizer,
   RawImage,
 } = require("@xenova/transformers");
+const { fetchCatalog, getProductById } = require("./catalogService");
 
 const MODEL_ID = "Xenova/clip-vit-base-patch32";
-const CATALOG_URL = "https://fakestoreapi.com/products";
+const CACHE_MODEL_KEY = `${MODEL_ID}-catalog-v3`;
 const EMBED_CACHE_PATH = path.join(__dirname, "..", "data", "clip-embeddings.json");
-const CATALOG_TTL_MS = 60 * 60 * 1000;
 
 let clipReady = null;
 let visionModel;
@@ -26,10 +26,87 @@ let textModel;
 let processor;
 let tokenizer;
 
-let catalog = [];
-let catalogLoadedAt = 0;
+let indexedCatalogCount = 0;
 let productVectors = [];
 let warming = null;
+let probeVectors = null;
+let attributeProbeVectors = null;
+
+const OBJECT_PROBES = [
+  { id: "backpack", label: "a backpack or bag", text: "a photo of a backpack or bag" },
+  { id: "jacket", label: "a jacket or coat", text: "a photo of a jacket or coat" },
+  { id: "shirt", label: "a shirt or t-shirt", text: "a photo of a shirt or t-shirt" },
+  { id: "dress", label: "a dress", text: "a photo of a dress or women's clothing" },
+  { id: "jewelry", label: "jewelry", text: "a photo of jewelry, a ring, or a bracelet" },
+  { id: "watch", label: "a wristwatch", text: "a photo of a wristwatch" },
+  { id: "monitor", label: "a computer monitor", text: "a photo of a computer monitor or screen" },
+  { id: "storage", label: "computer storage", text: "a photo of a hard drive or USB storage device" },
+  { id: "pants", label: "pants or trousers", text: "a photo of pants or trousers" },
+  { id: "shoes", label: "shoes", text: "a photo of shoes or footwear" },
+  { id: "phone", label: "a smartphone", text: "a photo of a smartphone or mobile phone" },
+  { id: "car", label: "a car or automobile", text: "a photo of a car or automobile" },
+  { id: "furniture", label: "furniture", text: "a photo of furniture" },
+  { id: "food", label: "food", text: "a photo of food or a meal" },
+  { id: "pet", label: "a pet or animal", text: "a photo of a pet or animal" },
+];
+
+const COLOR_PROBES = [
+  { id: "black", label: "black", text: "a photo of a black product" },
+  { id: "white", label: "white", text: "a photo of a white product" },
+  { id: "blue", label: "blue", text: "a photo of a blue product" },
+  { id: "red", label: "red", text: "a photo of a red product" },
+  { id: "green", label: "green", text: "a photo of a green product" },
+  { id: "brown", label: "brown", text: "a photo of a brown product" },
+  { id: "gray", label: "gray", text: "a photo of a gray or silver product" },
+];
+
+const MATERIAL_PROBES = [
+  { id: "cotton", label: "cotton", text: "a photo of cotton clothing or fabric" },
+  { id: "leather", label: "leather", text: "a photo of leather material" },
+  { id: "metal", label: "metal", text: "a photo of metal material" },
+  { id: "plastic", label: "plastic", text: "a photo of plastic material" },
+  { id: "wood", label: "wood", text: "a photo of wood material" },
+];
+
+/** Shop-by-category groups for guided visual search (feature 3). */
+const CATEGORY_GROUPS = {
+  clothing: [
+    "clothes",
+    "men's clothing",
+    "women's clothing",
+    "womens-dresses",
+    "mens-shirts",
+    "tops",
+    "shoesk",
+  ],
+  electronics: [
+    "electronics",
+    "laptops",
+    "smartphones",
+    "mobile-accessories",
+    "tablets",
+  ],
+  beauty: ["beauty", "fragrances", "skin-care"],
+  home: ["furniture", "home-decoration", "kitchen-accessories"],
+  groceries: ["groceries"],
+  sports: ["sports-accessories"],
+};
+
+const PROBE_CATEGORY_BOOST = {
+  jacket: ["clothes", "men's clothing", "women's clothing"],
+  shirt: ["clothes", "men's clothing", "women's clothing", "mens-shirts"],
+  dress: ["clothes", "women's clothing", "womens-dresses"],
+  pants: ["clothes", "men's clothing", "women's clothing"],
+  backpack: ["clothes", "sports-accessories"],
+  jewelry: ["jewelery", "beauty"],
+  watch: ["mens-watches", "electronics"],
+  monitor: ["electronics", "laptops"],
+  storage: ["electronics"],
+  phone: ["smartphones", "mobile-accessories", "electronics"],
+  shoes: ["shoesk", "clothes"],
+};
+
+const OFF_INVENTORY_PROBE_IDS = new Set(["pet", "car"]);
 
 function l2Normalize(vec) {
   let sum = 0;
@@ -42,6 +119,19 @@ function cosine(a, b) {
   let dot = 0;
   for (let i = 0; i < a.length; i += 1) dot += a[i] * b[i];
   return dot;
+}
+
+function categoriesForGroup(groupKey) {
+  if (!groupKey || groupKey === "all") return null;
+  return CATEGORY_GROUPS[groupKey] ?? [String(groupKey).toLowerCase()];
+}
+
+function productMatchesCategory(product, categoryFilter) {
+  if (!categoryFilter || categoryFilter === "all") return true;
+  const cat = String(product.category || "").toLowerCase();
+  const allowed = categoriesForGroup(categoryFilter);
+  if (!allowed) return cat === String(categoryFilter).toLowerCase();
+  return allowed.some((a) => cat === a || cat.includes(a));
 }
 
 async function loadClip() {
@@ -73,53 +163,98 @@ async function embedText(text) {
   return l2Normalize(Array.from(text_embeds.data));
 }
 
-async function rawImageFromBase64(base64) {
+function decodeBase64Buffer(base64) {
   const raw = String(base64).replace(/^data:image\/\w+;base64,/, "");
-  const buffer = Buffer.from(raw, "base64");
+  return Buffer.from(raw, "base64");
+}
+
+/** Feature 2: blur / size gate before CLIP. */
+async function validateQueryImage(buffer) {
+  const meta = await sharp(buffer).metadata();
+  if (!meta.width || !meta.height || meta.width < 80 || meta.height < 80) {
+    return { ok: false, code: "too_small", message: "Photo is too small. Move closer or use a higher resolution image." };
+  }
+
+  const gray = await sharp(buffer)
+    .greyscale()
+    .resize(200, 200, { fit: "inside" })
+    .raw()
+    .toBuffer();
+
+  let sum = 0;
+  let sumSq = 0;
+  for (let i = 0; i < gray.length; i += 1) {
+    sum += gray[i];
+    sumSq += gray[i] * gray[i];
+  }
+  const mean = sum / gray.length;
+  const variance = sumSq / gray.length - mean * mean;
+
+  if (variance < 35) {
+    return {
+      ok: false,
+      code: "too_blurry",
+      message: "Photo looks blurry. Hold steady, improve lighting, and try again.",
+    };
+  }
+
+  return { ok: true, sharpness: Math.round(variance) };
+}
+
+/** Feature 2: center square crop + resize for cleaner single-product embeddings. */
+async function preprocessQueryBuffer(buffer) {
+  const meta = await sharp(buffer).metadata();
+  const side = Math.min(meta.width, meta.height);
+  const left = Math.floor((meta.width - side) / 2);
+  const top = Math.floor((meta.height - side) / 2);
+
   const { data, info } = await sharp(buffer)
+    .extract({ left, top, width: side, height: side })
+    .resize(512, 512, { fit: "inside" })
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
-  return new RawImage(
-    new Uint8ClampedArray(data),
-    info.width,
-    info.height,
-    info.channels
-  );
+
+  return { data, info };
+}
+
+async function rawImageFromBuffer(buffer) {
+  const quality = await validateQueryImage(buffer);
+  if (!quality.ok) {
+    const err = new Error(quality.message);
+    err.code = quality.code;
+    throw err;
+  }
+
+  const { data, info } = await preprocessQueryBuffer(buffer);
+  return new RawImage(new Uint8ClampedArray(data), info.width, info.height, info.channels);
 }
 
 async function embedQueryImageBase64(base64) {
   await loadClip();
-  const image = await rawImageFromBase64(base64);
+  const buffer = decodeBase64Buffer(base64);
+  const image = await rawImageFromBuffer(buffer);
   const inputs = await processor(image);
   const { image_embeds } = await visionModel(inputs);
   return l2Normalize(Array.from(image_embeds.data));
 }
 
-async function fetchCatalog() {
-  const now = Date.now();
-  if (catalog.length && now - catalogLoadedAt < CATALOG_TTL_MS) {
-    return catalog;
-  }
-  const res = await fetch(CATALOG_URL);
-  if (!res.ok) {
-    throw new Error(`Catalog fetch failed: ${res.status}`);
-  }
-  catalog = await res.json();
-  catalogLoadedAt = now;
-  return catalog;
-}
-
 function productTextBlob(product) {
-  const category = String(product.category || "").replace(/'/g, "");
-  return `a photo of ${product.title}, ${category}`;
+  const parts = [
+    `a photo of ${product.title}`,
+    product.category,
+    product.brand,
+    ...(product.tags || []).slice(0, 6),
+    String(product.description || "").slice(0, 220),
+  ].filter(Boolean);
+  return parts.join(", ");
 }
 
 function loadEmbeddingCache() {
   try {
     const raw = fs.readFileSync(EMBED_CACHE_PATH, "utf8");
     const parsed = JSON.parse(raw);
-    if (parsed?.modelId === MODEL_ID && Array.isArray(parsed.products)) {
+    if (parsed?.modelId === CACHE_MODEL_KEY && Array.isArray(parsed.products)) {
       return parsed.products;
     }
   } catch {
@@ -132,7 +267,11 @@ function saveEmbeddingCache(entries) {
   fs.mkdirSync(path.dirname(EMBED_CACHE_PATH), { recursive: true });
   fs.writeFileSync(
     EMBED_CACHE_PATH,
-    JSON.stringify({ modelId: MODEL_ID, updatedAt: new Date().toISOString(), products: entries }, null, 0)
+    JSON.stringify(
+      { modelId: CACHE_MODEL_KEY, updatedAt: new Date().toISOString(), products: entries },
+      null,
+      0
+    )
   );
 }
 
@@ -140,12 +279,15 @@ async function buildProductVectors(products) {
   const cached = loadEmbeddingCache();
   const byId = new Map((cached || []).map((row) => [String(row.id), row]));
   const entries = [];
+  let built = 0;
 
   for (const product of products) {
     const id = String(product.id);
+    const textBlob = productTextBlob(product);
     const cachedRow = byId.get(id);
     if (
       cachedRow?.imageUrl === product.image &&
+      cachedRow?.textBlob === textBlob &&
       cachedRow?.imageVec?.length &&
       cachedRow?.textVec?.length
     ) {
@@ -161,9 +303,13 @@ async function buildProductVectors(products) {
     try {
       const [imageVec, textVec] = await Promise.all([
         embedImageFromUrl(product.image),
-        embedText(productTextBlob(product)),
+        embedText(textBlob),
       ]);
-      entries.push({ id, product, imageVec, textVec, imageUrl: product.image });
+      entries.push({ id, product, imageVec, textVec, imageUrl: product.image, textBlob });
+      built += 1;
+      if (built % 25 === 0) {
+        console.log(`[visual-search] Indexed ${entries.length}/${products.length} products…`);
+      }
     } catch (err) {
       console.warn(`[visual-search] Skip product ${id}:`, err.message);
     }
@@ -173,6 +319,7 @@ async function buildProductVectors(products) {
     entries.map((e) => ({
       id: e.id,
       imageUrl: e.product.image,
+      textBlob: productTextBlob(e.product),
       imageVec: e.imageVec,
       textVec: e.textVec,
     }))
@@ -183,62 +330,285 @@ async function buildProductVectors(products) {
 
 async function ensureIndex() {
   const products = await fetchCatalog();
-  if (
-    productVectors.length &&
-    productVectors.length === products.length &&
-    Date.now() - catalogLoadedAt < CATALOG_TTL_MS
-  ) {
+  if (productVectors.length && productVectors.length === products.length) {
     return productVectors;
   }
   await loadClip();
+  console.log(`[visual-search] Building index for ${products.length} products…`);
   productVectors = await buildProductVectors(products);
+  indexedCatalogCount = products.length;
   return productVectors;
 }
 
-function scoreProduct(queryVec, row) {
-  const imageSim = cosine(queryVec, row.imageVec);
-  const textSim = cosine(queryVec, row.textVec);
-  return 0.7 * imageSim + 0.3 * textSim;
+function combinedProductVec(row) {
+  const out = row.imageVec.map((v, i) => 0.7 * v + 0.3 * row.textVec[i]);
+  return l2Normalize(out);
 }
 
-async function searchByImageBase64(base64, { limit = 8, minScore = 0.18 } = {}) {
+function scoreProduct(queryVec, row, { categoryFilter, probeBoostId } = {}) {
+  let score = 0.7 * cosine(queryVec, row.imageVec) + 0.3 * cosine(queryVec, row.textVec);
+
+  if (categoryFilter && productMatchesCategory(row.product, categoryFilter)) {
+    score += 0.08;
+  }
+
+  if (probeBoostId && PROBE_CATEGORY_BOOST[probeBoostId]) {
+    const cats = PROBE_CATEGORY_BOOST[probeBoostId];
+    const cat = String(row.product.category || "").toLowerCase();
+    if (cats.some((c) => cat === c || cat.includes(c))) {
+      score += 0.06;
+    }
+  }
+
+  return score;
+}
+
+async function ensureProbeVectors() {
+  if (probeVectors) return probeVectors;
+  await loadClip();
+  probeVectors = [];
+  for (const probe of OBJECT_PROBES) {
+    const vec = await embedText(probe.text);
+    probeVectors.push({ ...probe, vec, kind: "object" });
+  }
+  return probeVectors;
+}
+
+async function ensureAttributeProbeVectors() {
+  if (attributeProbeVectors) return attributeProbeVectors;
+  await loadClip();
+  attributeProbeVectors = [];
+  for (const probe of COLOR_PROBES) {
+    const vec = await embedText(probe.text);
+    attributeProbeVectors.push({ ...probe, vec, kind: "color" });
+  }
+  for (const probe of MATERIAL_PROBES) {
+    const vec = await embedText(probe.text);
+    attributeProbeVectors.push({ ...probe, vec, kind: "material" });
+  }
+  return attributeProbeVectors;
+}
+
+async function identifyFromProbes(queryVec) {
+  const probes = await ensureProbeVectors();
+  const ranked = probes
+    .map((p) => ({
+      id: p.id,
+      label: p.label,
+      confidence: cosine(queryVec, p.vec),
+    }))
+    .sort((a, b) => b.confidence - a.confidence);
+
+  const top = ranked[0];
+  return {
+    summary: top?.label ?? "an item",
+    confidence: top?.confidence ?? 0,
+    probes: ranked.slice(0, 5).map((p) => ({
+      id: p.id,
+      label: p.label,
+      confidence: Math.round(p.confidence * 1000) / 1000,
+    })),
+  };
+}
+
+/** Feature 4: color + material attribute chips. */
+async function identifyAttributes(queryVec) {
+  const probes = await ensureAttributeProbeVectors();
+  const ranked = probes
+    .map((p) => ({
+      id: p.id,
+      label: p.label,
+      kind: p.kind,
+      confidence: cosine(queryVec, p.vec),
+    }))
+    .sort((a, b) => b.confidence - a.confidence);
+
+  const minConf = 0.14;
+  const colors = ranked.filter((p) => p.kind === "color" && p.confidence >= minConf).slice(0, 2);
+  const materials = ranked.filter((p) => p.kind === "material" && p.confidence >= minConf).slice(0, 1);
+
+  return [...colors, ...materials].map((p) => ({
+    text: p.label,
+    kind: p.kind,
+    confidence: Math.round(p.confidence * 1000) / 1000,
+    source: "attribute",
+  }));
+}
+
+function shouldSuppressCatalogMatches(identification, bestProductScore) {
+  const top = identification.probes?.[0];
+  if (!top || !OFF_INVENTORY_PROBE_IDS.has(top.id)) {
+    return false;
+  }
+  return top.confidence >= 0.22 && bestProductScore < 0.55;
+}
+
+function deriveResultStatus(matches, identification, bestProductScore, suppressed) {
+  if (matches.length > 0) return "found";
+  if (suppressed || identification?.confidence >= 0.22 || bestProductScore >= 0.14) {
+    return "no_inventory_match";
+  }
+  return "unrecognized";
+}
+
+function rankProducts(queryVec, vectors, options = {}) {
+  const { limit = 8, minScore = 0.18, categoryFilter } = options;
+  const probeBoostId = options.probeBoostId;
+
+  let pool = vectors;
+  if (categoryFilter && categoryFilter !== "all") {
+    const filtered = vectors.filter((row) => productMatchesCategory(row.product, categoryFilter));
+    if (filtered.length >= 3) {
+      pool = filtered;
+    }
+  }
+
+  return pool
+    .map((row) => ({
+      product: row.product,
+      score: scoreProduct(queryVec, row, { categoryFilter, probeBoostId }),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .filter((row) => row.score >= minScore)
+    .slice(0, limit);
+}
+
+async function searchByImageBase64(
+  base64,
+  { limit = 8, minScore = 0.18, categoryFilter = null } = {}
+) {
   const vectors = await ensureIndex();
   if (!vectors.length) {
     throw new Error("Product index is empty");
   }
 
   const queryVec = await embedQueryImageBase64(base64);
-  const ranked = vectors
+  const identification = await identifyFromProbes(queryVec);
+  const attributes = await identifyAttributes(queryVec);
+  const probeBoostId = identification.probes?.[0]?.id;
+
+  const allRanked = vectors
     .map((row) => ({
       product: row.product,
-      score: scoreProduct(queryVec, row),
+      score: scoreProduct(queryVec, row, { categoryFilter, probeBoostId }),
     }))
-    .filter((row) => row.score >= minScore)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, limit);
+    .sort((a, b) => b.score - a.score);
 
-  const matches = ranked.map((row) => ({
+  const bestProduct = allRanked[0];
+  const bestProductScore = bestProduct?.score ?? 0;
+  const suppressed = shouldSuppressCatalogMatches(identification, bestProductScore);
+
+  const ranked = rankProducts(queryVec, vectors, {
+    limit,
+    minScore,
+    categoryFilter,
+    probeBoostId,
+  });
+
+  let matches = ranked.map((row) => ({
     ...row.product,
     matchScore: Math.round(row.score * 1000) / 1000,
+    matchPercent: Math.min(99, Math.round(row.score * 100)),
   }));
 
-  const labels = ranked.slice(0, 5).map((row) => ({
-    text: row.product.title.split(" ").slice(0, 4).join(" "),
-    confidence: row.score,
-  }));
+  if (suppressed) {
+    matches = [];
+  }
+
+  const resultStatus = deriveResultStatus(matches, identification, bestProductScore, suppressed);
+
+  const labels =
+    matches.length > 0
+      ? ranked.slice(0, 5).map((row) => ({
+          text: row.product.title.split(" ").slice(0, 4).join(" "),
+          confidence: row.score,
+          source: "catalog",
+        }))
+      : identification.probes.slice(0, 5).map((p) => ({
+          text: p.label,
+          confidence: p.confidence,
+          source: "ai",
+        }));
 
   const searchQuery = ranked[0]
     ? ranked[0].product.title.split(" ").slice(0, 3).join(" ")
-    : "";
+    : identification.summary ?? "";
 
-  return { matches, labels, searchQuery, engine: "clip-vit-base-patch32" };
+  const nearestMatch =
+    bestProduct && matches.length === 0
+      ? {
+          id: bestProduct.product.id,
+          title: bestProduct.product.title,
+          category: bestProduct.product.category,
+          image: bestProduct.product.image,
+          matchScore: Math.round(bestProductScore * 1000) / 1000,
+          matchPercent: Math.min(99, Math.round(bestProductScore * 100)),
+        }
+      : null;
+
+  return {
+    matches,
+    labels,
+    attributes,
+    searchQuery,
+    identification,
+    resultStatus,
+    nearestMatch,
+    suppressed,
+    categoryFilter: categoryFilter || "all",
+    engine: CACHE_MODEL_KEY,
+  };
+}
+
+/** Feature 1: similar products for PDP. */
+async function findSimilarProducts(productId, { limit = 8, minScore = 0.22 } = {}) {
+  const vectors = await ensureIndex();
+  const source = vectors.find((row) => String(row.id) === String(productId));
+  if (!source) {
+    const product = getProductById(productId);
+    if (!product) {
+      return { matches: [], product: null };
+    }
+    return { matches: [], product };
+  }
+
+  const queryVec = combinedProductVec(source);
+  const ranked = vectors
+    .filter((row) => String(row.id) !== String(productId))
+    .map((row) => ({
+      product: row.product,
+      score: 0.65 * cosine(queryVec, combinedProductVec(row)) +
+        0.35 * cosine(source.imageVec, row.imageVec),
+    }))
+    .sort((a, b) => b.score - a.score)
+    .filter((row) => row.score >= minScore)
+    .slice(0, limit);
+
+  return {
+    product: source.product,
+    matches: ranked.map((row) => ({
+      ...row.product,
+      matchScore: Math.round(row.score * 1000) / 1000,
+      matchPercent: Math.min(99, Math.round(row.score * 100)),
+    })),
+  };
+}
+
+/** Natural-language search — semantic CLIP ranking + optional LLM intent. */
+async function searchByVoiceQuery(text, { limit = 24, minScore = 0.07, llmOptions = {} } = {}) {
+  const { searchByNaturalLanguage } = require("./naturalSearch");
+  return searchByNaturalLanguage(
+    text,
+    { ensureIndex, loadClip, embedText, cosine, CACHE_MODEL_KEY },
+    { limit, minScore, llmOptions }
+  );
 }
 
 function getStatus() {
   return {
-    engine: "clip-vit-base-patch32",
+    engine: CACHE_MODEL_KEY,
     modelLoaded: Boolean(visionModel && textModel),
-    catalogCount: catalog.length,
+    catalogCount: indexedCatalogCount,
     indexCount: productVectors.length,
     indexing: Boolean(warming),
   };
@@ -262,6 +632,9 @@ function warmVisualSearchIndex() {
 
 module.exports = {
   searchByImageBase64,
+  searchByVoiceQuery,
+  findSimilarProducts,
   warmVisualSearchIndex,
   getStatus,
+  CATEGORY_GROUPS,
 };

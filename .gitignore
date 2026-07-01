@@ -68,6 +68,8 @@ server/.env
 
 # testing
 /coverage
+docs/test-photos/*.jpg
+docs/test-photos/*.png
 
 # Yarn
 .yarn/*
@@ -76,3 +78,6 @@ server/.env
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+#secrets
+.env

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -7,101 +7,97 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
-  Alert,
   FlatList,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
-import {
-  launchCamera,
-  launchImageLibrary,
-} from "react-native-image-picker";
-import { useCatalogProducts } from "../redux/api/catalogApi";
+import { useCatalogProducts, getTopCategories } from "../redux/api/catalogApi";
 import { analyzeImageForProducts } from "../services/visualSearchService";
 import {
   navigateToProductList,
   navigateToProductListWithSearch,
+  navigateToProductListWithCategory,
+  navigateToProductListWithVoiceResults,
+  navigateToProductListWithMatchResults,
 } from "../navigation/productNavigation";
+import CategoryFilterBar from "../components/CategoryFilterBar";
+import VisualSearchCategoryPrompt from "../components/VisualSearchCategoryPrompt";
+import VoiceSearchCard from "../components/VoiceSearchCard";
+import { pickPhotoAsset } from "../utils/photoPicker";
 import { storePromos } from "../data/promos";
-
-const pickerOptions = {
-  mediaType: "photo",
-  quality: 0.85,
-  maxWidth: 1280,
-  maxHeight: 1280,
-  includeBase64: true,
-};
+import {
+  buildVisualSearchOutcome,
+  buildVisualSearchErrorMessage,
+} from "../utils/visualSearchMessages";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const user = useSelector((state) => state.auth.user);
-  const { products } = useCatalogProducts();
+  const { products, catalogTotal } = useCatalogProducts();
 
   const [previewUri, setPreviewUri] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [labels, setLabels] = useState([]);
+  const [attributes, setAttributes] = useState([]);
   const [matches, setMatches] = useState([]);
   const [searchHint, setSearchHint] = useState("");
+  const [outcome, setOutcome] = useState(null);
+  const [searchError, setSearchError] = useState(null);
+  const [searchCategory, setSearchCategory] = useState("all");
+  const [topMatch, setTopMatch] = useState(null);
 
   const runVisualSearch = useCallback(
     async (asset) => {
       setPreviewUri(asset.uri);
       setAnalyzing(true);
       setLabels([]);
+      setAttributes([]);
       setMatches([]);
       setSearchHint("");
+      setOutcome(null);
+      setSearchError(null);
+      setTopMatch(null);
 
       try {
         const result = await analyzeImageForProducts(
           asset.uri,
           products,
-          asset.base64
+          asset.base64,
+          { categoryFilter: searchCategory === "all" ? null : searchCategory }
         );
         setLabels(result.labels);
+        setAttributes(result.attributes ?? []);
         setMatches(result.matches);
         setSearchHint(result.searchQuery);
+        setTopMatch(result.matches[0] ?? result.nearestMatch ?? null);
+        setOutcome(buildVisualSearchOutcome(result));
       } catch (err) {
         console.warn("Visual search failed:", err);
-        const message =
-          err.response?.data?.message ||
-          err.message ||
-          "Could not analyze this image.";
-        Alert.alert(
-          "Visual search unavailable",
-          `${message} Ensure the API server is running (npm run server).`
-        );
+        setSearchError(buildVisualSearchErrorMessage(err));
         setPreviewUri(null);
       } finally {
         setAnalyzing(false);
       }
     },
-    [products]
+    [products, searchCategory]
   );
 
-  const pickImage = (source) => {
-    const launcher = source === "camera" ? launchCamera : launchImageLibrary;
-    launcher(pickerOptions, (response) => {
-      if (response.didCancel) {
-        return;
-      }
-      if (response.errorCode) {
-        Alert.alert("Photo error", response.errorMessage ?? response.errorCode);
-        return;
-      }
-      const asset = response.assets?.[0];
-      if (asset?.uri && asset?.base64) {
-        runVisualSearch(asset);
-      } else if (asset?.uri) {
-        Alert.alert("Photo error", "Could not read image data. Try another photo.");
-      }
-    });
+  const pickImage = async (source) => {
+    const asset = await pickPhotoAsset(source);
+    if (asset) {
+      runVisualSearch(asset);
+    }
   };
 
   const clearSearch = () => {
     setPreviewUri(null);
     setLabels([]);
+    setAttributes([]);
     setMatches([]);
     setSearchHint("");
+    setOutcome(null);
+    setSearchError(null);
+    setTopMatch(null);
   };
 
   const openProduct = (product) => {
@@ -114,6 +110,9 @@ const HomeScreen = () => {
   const renderMatch = ({ item }) => (
     <TouchableOpacity style={styles.matchCard} onPress={() => openProduct(item)}>
       <Image source={{ uri: item.image }} style={styles.matchImage} resizeMode="contain" />
+      <Text style={styles.matchPercent}>
+        {item.matchPercent ?? Math.round((item.matchScore ?? 0) * 100)}% similar
+      </Text>
       <Text style={styles.matchTitle} numberOfLines={2}>
         {item.title}
       </Text>
@@ -123,16 +122,48 @@ const HomeScreen = () => {
 
   const displayName = user?.name ?? user?.email?.split("@")[0] ?? "there";
 
+  const shopCategories = useMemo(() => getTopCategories(products, 8), [products]);
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <Text style={styles.greeting}>Hi, {displayName}</Text>
       <Text style={styles.subtitle}>What are you shopping for today?</Text>
 
+      {shopCategories.length > 0 ? (
+        <View style={styles.categorySection}>
+          <Text style={styles.dealsHeading}>Shop by category</Text>
+          <CategoryFilterBar
+            categories={shopCategories}
+            selectedCategory={null}
+            onSelect={(category) =>
+              navigateToProductListWithCategory(navigation, category)
+            }
+          />
+        </View>
+      ) : null}
+
+      <VoiceSearchCard
+        onResults={(result) => {
+          if (result.matches?.length) {
+            navigateToProductListWithVoiceResults(navigation, {
+              query: result.query,
+              matches: result.matches,
+            });
+          }
+        }}
+      />
+
       <View style={styles.visualCard}>
         <Text style={styles.sectionTitle}>Search by photo</Text>
         <Text style={styles.sectionHint}>
-          Snap or upload a picture — CLIP AI on the server matches it to catalog photos and titles.
+          Snap one product — AI matches it across {catalogTotal || "300+"} catalog items.
+          {"\n"}Tip: Gallery → Pictures → ShopEaseTest (npm run seed:emulator-photos).
         </Text>
+
+        <VisualSearchCategoryPrompt
+          value={searchCategory}
+          onChange={setSearchCategory}
+        />
 
         <View style={styles.pickerRow}>
           <TouchableOpacity
@@ -153,6 +184,13 @@ const HomeScreen = () => {
           </TouchableOpacity>
         </View>
 
+        {searchError ? (
+          <View style={[styles.resultBanner, styles.resultBannerError]}>
+            <Text style={styles.resultTitle}>Search unavailable</Text>
+            <Text style={styles.resultMessage}>{searchError}</Text>
+          </View>
+        ) : null}
+
         {previewUri ? (
           <View style={styles.previewWrap}>
             <Image source={{ uri: previewUri }} style={styles.preview} resizeMode="cover" />
@@ -165,16 +203,65 @@ const HomeScreen = () => {
           </View>
         ) : null}
 
+        {!analyzing && previewUri && topMatch?.image ? (
+          <View style={styles.compareRow}>
+            <View style={styles.compareCol}>
+              <Text style={styles.compareLabel}>Your photo</Text>
+              <Image source={{ uri: previewUri }} style={styles.compareThumb} resizeMode="cover" />
+            </View>
+            <Text style={styles.compareArrow}>→</Text>
+            <View style={styles.compareCol}>
+              <Text style={styles.compareLabel}>Closest match</Text>
+              <Image source={{ uri: topMatch.image }} style={styles.compareThumb} resizeMode="contain" />
+            </View>
+          </View>
+        ) : null}
+
+        {!analyzing && attributes.length > 0 ? (
+          <View style={styles.labelsWrap}>
+            <Text style={styles.labelsHeading}>Detected attributes</Text>
+            <View style={styles.labelChips}>
+              {attributes.map((attr) => (
+                <View key={`${attr.kind}-${attr.text}`} style={styles.chipAttr}>
+                  <Text style={styles.chipText}>{attr.text}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : null}
+
         {!analyzing && labels.length > 0 ? (
           <View style={styles.labelsWrap}>
-            <Text style={styles.labelsHeading}>Detected:</Text>
+            <Text style={styles.labelsHeading}>
+              {matches.length > 0 ? "Matched catalog items:" : "AI identified as:"}
+            </Text>
             <View style={styles.labelChips}>
               {labels.slice(0, 5).map((label) => (
-                <View key={label.text} style={styles.chip}>
+                <View
+                  key={`${label.text}-${label.source ?? "x"}`}
+                  style={[
+                    styles.chip,
+                    label.source === "ai" ? styles.chipAi : styles.chipCatalog,
+                  ]}
+                >
                   <Text style={styles.chipText}>{label.text}</Text>
                 </View>
               ))}
             </View>
+          </View>
+        ) : null}
+
+        {!analyzing && outcome ? (
+          <View
+            style={[
+              styles.resultBanner,
+              outcome.tone === "success" && styles.resultBannerSuccess,
+              outcome.tone === "info" && styles.resultBannerInfo,
+              outcome.tone === "warning" && styles.resultBannerWarning,
+            ]}
+          >
+            <Text style={styles.resultTitle}>{outcome.title}</Text>
+            <Text style={styles.resultMessage}>{outcome.message}</Text>
           </View>
         ) : null}
 
@@ -193,7 +280,11 @@ const HomeScreen = () => {
               <TouchableOpacity
                 style={styles.seeAllBtn}
                 onPress={() =>
-                  navigateToProductListWithSearch(navigation, searchHint)
+                  navigateToProductListWithMatchResults(navigation, {
+                    query: searchHint,
+                    matches,
+                    source: "visual",
+                  })
                 }
               >
                 <Text style={styles.seeAllText}>
@@ -204,10 +295,13 @@ const HomeScreen = () => {
           </>
         ) : null}
 
-        {!analyzing && previewUri && matches.length === 0 ? (
-          <Text style={styles.noMatches}>
-            No close matches — try another angle or browse the full catalog.
-          </Text>
+        {previewUri && !analyzing && matches.length === 0 && outcome ? (
+          <TouchableOpacity
+            style={styles.browseInlineBtn}
+            onPress={() => navigateToProductList(navigation)}
+          >
+            <Text style={styles.browseInlineText}>Browse full catalog</Text>
+          </TouchableOpacity>
         ) : null}
 
         {previewUri && !analyzing ? (
@@ -261,7 +355,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#5c6370",
     marginTop: 4,
-    marginBottom: 20,
+    marginBottom: 12,
+  },
+  categorySection: {
+    marginBottom: 16,
   },
   visualCard: {
     backgroundColor: "#fff",
@@ -346,15 +443,97 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   chip: {
-    backgroundColor: "#e8f4fd",
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 20,
+  },
+  chipAi: {
+    backgroundColor: "#fff3e6",
+  },
+  chipCatalog: {
+    backgroundColor: "#e8f4fd",
+  },
+  chipAttr: {
+    backgroundColor: "#f3e8ff",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+  },
+  compareRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    marginBottom: 12,
+  },
+  compareCol: {
+    alignItems: "center",
+    flex: 1,
+  },
+  compareLabel: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#5c6370",
+    marginBottom: 6,
+  },
+  compareThumb: {
+    width: "100%",
+    height: 88,
+    borderRadius: 8,
+    backgroundColor: "#e8ecf1",
+  },
+  compareArrow: {
+    fontSize: 20,
+    color: "#007BFF",
+    fontWeight: "700",
   },
   chipText: {
     fontSize: 12,
     color: "#2c5282",
     fontWeight: "600",
+  },
+  resultBanner: {
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+  },
+  resultBannerSuccess: {
+    backgroundColor: "#ecfdf3",
+    borderColor: "#a7f3d0",
+  },
+  resultBannerInfo: {
+    backgroundColor: "#eff6ff",
+    borderColor: "#bfdbfe",
+  },
+  resultBannerWarning: {
+    backgroundColor: "#fffbeb",
+    borderColor: "#fde68a",
+  },
+  resultBannerError: {
+    backgroundColor: "#fef2f2",
+    borderColor: "#fecaca",
+    marginBottom: 12,
+  },
+  resultTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#1a1a2e",
+    marginBottom: 6,
+  },
+  resultMessage: {
+    fontSize: 14,
+    color: "#4b5563",
+    lineHeight: 21,
+  },
+  browseInlineBtn: {
+    alignSelf: "flex-start",
+    marginBottom: 10,
+  },
+  browseInlineText: {
+    color: "#007BFF",
+    fontWeight: "600",
+    fontSize: 14,
   },
   matchesHeading: {
     fontSize: 15,
@@ -377,7 +556,13 @@ const styles = StyleSheet.create({
   matchImage: {
     width: "100%",
     height: 90,
-    marginBottom: 6,
+    marginBottom: 4,
+  },
+  matchPercent: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#007BFF",
+    marginBottom: 2,
   },
   matchTitle: {
     fontSize: 11,
@@ -398,12 +583,6 @@ const styles = StyleSheet.create({
     color: "#007BFF",
     fontWeight: "600",
     fontSize: 14,
-  },
-  noMatches: {
-    color: "#5c6370",
-    fontSize: 14,
-    marginBottom: 8,
-    lineHeight: 20,
   },
   clearText: {
     color: "#9aa3af",

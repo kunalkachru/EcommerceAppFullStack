@@ -3,6 +3,7 @@ import { persistReducer } from "redux-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import apiClient from "../services/apiClient";
 import { clearCart, clearCartLocal, fetchCart } from "./cartSlice";
+import { clearSessionLlmKey } from "../utils/llmSessionStore";
 
 async function bootstrapCart(dispatch, token) {
   try {
@@ -115,6 +116,7 @@ export const logoutUser = () => async (dispatch, getState) => {
     dispatch(clearCartLocal());
   }
   await AsyncStorage.removeItem("persist:auth");
+  clearSessionLlmKey();
   dispatch(authSlice.actions.logout());
 };
 

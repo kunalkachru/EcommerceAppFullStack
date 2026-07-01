@@ -23,6 +23,13 @@ const CartScreen = ({ navigation }) => {
   const token = useSelector((state) => state.auth?.token);
   const dispatch = useDispatch();
 
+  const errorMessage =
+    !error ? null : typeof error === "string" ? error : error.message || "Cart error";
+  const isAuthError =
+    !!error &&
+    ((typeof error === "object" && error.kind === "auth") ||
+      (typeof error?.code === "string" && error.code.startsWith("auth_")));
+
   useFocusEffect(
     useCallback(() => {
       if (token) {
@@ -92,7 +99,22 @@ const CartScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Cart ({cartItems.length} items)</Text>
-      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+      {errorMessage ? (
+        <>
+          <Text style={styles.errorText}>
+            {errorMessage}
+            {isAuthError ? " Please log in again to refresh your cart." : ""}
+          </Text>
+          {!isAuthError ? (
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={() => dispatch(fetchCart())}
+            >
+              <Text style={styles.retryText}>Retry</Text>
+            </TouchableOpacity>
+          ) : null}
+        </>
+      ) : null}
       {loading && cartItems.length > 0 ? (
         <ActivityIndicator style={styles.inlineLoader} color="#007BFF" />
       ) : null}
@@ -190,4 +212,13 @@ const styles = StyleSheet.create({
   quantity: { fontSize: 16, marginBottom: 5, fontWeight: "bold" },
   name: { fontSize: 16, fontWeight: "bold" },
   subtotal: { fontSize: 16, fontWeight: "bold", color: "#555" },
+  retryButton: {
+    backgroundColor: "#007BFF",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 6,
+    alignSelf: "flex-start",
+    marginBottom: 8,
+  },
+  retryText: { color: "white", fontSize: 14, fontWeight: "bold" },
 });

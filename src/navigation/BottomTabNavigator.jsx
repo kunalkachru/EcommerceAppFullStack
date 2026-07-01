@@ -10,9 +10,11 @@ import CartScreen from "../screens/CartScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import CheckoutScreen from "../screens/CheckoutScreen";
 import OrderSummaryScreen from "../screens/OrderSummaryScreen";
+import OrdersScreen from "../screens/OrdersScreen";
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
+const OrdersStack = createNativeStackNavigator();
 
 function ProductStack() {
   return (
@@ -22,6 +24,15 @@ function ProductStack() {
       <Stack.Screen name="Checkout" component={CheckoutScreen} />
       <Stack.Screen name="OrderSummary" component={OrderSummaryScreen} />
     </Stack.Navigator>
+  );
+}
+
+function OrdersStackScreen() {
+  return (
+    <OrdersStack.Navigator screenOptions={{ headerShown: false }}>
+      <OrdersStack.Screen name="OrdersList" component={OrdersScreen} />
+      <OrdersStack.Screen name="OrderSummary" component={OrderSummaryScreen} />
+    </OrdersStack.Navigator>
   );
 }
 
@@ -52,6 +63,7 @@ const BottomTabNavigator = () => (
         if (route.name === "Home") iconName = "home";
         else if (route.name === "Products") iconName = "list";
         else if (route.name === "Cart") iconName = "cart";
+        else if (route.name === "Orders") iconName = "receipt-outline";
         else if (route.name === "Profile") iconName = "person";
         return <Ionicons name={iconName} size={size} color={color} />;
       },
@@ -66,6 +78,7 @@ const BottomTabNavigator = () => (
       listeners={productsTabListener}
     />
     <Tab.Screen name="Cart" component={CartScreen} />
+    <Tab.Screen name="Orders" component={OrdersStackScreen} />
     <Tab.Screen name="Profile" component={ProfileScreen} />
   </Tab.Navigator>
 );

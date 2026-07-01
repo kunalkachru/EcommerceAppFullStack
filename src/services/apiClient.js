@@ -13,6 +13,8 @@ export function setAuthTokenGetter(fn) {
   getAuthToken = typeof fn === "function" ? fn : () => null;
 }
 
+export { getAuthToken };
+
 apiClient.interceptors.request.use((config) => {
   const token = getAuthToken();
   if (token) {

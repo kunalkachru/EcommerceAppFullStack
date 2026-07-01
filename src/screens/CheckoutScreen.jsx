@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Alert } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "../redux/cartSlice";
+import { createOrder } from "../services/ordersService";
 
 const CheckoutScreen = ({ navigation }) => {
   const cartItems = useSelector((state) => state.cart?.cartItems || []);
@@ -19,9 +20,14 @@ const CheckoutScreen = ({ navigation }) => {
 
   // State for payment method
   const [paymentMethod, setPaymentMethod] = useState("");
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   // Handle order placement
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
+    if (isPlacingOrder) {
+      return;
+    }
+
     if (!shippingInfo.name || !shippingInfo.address || !shippingInfo.city || !shippingInfo.zipCode || !shippingInfo.phone) {
       Alert.alert("Error", "Please fill in all the shipping details.");
       return;
@@ -32,14 +38,37 @@ const CheckoutScreen = ({ navigation }) => {
       return;
     }
 
-    navigation.navigate("OrderSummary", {
-      shippingInfo,
-      cartItems,
-      grandTotal,
-      paymentMethod,
-    });
+    if (!cartItems.length) {
+      Alert.alert("Error", "Your cart is empty.");
+      return;
+    }
 
-    dispatch(clearCart());
+    try {
+      setIsPlacingOrder(true);
+      const order = await createOrder({
+        items: cartItems,
+        shippingInfo,
+        paymentMethod,
+        grandTotal,
+      });
+
+      dispatch(clearCart());
+
+      navigation.navigate("OrderSummary", {
+        order,
+      });
+    } catch (error) {
+      // Keep cart intact on failure
+      // eslint-disable-next-line no-console
+      console.error("Place Order Error:", error?.response?.data || error?.message || error);
+      const message =
+        error?.response?.data?.message ||
+        (typeof error?.message === "string" && error.message) ||
+        "Failed to place order. Please try again.";
+      Alert.alert("Order Failed", message);
+    } finally {
+      setIsPlacingOrder(false);
+    }
   };
 
   return (
@@ -109,8 +138,14 @@ const CheckoutScreen = ({ navigation }) => {
       <Text style={styles.totalText}>Total: ${grandTotal.toFixed(2)}</Text>
 
       {/* Place Order Button */}
-      <TouchableOpacity style={styles.orderButton} onPress={handlePlaceOrder}>
-        <Text style={styles.orderButtonText}>Place Order</Text>
+      <TouchableOpacity
+        style={[styles.orderButton, isPlacingOrder && styles.orderButtonDisabled]}
+        onPress={handlePlaceOrder}
+        disabled={isPlacingOrder}
+      >
+        <Text style={styles.orderButtonText}>
+          {isPlacingOrder ? "Placing Order..." : "Place Order"}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -141,6 +176,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginTop: 20,
     alignItems: "center",
+  },
+  orderButtonDisabled: {
+    opacity: 0.7,
   },
   orderButtonText: { color: "white", fontSize: 16, fontWeight: "bold" },
   paymentOption: {
