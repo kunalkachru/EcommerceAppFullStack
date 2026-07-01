@@ -1,97 +1,166 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# ShopEase — Full-Stack E-Commerce Demo
 
-# Getting Started
+React Native mobile app + Node/Express API with multimodal search (text, voice, image), CLIP visual search, cart/checkout, and lightweight orders.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+**Stack:** React Native 0.85 · React 19 · Redux Toolkit · Express · CLIP (`@xenova/transformers`)
 
-## Step 1: Start Metro
+**Branch:** `main` · **Last updated:** 2026-07-01
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+---
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Quick start
 
-```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+```bash
+npm install && cd server && npm install && cd ..
+cp server/.env.example server/.env   # set JWT_SECRET
+npm run server                       # Terminal 1 — API :5001
+npm start                            # Terminal 2 — Metro :8081
+npm run android                      # Terminal 3 — app
 ```
 
-## Step 2: Build and run your app
+Full instructions: **[docs/SETUP.md](./docs/SETUP.md)**
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+---
 
-### Android
+## Documentation index
 
-```sh
-# Using npm
-npm run android
+Start here for onboarding, review, or handoff to Codex/Claude.
 
-# OR using Yarn
-yarn android
+| Document | Description |
+|----------|-------------|
+| **[docs/SETUP.md](./docs/SETUP.md)** | Prerequisites, install, 3-terminal startup, verification |
+| **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)** | Env vars, API host, LLM keys, catalog, auth, permissions |
+| **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** | How the full stack runs today (local demo), architecture diagram, production gaps |
+| **[docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)** | **Complete testing & implementation status** — gates, results, review checklist |
+
+### Planning & architecture
+
+| Document | Description |
+|----------|-------------|
+| [docs/UI_REVAMP_PLAN.md](./docs/UI_REVAMP_PLAN.md) | UI revamp planning notes |
+| [docs/adr/0001-client-data-unistyles-rtk.md](./docs/adr/0001-client-data-unistyles-rtk.md) | ADR: client data layer (Unistyles + RTK) |
+
+### Test assets
+
+| Path | Description |
+|------|-------------|
+| [docs/test-photos/README.md](./docs/test-photos/README.md) | Visual-search test photo guide |
+| [docs/e2e/](./docs/e2e/) | Manual E2E screenshots (login, cart, checkout, search) |
+
+---
+
+## Project status (summary)
+
+| Area | Status |
+|------|--------|
+| Cart / add-to-cart | ✅ Reliable (list + PDP, structured errors) |
+| Text / voice / image search | ✅ Unified pipeline + LLM reasoning + fallbacks |
+| Jumbled / conversational queries | ✅ Word-order + price-first phrasing supported |
+| Orders | ✅ Lightweight (`mocked_paid`, Orders tab) |
+| Payment gateway | ❌ Not integrated |
+| Cloud production deploy | ❌ Local demo only — see [DEPLOYMENT.md](./docs/DEPLOYMENT.md) |
+
+**Full detail:** [docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)
+
+---
+
+## Testing status (current gates)
+
+Run with API server up (`npm run server`) after CLIP index finishes.
+
+| Command | Expected result |
+|---------|-----------------|
+| `npm test -- --runInBand --forceExit` | **59/59** tests (13 suites) |
+| `npm run verify:search` | **20/20** search flow checks |
+| `npm run verify:ml` | **13/13** ML + catalog checks |
+
+Catalog: **~389 products** · CLIP indexed: **~385** · Demo coverage products: **6**
+
+---
+
+## Repository layout
+
+```
+├── src/                    # React Native app (screens, components, redux, services)
+├── server/                 # Express API (auth, cart, orders, search, CLIP)
+├── __tests__/              # Jest unit/integration tests
+├── scripts/                # verify:search, verify:ml, snapshot-catalog, seed photos
+├── docs/                   # All project documentation (see index above)
+└── android/ ios/           # Native project files
 ```
 
-### iOS
+### Key server modules
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+| File | Role |
+|------|------|
+| `server/src/index.js` | Auth, cart, orders, route wiring |
+| `server/src/catalogService.js` | Merged catalog + demo coverage |
+| `server/src/naturalSearch.js` | Semantic text/voice search |
+| `server/src/voiceQueryLLM.js` | LLM intent extraction |
+| `server/src/voiceQueryParser.js` | Rule-based intent fallback |
+| `server/src/visualSearch.js` | CLIP image search |
 
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+### Key client modules
 
-```sh
-bundle install
-```
+| File | Role |
+|------|------|
+| `src/config/api.js` | API base URL (emulator vs simulator) |
+| `src/redux/cartSlice.jsx` | Cart state + errors |
+| `src/services/catalogSearchService.js` | Search orchestration |
+| `src/components/VoiceSearchCard.jsx` | Voice + LLM UI |
+| `src/screens/OrdersScreen.jsx` | Order history |
 
-Then, and every time you update your native dependencies, run:
+---
 
-```sh
-bundle exec pod install
-```
+## npm scripts
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+| Script | Description |
+|--------|-------------|
+| `npm start` | Metro bundler |
+| `npm run android` / `ios` | Run mobile app |
+| `npm run server` | Start API on port 5001 |
+| `npm test` | Jest test suite |
+| `npm run verify:search` | Search flow verification (20 checks) |
+| `npm run verify:ml` | ML + catalog verification (13 checks) |
+| `npm run snapshot-catalog` | Refresh offline catalog JSON |
+| `npm run seed:emulator-photos` | Seed test photos to Android emulator |
 
-```sh
-# Using npm
-npm run ios
+---
 
-# OR using Yarn
-yarn ios
-```
+## Deployment (how we run it today)
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+The app is deployed as a **local full-stack demo** on the developer machine:
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+1. **Express API** on `0.0.0.0:5001` (catalog, auth, cart, orders, CLIP search)
+2. **Metro** on `:8081` (JS bundle)
+3. **Android emulator or iOS simulator** connecting to host via `10.0.2.2` or `127.0.0.1`
 
-## Step 3: Modify your app
+No cloud deployment or CI/CD is configured in this repo.  
+Details, architecture diagram, and production checklist: **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
 
-Now that you have successfully run the app, let's make changes!
+---
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## Configuration
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+| What | Where |
+|------|-------|
+| Server env | `server/.env` (from `server/.env.example`) |
+| Client LLM keys | `src/.env` (gitignored, optional) |
+| API host override | `src/config/api.js` or `global.__API_HOST__` |
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+Full reference: **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)**
 
-## Congratulations! :tada:
+---
 
-You've successfully run and modified your React Native App. :partying_face:
+## External review checklist (Codex / Claude)
 
-### Now what?
+1. Read this README, then **[docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)**
+2. Run the three verification commands above
+3. Review key files listed in TESTING_STATUS “Key Files for Code Review”
+4. Confirm no secrets in git (`src/.env`, `server/.env` are gitignored)
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+---
 
-# Troubleshooting
+## License
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Private project — see repository owner for usage terms.

@@ -4,6 +4,8 @@
 **Branch target:** `main` (default branch; repo does not use `master`)  
 **Purpose:** Handoff document for external review agents (Codex, Claude, etc.)
 
+> **Navigation:** Start from the [README](../README.md) for the full documentation index (setup, configuration, deployment, testing).
+
 ---
 
 ## Executive Summary
