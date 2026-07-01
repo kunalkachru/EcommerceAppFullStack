@@ -11,9 +11,12 @@
     "snapshot-catalog": "node scripts/snapshot-catalog.mjs",
     "postinstall": "node scripts/patch-voice-gradle.mjs",
     "verify:ml": "node scripts/verify-ml-features.mjs",
+    "verify:llm-live": "node scripts/verify-llm-live.mjs",
     "verify:search": "node scripts/verify-search-flows.mjs",
     "verify:emulator": "node scripts/verify-emulator-ml.mjs",
     "seed:emulator-photos": "node scripts/seed-emulator-photos.mjs",
+    "record:demo:android": "node scripts/record-demo-android.mjs",
+    "record:demo:ios": "bash scripts/record-demo-ios.sh",
     "test": "jest"
   },
   "dependencies": {

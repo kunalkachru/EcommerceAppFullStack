@@ -37,6 +37,17 @@ export const LLM_PROVIDERS = [
     help: "Use your Google account; free quota from AI Studio (not Gmail OAuth in-app).",
   },
   {
+    id: "openrouter",
+    label: "OpenRouter",
+    badge: "Multi-model",
+    baseUrl: "https://openrouter.ai/api/v1",
+    defaultModel: "openai/gpt-4o-mini",
+    keyHint: "sk-or-… from openrouter.ai/keys",
+    keyUrl: "https://openrouter.ai/keys",
+    help:
+      "One key routes to many models (GPT, Claude, Llama). Paste sk-or-… from openrouter.ai/keys.",
+  },
+  {
     id: "ollama",
     label: "Ollama (local)",
     badge: "Free local",

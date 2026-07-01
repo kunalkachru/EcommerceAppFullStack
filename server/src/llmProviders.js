@@ -28,6 +28,15 @@ const LLM_PROVIDERS = [
     keyOptional: false,
   },
   {
+    id: "openrouter",
+    label: "OpenRouter",
+    badge: "Multi-model",
+    baseUrl: "https://openrouter.ai/api/v1",
+    defaultModel: "openai/gpt-4o-mini",
+    keyUrl: "https://openrouter.ai/keys",
+    keyOptional: false,
+  },
+  {
     id: "ollama",
     label: "Ollama (local)",
     badge: "Free local",

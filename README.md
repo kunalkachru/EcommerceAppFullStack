@@ -15,10 +15,15 @@ npm install && cd server && npm install && cd ..
 cp server/.env.example server/.env   # set JWT_SECRET
 npm run server                       # Terminal 1 — API :5001
 npm start                            # Terminal 2 — Metro :8081
-npm run android                      # Terminal 3 — app
+npm run android                      # Terminal 3 — Android (see below for iOS)
 ```
 
-Full instructions: **[docs/SETUP.md](./docs/SETUP.md)**
+| Platform | Deploy guide |
+|----------|--------------|
+| **Android emulator** | [SETUP § Android](./docs/SETUP.md#android-emulator-deployment) · [DEPLOYMENT § Android](./docs/DEPLOYMENT.md#android-emulator) |
+| **iOS simulator** | [SETUP § iOS](./docs/SETUP.md#ios-simulator-deployment) · [DEPLOYMENT § iOS](./docs/DEPLOYMENT.md#ios-simulator) |
+
+Full instructions: **[docs/SETUP.md](./docs/SETUP.md)** · Local runtime: **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
 
 ---
 
@@ -32,6 +37,15 @@ Start here for onboarding, review, or handoff to Codex/Claude.
 | **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)** | Env vars, API host, LLM keys, catalog, auth, permissions |
 | **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** | How the full stack runs today (local demo), architecture diagram, production gaps |
 | **[docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)** | **Complete testing & implementation status** — gates, results, review checklist |
+
+### Demo & architecture
+
+| Document | Description |
+|----------|-------------|
+| **[docs/DEMO_PRESENTATION.md](./docs/DEMO_PRESENTATION.md)** | Live demo script, talking points, reviewer checklist |
+| **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** | System architecture (client, API, data flow) |
+| **[docs/ML_SEARCH.md](./docs/ML_SEARCH.md)** | Multimodal search pipelines (text, voice, CLIP) |
+| [docs/demo/videos/README.md](./docs/demo/videos/README.md) | Demo screen recordings (Android + iOS) |
 
 ### Planning & architecture
 
@@ -73,6 +87,7 @@ Run with API server up (`npm run server`) after CLIP index finishes.
 | `npm test -- --runInBand --forceExit` | **59/59** tests (13 suites) |
 | `npm run verify:search` | **20/20** search flow checks |
 | `npm run verify:ml` | **13/13** ML + catalog checks |
+| `npm run verify:llm-live` | Live OpenAI/OpenRouter intent extraction (keys in `src/.env`) |
 
 Catalog: **~389 products** · CLIP indexed: **~385** · Demo coverage products: **6**
 
@@ -122,8 +137,11 @@ Catalog: **~389 products** · CLIP indexed: **~385** · Demo coverage products: 
 | `npm test` | Jest test suite |
 | `npm run verify:search` | Search flow verification (20 checks) |
 | `npm run verify:ml` | ML + catalog verification (13 checks) |
+| `npm run verify:llm-live` | **Live LLM reasoning** (requires keys in `src/.env`) |
 | `npm run snapshot-catalog` | Refresh offline catalog JSON |
 | `npm run seed:emulator-photos` | Seed test photos to Android emulator |
+| `npm run record:demo:android` | Record Android demo videos to `docs/demo/videos/android/` |
+| `npm run record:demo:ios` | Record iOS demo videos to `docs/demo/videos/ios/` |
 
 ---
 
@@ -155,7 +173,7 @@ Full reference: **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)**
 ## External review checklist (Codex / Claude)
 
 1. Read this README, then **[docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)**
-2. Run the three verification commands above
+2. Run the verification commands above (including **`npm run verify:llm-live`** with keys in `src/.env`)
 3. Review key files listed in TESTING_STATUS “Key Files for Code Review”
 4. Confirm no secrets in git (`src/.env`, `server/.env` are gitignored)
 

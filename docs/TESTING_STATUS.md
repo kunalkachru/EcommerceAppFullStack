@@ -24,6 +24,8 @@ This branch completes a demo-ready e-commerce app with:
 | Unit/integration (Jest) | `npm test -- --runInBand --forceExit` | **59/59 passed** (13 suites) |
 | Search flows | `npm run verify:search` | **20/20 passed** |
 | ML + catalog | `npm run verify:ml` | **13/13 passed** |
+| Live LLM reasoning | `npm run verify:llm-live` | **7/7 passed** — OpenAI live (`intentSource=llm`); OpenRouter provider wired (key in `src/.env` returned 401 — regenerate at openrouter.ai/keys) |
+| Live LLM reasoning | `npm run verify:llm-live` | **OpenAI live intent extraction verified** (requires `src/.env`) |
 
 ---
 
@@ -224,6 +226,13 @@ npm run snapshot-catalog
 - `__tests__/` — all Jest suites
 - `scripts/verify-search-flows.mjs`
 - `scripts/verify-ml-features.mjs`
+- `scripts/record-demo-android.mjs` · `scripts/record-demo-ios.sh` — demo video capture
+
+### Demo & architecture docs
+- [DEMO_PRESENTATION.md](./DEMO_PRESENTATION.md) — live demo script
+- [ARCHITECTURE.md](./ARCHITECTURE.md) — system diagram
+- [ML_SEARCH.md](./ML_SEARCH.md) — search pipelines
+- [demo/videos/README.md](./demo/videos/README.md) — recorded demos
 
 ---
 
@@ -238,7 +247,9 @@ Detailed design and 3-day execution board: `.cursor/plans/robust_hybrid_search_a
 - [ ] Run `npm test -- --runInBand --forceExit` — expect 59/59
 - [ ] Run `npm run verify:search` — expect 20/20
 - [ ] Run `npm run verify:ml` — expect 13/13
+- [ ] Run `npm run verify:llm-live` — expect OpenAI conversational/jumbled queries with `intentSource=llm`
 - [ ] Confirm cart add from list + PDP with logged-in user
 - [ ] Confirm checkout → order appears in Orders tab
 - [ ] Confirm jumbled LLM queries return relevant products (headphones, jacket, laptop, monitor examples above)
+- [ ] Watch demo videos or follow [DEMO_PRESENTATION.md](./DEMO_PRESENTATION.md)
 - [ ] Confirm no secrets committed (`src/.env`, `server/.env` are gitignored)

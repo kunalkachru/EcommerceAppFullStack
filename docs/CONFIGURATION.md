@@ -45,8 +45,10 @@ Supported providers in UI:
 - OpenAI
 - Groq
 - Google Gemini (OpenAI-compatible endpoint)
-- OpenRouter
+- **OpenRouter** (`https://openrouter.ai/api/v1`, model `openai/gpt-4o-mini` default)
 - Ollama (local, `http://10.0.2.2:11434/v1` on Android emulator)
+
+OpenRouter keys use `sk-or-…` from [openrouter.ai/keys](https://openrouter.ai/keys). If you get HTTP 401, regenerate the key on OpenRouter's site.
 
 ---
 

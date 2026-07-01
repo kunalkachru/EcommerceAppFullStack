@@ -151,7 +151,7 @@ async function main() {
   }
 
   const cfg = await fetch(`${API}/api/search/voice/config`).then((r) => r.json());
-  if (cfg.requiresClientKey && cfg.providers?.length >= 3) {
+  if (cfg.requiresClientKey && cfg.providers?.length >= 5) {
     pass("voice-config", `${cfg.providers.length} LLM providers listed`);
   } else {
     fail("voice-config", "missing provider config");

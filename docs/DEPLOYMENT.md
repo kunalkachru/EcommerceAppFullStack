@@ -2,6 +2,8 @@
 
 **Last updated:** 2026-07-01
 
+> **Cloud deployment: not implemented (TBD).** This repo ships as a **local full-stack demo** only. There is no production host, CI/CD pipeline, or container deployment checked in. See [Production deployment (not implemented)](#production-deployment-not-implemented) below.
+
 How the full-stack application is deployed and run **today**.
 
 ---
@@ -56,6 +58,96 @@ Configured in: `src/config/api.js`
 3. `npm run android` — installs and launches on emulator
 
 First API start may take 1–2 minutes (CLIP model download + index build).
+
+---
+
+## Android emulator
+
+Deploy the React Native app to a local Android Virtual Device (AVD).
+
+### Prerequisites
+
+- Android Studio with SDK Platform 34+, Build-Tools, Emulator
+- `adb` on PATH (`adb devices` works)
+- Node ≥ 22.11, project dependencies installed
+
+### Step-by-step
+
+```bash
+# 1. Start emulator (Android Studio AVD Manager or CLI)
+emulator -list-avds
+emulator -avd Pixel_6_API_34 &
+
+# 2. Verify device
+adb devices
+# → emulator-5554    device
+
+# 3. Three terminals (from repo root)
+npm run server          # wait for [visual-search] Indexed N products
+npm start               # Metro :8081
+npm run android         # build, install, launch
+```
+
+### Network
+
+| Setting | Value |
+|---------|-------|
+| API URL (emulator) | `http://10.0.2.2:5001` |
+| Config file | `src/config/api.js` |
+| Why not localhost? | Emulator `localhost` is the emulator itself, not your Mac |
+
+### Post-deploy checks
+
+```bash
+curl http://127.0.0.1:5001/health
+npm run verify:emulator
+npm run seed:emulator-photos   # optional visual-search photos
+```
+
+Register or login with `test@example.com` / `secret123` after first API start (in-memory users reset on server restart).
+
+---
+
+## iOS simulator
+
+Deploy to Xcode iOS Simulator (macOS only).
+
+### Prerequisites
+
+- Xcode + iOS simulator runtime
+- CocoaPods: `bundle install && cd ios && bundle exec pod install && cd ..`
+
+### Step-by-step
+
+```bash
+# 1. Boot simulator
+open -a Simulator
+
+# 2. Verify booted device
+xcrun simctl list devices booted
+
+# 3. Three terminals (from repo root)
+npm run server
+npm start
+npm run ios
+```
+
+### Network
+
+| Setting | Value |
+|---------|-------|
+| API URL (simulator) | `http://127.0.0.1:5001` |
+| Config file | `src/config/api.js` |
+| Ollama (local LLM) | `http://127.0.0.1:11434/v1` |
+
+### Post-deploy checks
+
+```bash
+curl http://127.0.0.1:5001/health
+npm run verify:search
+```
+
+Enable simulator microphone (I/O → Microphone) for voice-search demos.
 
 ---
 

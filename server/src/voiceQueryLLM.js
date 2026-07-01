@@ -127,6 +127,16 @@ function getLlmConfig() {
   return resolveLlmConfig({});
 }
 
+function applyProviderHeaders(headers, clientOptions, baseUrl) {
+  const providerId = clientOptions.providerId;
+  const isOpenRouter =
+    providerId === "openrouter" || String(baseUrl || "").includes("openrouter.ai");
+  if (isOpenRouter) {
+    headers["HTTP-Referer"] = "https://github.com/kunalkachru/EcommerceAppFullStack";
+    headers["X-Title"] = "ShopEase Demo";
+  }
+}
+
 const SYSTEM_PROMPT = `You extract structured shopping search intent from spoken or typed customer requests.
 Return ONLY valid JSON (no markdown) with this shape:
 {
@@ -154,6 +164,7 @@ async function callLlm(rawQuery, clientOptions = {}) {
   } else if (clientOptions.clientKeyOnly && clientOptions.providerId !== "ollama") {
     throw new Error("LLM API key is required for this provider");
   }
+  applyProviderHeaders(headers, clientOptions, baseUrl);
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
