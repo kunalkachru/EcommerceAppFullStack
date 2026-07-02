@@ -121,6 +121,8 @@ const ProductDetailScreen = ({ route }) => {
     navigation.push("ProductDetail", { product: item });
   };
 
+  const addButtonLabel = adding || isCartPendingForProduct ? "Adding..." : "Add to Cart";
+
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
       <Image source={{ uri: product.image }} style={styles.image} resizeMode="contain" />
@@ -130,6 +132,21 @@ const ProductDetailScreen = ({ route }) => {
       {product.category ? (
         <Text style={styles.category}>{product.category}</Text>
       ) : null}
+
+      <View style={styles.primaryActions}>
+        <TouchableOpacity
+          accessibilityLabel="Add to Cart"
+          accessibilityRole="button"
+          style={[
+            styles.addToCartButton,
+            (adding || isCartPendingForProduct) && styles.addToCartButtonDisabled,
+          ]}
+          onPress={handleAddToCart}
+          disabled={adding || isCartPendingForProduct}
+        >
+          <Text style={styles.addToCartButtonText}>{addButtonLabel}</Text>
+        </TouchableOpacity>
+      </View>
 
       <SimilarProductsStrip
         matches={similar}
@@ -148,12 +165,6 @@ const ProductDetailScreen = ({ route }) => {
           </TouchableOpacity>
         ) : null}
       </View>
-
-      <Button
-        title={adding || isCartPendingForProduct ? "Adding..." : "Add to Cart"}
-        onPress={handleAddToCart}
-        disabled={adding || isCartPendingForProduct}
-      />
 
       <Text style={styles.sectionTitle}>Reviews & Ratings</Text>
       {reviews.map((item) => (
@@ -223,6 +234,31 @@ const styles = StyleSheet.create({
     color: "#5c6370",
     marginTop: 4,
     textTransform: "capitalize",
+  },
+  primaryActions: {
+    width: "100%",
+    marginTop: 14,
+  },
+  addToCartButton: {
+    width: "100%",
+    backgroundColor: "#0f6dff",
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    alignItems: "center",
+    shadowColor: "#0f6dff",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  addToCartButtonDisabled: {
+    backgroundColor: "#8eb6ff",
+  },
+  addToCartButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
   },
   descriptionContainer: {
     width: "100%",

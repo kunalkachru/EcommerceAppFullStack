@@ -15,6 +15,20 @@ async function bootstrapCart(dispatch, token) {
   }
 }
 
+function isAuthFailure(error) {
+  return !!error && (
+    (typeof error === "object" && error.kind === "auth") ||
+    (typeof error?.code === "string" && error.code.startsWith("auth_"))
+  );
+}
+
+async function clearPersistedSession(dispatch) {
+  dispatch(clearCartLocal());
+  await AsyncStorage.removeItem("persist:auth");
+  clearSessionLlmKey();
+  dispatch(authSlice.actions.logout());
+}
+
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async ({ name, email, password }, { dispatch, rejectWithValue }) => {
@@ -104,6 +118,31 @@ const authSlice = createSlice({
   },
 });
 
+export const restoreSession = () => async (dispatch, getState) => {
+  const { user, token } = getState().auth || {};
+  if (!user || !token) {
+    return { status: "no-session" };
+  }
+
+  try {
+    await dispatch(fetchCart()).unwrap();
+    return { status: "restored" };
+  } catch (error) {
+    if (isAuthFailure(error)) {
+      await clearPersistedSession(dispatch);
+      return {
+        status: "logged-out",
+        reason: error.code || "auth_invalid_session",
+      };
+    }
+
+    return {
+      status: "degraded",
+      reason: error?.code || "session_restore_failed",
+    };
+  }
+};
+
 export const logoutUser = () => async (dispatch, getState) => {
   const { token } = getState().auth;
   if (token) {
@@ -115,9 +154,7 @@ export const logoutUser = () => async (dispatch, getState) => {
   } else {
     dispatch(clearCartLocal());
   }
-  await AsyncStorage.removeItem("persist:auth");
-  clearSessionLlmKey();
-  dispatch(authSlice.actions.logout());
+  await clearPersistedSession(dispatch);
 };
 
 const persistConfig = {

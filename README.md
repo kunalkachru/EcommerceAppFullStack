@@ -4,7 +4,7 @@ React Native mobile app + Node/Express API with multimodal search (text, voice, 
 
 **Stack:** React Native 0.85 · React 19 · Redux Toolkit · Express · CLIP (`@xenova/transformers`)
 
-**Branch:** `main` · **Last updated:** 2026-07-01
+**Branch:** `main` · **Last updated:** 2026-07-02
 
 ---
 
@@ -76,6 +76,22 @@ Start here for onboarding, review, or handoff to Codex/Claude.
 | Cloud production deploy | ❌ Local demo only — see [DEPLOYMENT.md](./docs/DEPLOYMENT.md) |
 
 **Full detail:** [docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)
+
+---
+
+## ML search design evolution
+
+Before this PR, text and voice search leaned heavily on a CLIP-first semantic path. That design worked for obvious product phrases and image similarity, but it was weaker on jumbled wording, reversed price phrasing, and conversational requests like "it's a fifty dollars jacket blue please" because there was no strong lexical retrieval layer or structured constraint pass in front of ranking.
+
+This PR evolves the design into a hybrid search runtime:
+
+- lexical candidate generation for text and transcribed voice queries
+- semantic reranking to keep CLIP-style meaning matching
+- explicit price/type constraint handling for order-mismatched and budget-first phrasing
+- optional LLM intent extraction with rule-based fallback instead of relying on CLIP-text alone
+- unified response contracts so text, voice, and image flows can share safer fallback behavior
+
+The result is that CLIP remains important for image search and semantic relevance, but it is no longer carrying the entire text/voice interpretation problem by itself. The refined design is more robust for modern shopping behavior, especially noisy spoken input, price-led queries, and mixed multimodal discovery.
 
 ---
 
