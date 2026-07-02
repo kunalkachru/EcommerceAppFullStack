@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getApiBaseUrl } from "../config/api";
+import { getSearchApiBaseUrl } from "../config/searchRuntime";
 import apiClient, { getAuthToken } from "./apiClient";
 
 const VOICE_SEARCH_TIMEOUT_MS = 90000;
@@ -37,7 +37,7 @@ export async function searchProductsByVoice(query, llm = {}) {
     headers["X-LLM-Api-Key"] = "ollama-local";
   }
 
-  const { data } = await axios.post(`${getApiBaseUrl()}/api/search/voice`, body, {
+  const { data } = await axios.post(`${getSearchApiBaseUrl()}/api/search/voice`, body, {
     headers,
     timeout: VOICE_SEARCH_TIMEOUT_MS,
   });
@@ -49,11 +49,14 @@ export async function searchProductsByVoice(query, llm = {}) {
     resultStatus: data.resultStatus ?? "unknown",
     engine: data.engine ?? "clip",
     intentSource: data.intentSource ?? data.parsed?.source ?? "rules",
+    searchMode: data.searchMode ?? "semantic-first",
   };
 }
 
 export async function fetchVoiceSearchConfig() {
-  const { data } = await apiClient.get("/api/search/voice/config");
+  const { data } = await apiClient.get(
+    `${getSearchApiBaseUrl()}/api/search/voice/config`
+  );
   return {
     requiresClientKey: data.requiresClientKey !== false,
     defaultModel: data.defaultModel ?? "gpt-4o-mini",

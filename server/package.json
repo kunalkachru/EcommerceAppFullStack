@@ -6,7 +6,9 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "NODE_ENV=development node src/index.js"
+    "dev": "NODE_ENV=development node src/index.js",
+    "start:baseline": "PORT=5001 SEARCH_RUNTIME=baseline NODE_ENV=development node src/index.js",
+    "start:hybrid": "PORT=5002 SEARCH_RUNTIME=hybrid NODE_ENV=development node src/index.js"
   },
   "engines": {
     "node": ">=18"
@@ -20,6 +22,7 @@
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
+    "minisearch": "^7.1.2",
     "morgan": "^1.10.0",
     "sharp": "^0.35.2"
   }

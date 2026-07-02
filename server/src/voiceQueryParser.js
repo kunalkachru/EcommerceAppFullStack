@@ -88,6 +88,18 @@ function parsePriceRange(text) {
     return { priceMin, priceMax };
   }
 
+  const betweenLooseReversed =
+    lower.includes("between") || lower.includes("range")
+      ? [...lower.matchAll(/\d+(?:\.\d+)?/g)].map((match) => Number(match[0]))
+      : [];
+  if (betweenLooseReversed.length >= 2) {
+    const a = betweenLooseReversed[0];
+    const b = betweenLooseReversed[1];
+    priceMin = Math.min(a, b);
+    priceMax = Math.max(a, b);
+    return { priceMin, priceMax };
+  }
+
   const under = lower.match(
     /(?:under|below|less than|cheaper than|max|maximum|up to|at most)\s*\$?\s*(\d+(?:\.\d+)?)/
   );

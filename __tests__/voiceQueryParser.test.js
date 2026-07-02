@@ -25,6 +25,12 @@ describe("parseVoiceQuery", () => {
     expect(intent.priceMax).toBe(900);
   });
 
+  it("parses reversed between price order even with product words in the middle", () => {
+    const intent = parseVoiceQuery("900 and 500 laptop between");
+    expect(intent.priceMin).toBe(500);
+    expect(intent.priceMax).toBe(900);
+  });
+
   it("parses reversed under price order", () => {
     const intent = parseVoiceQuery("gaming monitor 240 under");
     expect(intent.priceMax).toBe(240);

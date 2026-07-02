@@ -1,6 +1,12 @@
-import apiClient from "./apiClient";
+import { createSearchApiClient } from "../config/searchRuntime";
+import { getAuthToken } from "./apiClient";
 
 const VISUAL_SEARCH_TIMEOUT_MS = 120000;
+
+function getAuthHeaders() {
+  const token = getAuthToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 /**
  * CLIP visual search via backend — compares photo embeddings to catalog images + titles.
@@ -15,10 +21,14 @@ export async function analyzeImageForProducts(
     throw new Error("Image data missing — enable includeBase64 in the picker");
   }
 
-  const { data } = await apiClient.post(
+  const searchClient = createSearchApiClient();
+  const { data } = await searchClient.post(
     "/api/visual-search",
     { imageBase64, categoryFilter },
-    { timeout: VISUAL_SEARCH_TIMEOUT_MS }
+    {
+      headers: getAuthHeaders(),
+      timeout: VISUAL_SEARCH_TIMEOUT_MS,
+    }
   );
 
   return {
@@ -36,9 +46,14 @@ export async function analyzeImageForProducts(
 
 /** Feature 1: similar products for product detail page. */
 export async function fetchSimilarProducts(productId, limit = 8) {
-  const { data } = await apiClient.get(
+  const searchClient = createSearchApiClient();
+  const { data } = await searchClient.get(
     `/api/visual-search/similar/${encodeURIComponent(productId)}`,
-    { params: { limit }, timeout: 30000 }
+    {
+      headers: getAuthHeaders(),
+      params: { limit },
+      timeout: 30000,
+    }
   );
   return {
     product: data.product,

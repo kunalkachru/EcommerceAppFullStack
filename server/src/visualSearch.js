@@ -15,6 +15,7 @@ const {
   RawImage,
 } = require("@xenova/transformers");
 const { fetchCatalog, getProductById } = require("./catalogService");
+const { validateQueryImage } = require("./search/visual/imageQualityGate");
 
 const MODEL_ID = "Xenova/clip-vit-base-patch32";
 const CACHE_MODEL_KEY = `${MODEL_ID}-catalog-v3`;
@@ -168,39 +169,6 @@ function decodeBase64Buffer(base64) {
   return Buffer.from(raw, "base64");
 }
 
-/** Feature 2: blur / size gate before CLIP. */
-async function validateQueryImage(buffer) {
-  const meta = await sharp(buffer).metadata();
-  if (!meta.width || !meta.height || meta.width < 80 || meta.height < 80) {
-    return { ok: false, code: "too_small", message: "Photo is too small. Move closer or use a higher resolution image." };
-  }
-
-  const gray = await sharp(buffer)
-    .greyscale()
-    .resize(200, 200, { fit: "inside" })
-    .raw()
-    .toBuffer();
-
-  let sum = 0;
-  let sumSq = 0;
-  for (let i = 0; i < gray.length; i += 1) {
-    sum += gray[i];
-    sumSq += gray[i] * gray[i];
-  }
-  const mean = sum / gray.length;
-  const variance = sumSq / gray.length - mean * mean;
-
-  if (variance < 35) {
-    return {
-      ok: false,
-      code: "too_blurry",
-      message: "Photo looks blurry. Hold steady, improve lighting, and try again.",
-    };
-  }
-
-  return { ok: true, sharpness: Math.round(variance) };
-}
-
 /** Feature 2: center square crop + resize for cleaner single-product embeddings. */
 async function preprocessQueryBuffer(buffer) {
   const meta = await sharp(buffer).metadata();
@@ -330,7 +298,7 @@ async function buildProductVectors(products) {
 
 async function ensureIndex() {
   const products = await fetchCatalog();
-  if (productVectors.length && productVectors.length === products.length) {
+  if (productVectors.length && indexedCatalogCount === products.length) {
     return productVectors;
   }
   await loadClip();
@@ -637,4 +605,9 @@ module.exports = {
   warmVisualSearchIndex,
   getStatus,
   CATEGORY_GROUPS,
+  ensureIndex,
+  loadClip,
+  embedText,
+  cosine,
+  CACHE_MODEL_KEY,
 };
