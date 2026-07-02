@@ -6,7 +6,8 @@ import StackNavigator from "./src/navigation/StackNavigator";
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import store, { persistor } from "./src/redux/store";
-import { restoreSession } from "./src/redux/authSlice";
+import { forceLogoutUser, restoreSession } from "./src/redux/authSlice";
+import { setAuthFailureHandler } from "./src/services/apiClient";
 
 const SessionBootstrap = ({ children }) => {
   const dispatch = useDispatch();
@@ -30,6 +31,17 @@ const SessionBootstrap = ({ children }) => {
       cancelled = true;
     };
   }, [dispatch, token, user]);
+
+  useEffect(() => {
+    setAuthFailureHandler((error) =>
+      dispatch(
+        forceLogoutUser(error?.response?.data?.code || "auth_invalid_session")
+      )
+    );
+    return () => {
+      setAuthFailureHandler(null);
+    };
+  }, [dispatch]);
 
   if (!ready) {
     return (

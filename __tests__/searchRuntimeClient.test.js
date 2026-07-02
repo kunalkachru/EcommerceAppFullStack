@@ -46,7 +46,10 @@ describe("search runtime client routing", () => {
       create: jest.fn(() => ({
         post: jest.fn().mockResolvedValue({ data: {} }),
         get: jest.fn().mockResolvedValue({ data: {} }),
-        interceptors: { request: { use: jest.fn() } },
+        interceptors: {
+          request: { use: jest.fn() },
+          response: { use: jest.fn() },
+        },
       })),
     }));
 

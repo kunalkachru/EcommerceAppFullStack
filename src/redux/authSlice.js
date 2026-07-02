@@ -143,6 +143,11 @@ export const restoreSession = () => async (dispatch, getState) => {
   }
 };
 
+export const forceLogoutUser = (reason = "auth_invalid_session") => async (dispatch) => {
+  await clearPersistedSession(dispatch);
+  return { status: "logged-out", reason };
+};
+
 export const logoutUser = () => async (dispatch, getState) => {
   const { token } = getState().auth;
   if (token) {
@@ -154,7 +159,7 @@ export const logoutUser = () => async (dispatch, getState) => {
   } else {
     dispatch(clearCartLocal());
   }
-  await clearPersistedSession(dispatch);
+  await dispatch(forceLogoutUser("user_logout"));
 };
 
 const persistConfig = {

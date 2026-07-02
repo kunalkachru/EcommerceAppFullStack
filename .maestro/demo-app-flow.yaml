@@ -5,7 +5,7 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
 - tapOn:
     id: "tab-products"
 - extendedWaitUntil:
-    visible: "Narrow search"
+    visible: "Narrow search (optional)"
     timeout: 12000
 - tapOn: "Essence Mascara Lash Princess"
 - extendedWaitUntil:
@@ -38,18 +38,18 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
 - inputText: "78701"
 - tapOn: "Phone Number"
 - inputText: "5551234567"
-- hideKeyboard
 - tapOn: "💳 Credit Card"
+- tapOn: "Order Summary"
 - scrollUntilVisible:
     element: "Place Order"
     direction: DOWN
 - tapOn: "Place Order"
 - extendedWaitUntil:
-    visible: "Order"
+    visible: "Order Summary"
     timeout: 12000
 
 - tapOn:
     id: "tab-orders"
 - extendedWaitUntil:
-    visible: "Orders"
+    visible: "Your Orders"
     timeout: 8000

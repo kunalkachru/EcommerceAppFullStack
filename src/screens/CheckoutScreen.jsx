@@ -1,5 +1,15 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "../redux/cartSlice";
 import { createOrder } from "../services/ordersService";
@@ -72,82 +82,89 @@ const CheckoutScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Checkout</Text>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text style={styles.header}>Checkout</Text>
 
-      {/* Shipping Details Form */}
-      <View style={styles.form}>
-        <TextInput
-          style={styles.input}
-          placeholder="Full Name"
-          value={shippingInfo.name}
-          onChangeText={(text) => setShippingInfo({ ...shippingInfo, name: text })}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Address"
-          value={shippingInfo.address}
-          onChangeText={(text) => setShippingInfo({ ...shippingInfo, address: text })}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="City"
-          value={shippingInfo.city}
-          onChangeText={(text) => setShippingInfo({ ...shippingInfo, city: text })}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Zip Code"
-          keyboardType="numeric"
-          value={shippingInfo.zipCode}
-          onChangeText={(text) => setShippingInfo({ ...shippingInfo, zipCode: text })}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Phone Number"
-          keyboardType="phone-pad"
-          value={shippingInfo.phone}
-          onChangeText={(text) => setShippingInfo({ ...shippingInfo, phone: text })}
-        />
-      </View>
+        {/* Shipping Details Form */}
+        <View style={styles.form}>
+          <TextInput
+            style={styles.input}
+            placeholder="Full Name"
+            value={shippingInfo.name}
+            onChangeText={(text) => setShippingInfo({ ...shippingInfo, name: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Address"
+            value={shippingInfo.address}
+            onChangeText={(text) => setShippingInfo({ ...shippingInfo, address: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="City"
+            value={shippingInfo.city}
+            onChangeText={(text) => setShippingInfo({ ...shippingInfo, city: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Zip Code"
+            keyboardType="numeric"
+            value={shippingInfo.zipCode}
+            onChangeText={(text) => setShippingInfo({ ...shippingInfo, zipCode: text })}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            keyboardType="phone-pad"
+            returnKeyType="done"
+            blurOnSubmit
+            value={shippingInfo.phone}
+            onChangeText={(text) => setShippingInfo({ ...shippingInfo, phone: text })}
+          />
+        </View>
 
-      {/* Payment Selection */}
-      <Text style={styles.summaryHeader}>Select Payment Method</Text>
-      <TouchableOpacity style={styles.paymentOption} onPress={() => setPaymentMethod("Credit Card")}>
-        <Text style={[styles.paymentText, paymentMethod === "Credit Card" && styles.selected]}>💳 Credit Card</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.paymentOption} onPress={() => setPaymentMethod("PayPal")}>
-        <Text style={[styles.paymentText, paymentMethod === "PayPal" && styles.selected]}>💰 PayPal</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.paymentOption} onPress={() => setPaymentMethod("Cash on Delivery")}>
-        <Text style={[styles.paymentText, paymentMethod === "Cash on Delivery" && styles.selected]}>🚚 Cash on Delivery</Text>
-      </TouchableOpacity>
+        {/* Payment Selection */}
+        <Text style={styles.summaryHeader}>Select Payment Method</Text>
+        <TouchableOpacity style={styles.paymentOption} onPress={() => setPaymentMethod("Credit Card")}>
+          <Text style={[styles.paymentText, paymentMethod === "Credit Card" && styles.selected]}>💳 Credit Card</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.paymentOption} onPress={() => setPaymentMethod("PayPal")}>
+          <Text style={[styles.paymentText, paymentMethod === "PayPal" && styles.selected]}>💰 PayPal</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.paymentOption} onPress={() => setPaymentMethod("Cash on Delivery")}>
+          <Text style={[styles.paymentText, paymentMethod === "Cash on Delivery" && styles.selected]}>🚚 Cash on Delivery</Text>
+        </TouchableOpacity>
 
-      {/* Order Summary */}
-      <Text style={styles.summaryHeader}>Order Summary</Text>
-      <FlatList
-        data={cartItems}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.orderItem}>
+        {/* Order Summary */}
+        <Text style={styles.summaryHeader}>Order Summary</Text>
+        {cartItems.map((item) => (
+          <View key={item.id} style={styles.orderItem}>
             <Text style={styles.itemText}>{item.title} (x{item.quantity})</Text>
             <Text style={styles.itemPrice}>${(item.price * item.quantity).toFixed(2)}</Text>
           </View>
-        )}
-      />
-      <Text style={styles.totalText}>Total: ${grandTotal.toFixed(2)}</Text>
+        ))}
+        <Text style={styles.totalText}>Total: ${grandTotal.toFixed(2)}</Text>
 
-      {/* Place Order Button */}
-      <TouchableOpacity
-        style={[styles.orderButton, isPlacingOrder && styles.orderButtonDisabled]}
-        onPress={handlePlaceOrder}
-        disabled={isPlacingOrder}
-      >
-        <Text style={styles.orderButtonText}>
-          {isPlacingOrder ? "Placing Order..." : "Place Order"}
-        </Text>
-      </TouchableOpacity>
-    </View>
+        {/* Place Order Button */}
+        <TouchableOpacity
+          style={[styles.orderButton, isPlacingOrder && styles.orderButtonDisabled]}
+          onPress={handlePlaceOrder}
+          disabled={isPlacingOrder}
+        >
+          <Text style={styles.orderButtonText}>
+            {isPlacingOrder ? "Placing Order..." : "Place Order"}
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -155,6 +172,7 @@ export default CheckoutScreen;
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#fff" },
+  content: { paddingBottom: 32 },
   header: { fontSize: 22, fontWeight: "bold", marginBottom: 15 },
   form: { marginBottom: 20 },
   input: {

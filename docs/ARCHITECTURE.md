@@ -53,7 +53,7 @@ flowchart LR
 | Backend | Express (`server/src/index.js`) | Auth, cart, orders, search routes |
 | Catalog | `server/src/catalogService.js` | Merge public APIs + demo coverage products |
 | Search | `naturalSearch.js`, `server/src/search/` | Baseline semantic-first and hybrid lexical→semantic search |
-| Index | `@xenova/transformers` CLIP | In-memory product vectors (~385 items) |
+| Index | `@xenova/transformers` CLIP | In-memory product vectors (current local baseline health on 2026-07-02: 285 indexed items) |
 
 ---
 
@@ -190,7 +190,7 @@ Internal modular search split:
 
 | Data | Storage | Survives API restart? |
 |------|---------|----------------------|
-| Users, carts, orders | In-memory server store | No |
+| Users, carts, orders | Local JSON store (`server/data/store.json`) | Yes |
 | Auth token, cart (client) | AsyncStorage via Redux Persist | Yes (on device) |
 | Catalog | Refetched + merged on server start | Refetched |
 | CLIP vectors | Built in memory on server start | Rebuilt |

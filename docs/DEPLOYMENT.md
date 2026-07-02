@@ -112,7 +112,7 @@ npm run verify:emulator
 npm run seed:emulator-photos   # optional visual-search photos
 ```
 
-Register or login with `test@example.com` / `secret123` after first API start (in-memory users reset on server restart).
+Register or login with `test@example.com` / `secret123` after first API start. Local users, carts, and orders persist in `server/data/store.json`.
 
 ---
 
@@ -163,12 +163,12 @@ Enable simulator microphone (I/O → Microphone) for voice-search demos.
 
 | Data | Storage | Survives restart? |
 |------|---------|-------------------|
-| Users, carts, orders | In-memory (`server/src/index.js` store) | **No** — resets on server restart |
+| Users, carts, orders | Local JSON store (`server/data/store.json` via `server/src/index.js`) | **Yes** — persists across local server restarts |
 | Catalog | Fetched from public APIs + merged | Refetched on server start |
 | Client auth/cart | AsyncStorage via Redux Persist | Yes (on device) |
 | CLIP vectors | Built in memory on server start | Rebuilt each restart |
 
-For persistent orders/users in production, replace in-memory store with a database.
+For production, replace the local JSON store with a real database and shared object storage.
 
 ---
 
@@ -227,6 +227,26 @@ If the goal is **minimum spend**, do this first:
 4. then deploy
 
 That optimization work will make the public endpoint cheaper and more stable than deploying the current dynamic-index build as-is.
+
+### Browser-based demo platforms
+
+These are complementary to API hosting, not replacements for it:
+
+- **Appetize**
+  - Best fit when you want a browser-shareable interactive mobile demo
+  - Streams an uploaded app build in the browser, which is useful for sales/demo review
+  - Best used after we have one stable demo build pointed at a public API
+- **BrowserStack App Live**
+  - Better fit for QA and stakeholder testing on managed real devices
+  - Strong choice for cross-device validation, but less ideal as a simple public demo link
+  - Use this after merge to validate iOS/Android parity on additional device shapes
+
+### Suggested rollout order
+
+1. Deploy the API on a low-cost host with persistent storage
+2. Point one Android/iOS demo build at that public API
+3. Use **Appetize** for browser-shareable demos
+4. Use **BrowserStack App Live** for broader QA regression on real devices
 
 ## Production deployment (not implemented)
 
