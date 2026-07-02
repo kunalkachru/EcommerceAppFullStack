@@ -361,6 +361,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
           <Text style={styles.llmLabel}>AI reasoning (LLM)</Text>
         </View>
         <Switch
+          testID="voice-llm-switch"
           value={useLlmReasoning}
           onValueChange={onToggleLlm}
           trackColor={{ false: "#cfd4da", true: "#b794f4" }}
@@ -382,6 +383,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
             {LLM_PROVIDERS.map((p) => (
               <TouchableOpacity
                 key={p.id}
+                testID={`voice-provider-${p.id}`}
                 style={[
                   styles.providerChip,
                   providerId === p.id && styles.providerChipActive,
@@ -414,12 +416,16 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
             <>
               <View style={styles.keyRow}>
                 <TextInput
+                  testID="voice-api-key-input"
                   style={[styles.keyInput, styles.keyInputFlex]}
                   placeholder={activeProvider.keyHint}
                   placeholderTextColor="#9aa3af"
                   value={apiKey}
                   onChangeText={onApiKeyChange}
                   secureTextEntry
+                  autoComplete="off"
+                  importantForAutofill="no"
+                  textContentType="oneTimeCode"
                   autoCapitalize="none"
                   autoCorrect={false}
                   editable={!searching}
@@ -447,6 +453,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
           )}
 
           <TouchableOpacity
+            testID="voice-advanced-toggle"
             style={styles.advancedToggle}
             onPress={() => setShowAdvanced((v) => !v)}
           >
@@ -462,6 +469,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
           {showAdvanced ? (
             <>
               <TextInput
+                testID="voice-base-url-input"
                 style={styles.input}
                 placeholder={resolveProviderBaseUrl(activeProvider)}
                 placeholderTextColor="#9aa3af"
@@ -473,6 +481,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
                 onBlur={() => persistPreferences({ baseUrl })}
               />
               <TextInput
+                testID="voice-model-input"
                 style={styles.input}
                 placeholder={`Model (default ${activeProvider.defaultModel})`}
                 placeholderTextColor="#9aa3af"
@@ -488,6 +497,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
 
           {__DEV__ ? (
             <TouchableOpacity
+              testID="voice-runtime-toggle"
               style={styles.runtimeToggle}
               onPress={toggleSearchRuntime}
             >
@@ -502,6 +512,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
 
       <View style={styles.micRow}>
         <TouchableOpacity
+          testID="voice-mic-button"
           style={[styles.micBtn, listening && styles.micBtnActive]}
           onPress={listening ? stopListening : startListening}
           disabled={disabled || searching}
@@ -527,6 +538,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
       </View>
 
       <TextInput
+        testID="voice-typed-query-input"
         style={styles.input}
         placeholder="Or type: laptop under 800 dollars"
         placeholderTextColor="#9aa3af"
@@ -538,6 +550,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
       />
 
       <TouchableOpacity
+        testID="voice-search-button"
         style={[styles.searchBtn, searching && styles.searchBtnDisabled]}
         onPress={submitTyped}
         disabled={searching || (!typedQuery.trim() && !transcript.trim())}

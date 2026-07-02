@@ -81,6 +81,9 @@ const LoginScreen = ({ navigation }) => {
             placeholderTextColor="#9aa3af"
             keyboardType="email-address"
             autoCapitalize="none"
+            autoComplete="off"
+            textContentType="none"
+            importantForAutofill="no"
             accessibilityLabel="Email"
             testID="login-email"
             value={email}
@@ -92,6 +95,9 @@ const LoginScreen = ({ navigation }) => {
             placeholder="Password"
             placeholderTextColor="#9aa3af"
             secureTextEntry
+            autoComplete="off"
+            textContentType="oneTimeCode"
+            importantForAutofill="no"
             accessibilityLabel="Password"
             testID="login-password"
             value={password}

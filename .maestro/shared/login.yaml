@@ -27,12 +27,12 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
 - hideKeyboard
 - tapOn:
     id: "login-submit"
-# iOS may prompt to save demo credentials — dismiss so home content is reachable
-- runFlow:
-    when:
-      visible: "Save Password?"
-    commands:
-      - tapOn: "Not Now"
+- runFlow: dismiss-save-password.yaml
+- extendedWaitUntil:
+    visible: "What are you shopping for today?"
+    timeout: 5000
+    optional: true
+- runFlow: dismiss-save-password.yaml
 - extendedWaitUntil:
     visible: "What are you shopping for today?"
     timeout: 15000
