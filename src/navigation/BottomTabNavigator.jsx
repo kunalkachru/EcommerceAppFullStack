@@ -71,15 +71,16 @@ const BottomTabNavigator = () => (
       headerShown: false,
     })}
   >
-    <Tab.Screen name="Home" component={HomeScreen} />
+    <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarButtonTestID: "tab-home" }} />
     <Tab.Screen
       name="Products"
       component={ProductStack}
       listeners={productsTabListener}
+      options={{ tabBarButtonTestID: "tab-products" }}
     />
-    <Tab.Screen name="Cart" component={CartScreen} />
-    <Tab.Screen name="Orders" component={OrdersStackScreen} />
-    <Tab.Screen name="Profile" component={ProfileScreen} />
+    <Tab.Screen name="Cart" component={CartScreen} options={{ tabBarButtonTestID: "tab-cart" }} />
+    <Tab.Screen name="Orders" component={OrdersStackScreen} options={{ tabBarButtonTestID: "tab-orders" }} />
+    <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarButtonTestID: "tab-profile" }} />
   </Tab.Navigator>
 );
 

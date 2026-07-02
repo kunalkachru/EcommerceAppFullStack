@@ -82,6 +82,7 @@ const LoginScreen = ({ navigation }) => {
             keyboardType="email-address"
             autoCapitalize="none"
             accessibilityLabel="Email"
+            testID="login-email"
             value={email}
             onChangeText={setEmail}
           />
@@ -92,6 +93,7 @@ const LoginScreen = ({ navigation }) => {
             placeholderTextColor="#9aa3af"
             secureTextEntry
             accessibilityLabel="Password"
+            testID="login-password"
             value={password}
             onChangeText={setPassword}
           />
@@ -103,6 +105,7 @@ const LoginScreen = ({ navigation }) => {
               style={styles.button}
               onPress={handleLogin}
               accessibilityLabel="Login"
+              testID="login-submit"
             >
               <Text style={styles.buttonText}>Login</Text>
             </TouchableOpacity>

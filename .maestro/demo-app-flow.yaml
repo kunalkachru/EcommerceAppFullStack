@@ -1,0 +1,55 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+- runFlow: shared/login.yaml
+
+- tapOn:
+    id: "tab-products"
+- extendedWaitUntil:
+    visible: "Narrow search"
+    timeout: 12000
+- tapOn: "Essence Mascara Lash Princess"
+- extendedWaitUntil:
+    visible: "Add to Cart"
+    timeout: 8000
+- tapOn: "Add to Cart"
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+
+- tapOn:
+    id: "tab-cart"
+- extendedWaitUntil:
+    visible: "Proceed to Checkout"
+    timeout: 8000
+- scrollUntilVisible:
+    element: "Proceed to Checkout"
+    direction: DOWN
+- tapOn: "Proceed to Checkout"
+
+- tapOn: "Full Name"
+- inputText: "Demo User"
+- tapOn: "Address"
+- inputText: "1 Demo Street"
+- tapOn: "City"
+- inputText: "Austin"
+- tapOn: "Zip Code"
+- inputText: "78701"
+- tapOn: "Phone Number"
+- inputText: "5551234567"
+- hideKeyboard
+- tapOn: "💳 Credit Card"
+- scrollUntilVisible:
+    element: "Place Order"
+    direction: DOWN
+- tapOn: "Place Order"
+- extendedWaitUntil:
+    visible: "Order"
+    timeout: 12000
+
+- tapOn:
+    id: "tab-orders"
+- extendedWaitUntil:
+    visible: "Orders"
+    timeout: 8000

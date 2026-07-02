@@ -208,6 +208,8 @@ const ProductListScreen = ({ navigation }) => {
           <TouchableOpacity
             style={styles.productInfo}
             onPress={() => navigation.navigate("ProductDetail", { product: item })}
+            accessibilityLabel={item.title}
+            accessibilityRole="button"
           >
             <Image
               source={{ uri: item.image }}
@@ -296,7 +298,7 @@ const ProductListScreen = ({ navigation }) => {
           </View>
         ) : null}
 
-        <Text style={styles.catalogCount}>
+        <Text style={styles.catalogCount} accessibilityRole="header">
           {catalogTotal} products in catalog
         </Text>
 

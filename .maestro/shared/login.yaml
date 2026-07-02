@@ -1,0 +1,38 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# Shared login — demo credentials only (not LLM secrets)
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "ShopEase"
+    timeout: 20000
+- runFlow:
+    when:
+      visible: "Sign in ↓"
+    commands:
+      - tapOn: "Sign in ↓"
+- extendedWaitUntil:
+    visible: "Sign in"
+    timeout: 8000
+# Use testIDs — tapping "Password" label often leaves focus on email and concatenates both fields
+- tapOn:
+    id: "login-email"
+- eraseText
+- inputText: "test@example.com"
+- hideKeyboard
+- tapOn:
+    id: "login-password"
+- eraseText
+- inputText: "secret123"
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+# iOS may prompt to save demo credentials — dismiss so home content is reachable
+- runFlow:
+    when:
+      visible: "Save Password?"
+    commands:
+      - tapOn: "Not Now"
+- extendedWaitUntil:
+    visible: "What are you shopping for today?"
+    timeout: 15000

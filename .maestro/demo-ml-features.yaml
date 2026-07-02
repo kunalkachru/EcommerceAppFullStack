@@ -1,0 +1,66 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+- runFlow: shared/login.yaml
+
+# --- Text search (rules only, no LLM) ---
+- tapOn:
+    id: "tab-products"
+- extendedWaitUntil:
+    visible: "Narrow search"
+    timeout: 12000
+- tapOn:
+    text: "Search products"
+- inputText: "wireless headphones below 100"
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "Add"
+    timeout: 12000
+
+# --- Home: voice + LLM reasoning ---
+- tapOn:
+    id: "tab-home"
+- scrollUntilVisible:
+    element: "Shop with your voice"
+    direction: DOWN
+
+# Enable AI reasoning switch (tap right side of row)
+- tapOn:
+    text: "AI reasoning (LLM)"
+- tapOn:
+    point: "88%,52%"
+
+# Select OpenRouter provider chip
+- tapOn: "OpenRouter"
+
+# Paste API key from env DEMO_LLM_API_KEY (from src/.env via npm script)
+- tapOn:
+    text: "sk-or"
+    optional: true
+- runFlow:
+    when:
+      visible: "sk-or"
+    commands:
+      - tapOn: "sk-or"
+- inputText: ${DEMO_LLM_API_KEY}
+- hideKeyboard
+
+# Typed smart search with LLM
+- tapOn: "Or type: laptop under 800 dollars"
+- inputText: "it's a fifty dollars jacket blue please"
+- hideKeyboard
+- tapOn: "Find products"
+- extendedWaitUntil:
+    visible: "Understood:"
+    timeout: 20000
+
+# --- Photo search on Home ---
+- scrollUntilVisible:
+    element: "Search by photo"
+    direction: DOWN
+- tapOn: "Gallery"
+- extendedWaitUntil:
+    visible: "Photos"
+    timeout: 10000
+    optional: true
+- tapOn:
+    point: "25%,30%"

@@ -220,7 +220,7 @@ Full status: [TESTING_STATUS.md](./TESTING_STATUS.md)
 
 Short platform recordings (<60s):
 
-- [demo/videos/android/](./demo/videos/android/)
-- [demo/videos/ios/](./demo/videos/ios/)
+- [app-flow-demo.mp4](./demo/videos/app-flow-demo.mp4) — commerce flow
+- [ml-features-demo.mp4](./demo/videos/ml-features-demo.mp4) — search + LLM + photo
 
 See [demo/videos/README.md](./demo/videos/README.md) and [DEMO_PRESENTATION.md](./DEMO_PRESENTATION.md).
