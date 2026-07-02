@@ -101,14 +101,14 @@ Run with API server up (`npm run server`) after CLIP index finishes.
 
 | Command | Expected result |
 |---------|-----------------|
-| `npm test -- --watchman=false --runInBand --forceExit` | **77/77** tests (21 suites) |
+| `npm test -- --watchman=false --runInBand --forceExit` | **83/83** tests (25 suites) |
 | `npm run verify:search` | **20/20** search flow checks |
 | `npm run verify:ml` | **13/13** ML + catalog checks |
 | `npm run verify:search:hybrid` | Hybrid passes all hybrid fixtures; baseline-only gaps shown for comparison |
 | `npm run verify:llm-local` | Optional local Ollama smoke test for the LLM path (no paid credits; model quality may vary) |
 | `npm run verify:llm-live` | Live OpenAI/OpenRouter intent extraction (keys in `src/.env`; run with `API_URL=http://127.0.0.1:5002` for hybrid) |
 
-Catalog: **>=200 products required** · **270 products / 270 indexed** on the latest hybrid verification run · Demo coverage products: **6**
+Catalog: **>=200 products required** · current local health on 2026-07-02 reported **289 products / 285 indexed** on the baseline runtime · Demo coverage products: **6**
 
 ---
 

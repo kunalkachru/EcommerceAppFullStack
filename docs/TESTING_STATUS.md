@@ -21,7 +21,7 @@ This branch completes a demo-ready e-commerce app with:
 
 | Gate | Command | Result |
 |------|---------|--------|
-| Unit/integration (Jest) | `npm test -- --watchman=false --runInBand --forceExit` | **77/77 passed** (21 suites) |
+| Unit/integration (Jest) | `npm test -- --watchman=false --runInBand --forceExit` | **83/83 passed** (25 suites) |
 | Hybrid search flows | `API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs` | **20/20 passed** |
 | Hybrid ML + catalog | `API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs` | **13/13 passed** |
 | Baseline vs hybrid comparison | `npm run verify:search:hybrid` | Hybrid passed all hybrid fixtures; baseline gap retained for `900 and 500 laptop between` |
@@ -114,7 +114,7 @@ Offline client fallback updated: `src/data/catalog-fallback.json` (389 products 
 | `matchProductsByLabels.test.js` | Label matching |
 | `App.test.tsx` | App boot smoke |
 
-**Result:** 21 suites, 77 tests — all passing.
+**Result:** 25 suites, 83 tests — all passing.
 
 **Non-blocking warnings:**
 - React `act(...)` warning in `App.test.tsx` on unmount (pre-existing)
@@ -136,10 +136,10 @@ Offline client fallback updated: `src/data/catalog-fallback.json` (389 products 
 #### Hybrid ML verification (`API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs`)
 
 - Server health
-- Catalog size ≥200 (currently **270** on the latest hybrid run)
+- Catalog size ≥200 (current local baseline health on 2026-07-02: **289**)
 - Catalog API + categories
 - **Catalog coverage:** laptops $500–900 (≥2), gaming monitors under $240 (≥1)
-- CLIP index ≥200 (currently **270** indexed on the latest hybrid run)
+- CLIP index ≥200 (current local baseline health on 2026-07-02: **285** indexed)
 - Visual search, attributes, similar products, category groups
 - Voice search + `shoes women`
 
@@ -284,7 +284,7 @@ Detailed design and 3-day execution board: `.cursor/plans/robust_hybrid_search_a
 
 ## Review Checklist for External Agents
 
-- [ ] Run `npm test -- --watchman=false --runInBand --forceExit` — expect 77/77
+- [ ] Run `npm test -- --watchman=false --runInBand --forceExit` — expect 83/83
 - [ ] Run `API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs` — expect 20/20
 - [ ] Run `API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs` — expect 13/13
 - [ ] Run `npm run verify:search:hybrid` — expect hybrid pass, baseline comparison note allowed
