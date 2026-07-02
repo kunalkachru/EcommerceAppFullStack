@@ -37,6 +37,7 @@ Start here for onboarding, review, or handoff to Codex/Claude.
 | **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)** | Env vars, API host, LLM keys, catalog, auth, permissions |
 | **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** | How the full stack runs today (local demo), architecture diagram, production gaps |
 | **[docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)** | **Complete testing & implementation status** — gates, results, review checklist |
+| **[docs/HYBRID_SEARCH_TEST_STEPS.md](./docs/HYBRID_SEARCH_TEST_STEPS.md)** | Manual ML + E2E validation steps with expected outcomes |
 
 ### Demo & architecture
 
@@ -68,8 +69,8 @@ Start here for onboarding, review, or handoff to Codex/Claude.
 | Area | Status |
 |------|--------|
 | Cart / add-to-cart | ✅ Reliable (list + PDP, structured errors) |
-| Text / voice / image search | ✅ Unified pipeline + LLM reasoning + fallbacks |
-| Jumbled / conversational queries | ✅ Word-order + price-first phrasing supported |
+| Text / voice / image search | ✅ Hybrid runtime + baseline comparison + LLM reasoning + fallbacks |
+| Jumbled / conversational queries | ✅ Hybrid fixes reversed-range and price-first edge cases |
 | Orders | ✅ Lightweight (`mocked_paid`, Orders tab) |
 | Payment gateway | ❌ Not integrated |
 | Cloud production deploy | ❌ Local demo only — see [DEPLOYMENT.md](./docs/DEPLOYMENT.md) |
@@ -84,12 +85,14 @@ Run with API server up (`npm run server`) after CLIP index finishes.
 
 | Command | Expected result |
 |---------|-----------------|
-| `npm test -- --runInBand --forceExit` | **59/59** tests (13 suites) |
+| `npm test -- --watchman=false --runInBand --forceExit` | **77/77** tests (21 suites) |
 | `npm run verify:search` | **20/20** search flow checks |
 | `npm run verify:ml` | **13/13** ML + catalog checks |
-| `npm run verify:llm-live` | Live OpenAI/OpenRouter intent extraction (keys in `src/.env`) |
+| `npm run verify:search:hybrid` | Hybrid passes all hybrid fixtures; baseline-only gaps shown for comparison |
+| `npm run verify:llm-local` | Optional local Ollama smoke test for the LLM path (no paid credits; model quality may vary) |
+| `npm run verify:llm-live` | Live OpenAI/OpenRouter intent extraction (keys in `src/.env`; run with `API_URL=http://127.0.0.1:5002` for hybrid) |
 
-Catalog: **~389 products** · CLIP indexed: **~385** · Demo coverage products: **6**
+Catalog: **>=200 products required** · **270 products / 270 indexed** on the latest hybrid verification run · Demo coverage products: **6**
 
 ---
 
@@ -134,9 +137,12 @@ Catalog: **~389 products** · CLIP indexed: **~385** · Demo coverage products: 
 | `npm start` | Metro bundler |
 | `npm run android` / `ios` | Run mobile app |
 | `npm run server` | Start API on port 5001 |
+| `npm run server:hybrid` | Start hybrid search API on port 5002 |
 | `npm test` | Jest test suite |
 | `npm run verify:search` | Search flow verification (20 checks) |
 | `npm run verify:ml` | ML + catalog verification (13 checks) |
+| `npm run verify:search:hybrid` | Side-by-side baseline vs hybrid verification |
+| `npm run verify:llm-local` | Optional local-Ollama LLM smoke verification |
 | `npm run verify:llm-live` | **Live LLM reasoning** (requires keys in `src/.env`) |
 | `npm run snapshot-catalog` | Refresh offline catalog JSON |
 | `npm run seed:emulator-photos` | Seed test photos to Android emulator |
@@ -173,7 +179,7 @@ Full reference: **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)**
 ## External review checklist (Codex / Claude)
 
 1. Read this README, then **[docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)**
-2. Run the verification commands above (including **`npm run verify:llm-live`** with keys in `src/.env`)
+2. Run the verification commands above, starting with **`npm run verify:llm-local`** for no-cost validation and **`npm run verify:llm-live`** only when paid-provider keys are available
 3. Review key files listed in TESTING_STATUS “Key Files for Code Review”
 4. Confirm no secrets in git (`src/.env`, `server/.env` are gitignored)
 

@@ -33,7 +33,9 @@ Live demo script, talking points, and video references for stakeholders and code
 | Platform | App flow | ML features |
 |----------|----------|-------------|
 | Android | [android/app-flow-demo.mp4](./demo/videos/android/app-flow-demo.mp4) | [android/ml-features-demo.mp4](./demo/videos/android/ml-features-demo.mp4) |
-| iOS | [ios/app-flow-demo.mp4](./demo/videos/ios/app-flow-demo.mp4) | [ios/ml-features-demo.mp4](./demo/videos/ios/ml-features-demo.mp4) |
+| iOS | [ios/app-flow-demo-short.mp4](./demo/videos/ios/app-flow-demo-short.mp4) | [ios/ml-features-demo-short.mp4](./demo/videos/ios/ml-features-demo-short.mp4) |
+
+Raw iOS captures are also available beside the short cuts as `ios/app-flow-demo.mp4` and `ios/ml-features-demo.mp4`.
 
 Re-record: `npm run record:demo:android` · `npm run record:demo:ios`
 

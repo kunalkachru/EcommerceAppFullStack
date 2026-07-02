@@ -21,7 +21,8 @@ flowchart LR
   end
   subgraph host [DeveloperMachine]
     Metro[Metro_8081]
-    API[Express_API_5001]
+    APIA[Express_API_5001_Baseline]
+    APIB[Express_API_5002_Hybrid]
     CLIP[CLIP_Index]
   end
   subgraph external [External]
@@ -30,11 +31,16 @@ flowchart LR
   end
   Screens --> Services
   Services --> Redux
-  Services -->|HTTP| API
+  Services -->|catalog_auth_orders| APIA
+  Services -->|search_runtime| APIA
+  Services -->|search_runtime| APIB
   Metro -->|JS_bundle| client
-  API --> CatalogAPIs
-  API --> CLIP
-  API -->|optional| LLM
+  APIA --> CatalogAPIs
+  APIA --> CLIP
+  APIA -->|optional| LLM
+  APIB --> CatalogAPIs
+  APIB --> CLIP
+  APIB -->|optional| LLM
 ```
 
 ### Layers
@@ -46,7 +52,7 @@ flowchart LR
 | API client | Axios (`src/services/apiClient.js`) | JWT auth, base URL per platform |
 | Backend | Express (`server/src/index.js`) | Auth, cart, orders, search routes |
 | Catalog | `server/src/catalogService.js` | Merge public APIs + demo coverage products |
-| Search | `naturalSearch.js`, `visualSearch.js` | CLIP embeddings + intent constraints |
+| Search | `naturalSearch.js`, `server/src/search/` | Baseline semantic-first and hybrid lexical→semantic search |
 | Index | `@xenova/transformers` CLIP | In-memory product vectors (~385 items) |
 
 ---
@@ -149,6 +155,34 @@ Demo coverage products fill search gaps (e.g. laptops $500–900, gaming monitor
 | `POST /api/visual-search` | No | Photo search |
 
 Full search architecture: [ML_SEARCH.md](./ML_SEARCH.md)
+
+---
+
+## Search runtime split
+
+The redesign adds an isolated runtime matrix:
+
+| Runtime | Port | Behavior |
+|---------|------|----------|
+| Baseline | `5001` | Existing semantic-first search |
+| Hybrid | `5002` | Lexical candidate generation + semantic rerank + constraints |
+
+Server runtime config:
+
+- [server/src/runtime/searchRuntimeConfig.js](../server/src/runtime/searchRuntimeConfig.js)
+
+Client runtime routing:
+
+- [src/config/searchRuntime.js](../src/config/searchRuntime.js)
+
+Internal modular search split:
+
+- `server/src/search/contracts/`
+- `server/src/search/intent/`
+- `server/src/search/text/`
+- `server/src/search/visual/`
+- `server/src/search/fusion/`
+- `server/src/search/orchestrators/`
 
 ---
 

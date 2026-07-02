@@ -1,0 +1,51 @@
+[
+  {
+    "id": "budget-under-45",
+    "query": "below 45",
+    "expectation": {
+      "minMatches": 5,
+      "maxPrice": 45
+    }
+  },
+  {
+    "id": "wireless-headphones-jumbled",
+    "query": "100 under headphones wireless",
+    "expectation": {
+      "minMatches": 1,
+      "topTitleIncludes": ["headphone", "earbud", "earphone"]
+    }
+  },
+  {
+    "id": "women-shoes",
+    "query": "shoes women",
+    "expectation": {
+      "minMatches": 2,
+      "mustIncludeWords": ["shoe"]
+    }
+  },
+  {
+    "id": "laptop-between-reversed",
+    "query": "900 and 500 laptop between",
+    "expectation": {
+      "minMatches": 1,
+      "minPrice": 500,
+      "maxPrice": 900
+    }
+  },
+  {
+    "id": "monitor-budget",
+    "query": "under 240 gaming monitor",
+    "expectation": {
+      "minMatches": 1,
+      "maxPrice": 240
+    }
+  },
+  {
+    "id": "blue-jacket-spoken",
+    "query": "it's a fifty dollars jacket blue please",
+    "expectation": {
+      "minMatches": 1,
+      "maxPrice": 60
+    }
+  }
+]

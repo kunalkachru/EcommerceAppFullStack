@@ -14,7 +14,7 @@ This project is deployed as a **local development full-stack demo**, not a produ
 
 ```
 ┌─────────────────────┐     HTTP :5001      ┌──────────────────────────────┐
-│  React Native App   │ ◄──────────────────►│  Express API (server/)       │
+│  React Native App   │ ◄──────────────────►│  Express API (baseline :5001)│
 │  (Metro bundler)    │                     │  - Auth, cart, orders        │
 │  Android / iOS      │                     │  - Catalog merge             │
 └─────────────────────┘                     │  - CLIP visual + voice search│
@@ -25,6 +25,12 @@ This project is deployed as a **local development full-stack demo**, not a produ
 ┌───────┴────────┐                                     ▼
 │ Metro :8081    │                          DummyJSON, FakeStore, EscuelaJS
 └────────────────┘                          + demoCoverageProducts (6 items)
+
+                                          ┌──────────────────────────────┐
+                                          │  Express API (hybrid :5002)  │
+                                          │  - Lexical + semantic rerank │
+                                          │  - Same legacy response shape│
+                                          └──────────────────────────────┘
 ```
 
 There is **no** current CI/CD pipeline, Docker compose, or cloud host (Heroku, AWS, etc.) checked into this repo.
@@ -38,8 +44,9 @@ Run these three processes on the developer machine:
 | # | Process | Command | Port |
 |---|---------|---------|------|
 | 1 | API + CLIP search | `npm run server` | **5001** |
-| 2 | Metro bundler | `npm start` | **8081** |
-| 3 | Mobile app | `npm run android` or `npm run ios` | — |
+| 2 | Hybrid API + CLIP search | `npm run server:hybrid` | **5002** |
+| 3 | Metro bundler | `npm start` | **8081** |
+| 4 | Mobile app | `npm run android` or `npm run ios` | — |
 
 ### Network routing
 
@@ -49,13 +56,14 @@ Run these three processes on the developer machine:
 | iOS simulator | `http://127.0.0.1:5001` |
 | Physical phone | `http://<host-lan-ip>:5001` (manual override) |
 
-Configured in: `src/config/api.js`
+Search-only runtime routing is handled separately in `src/config/searchRuntime.js`.
 
 ### Startup sequence
 
-1. `npm run server` — wait for `[visual-search] Indexed N products`
-2. `npm start` — Metro ready
-3. `npm run android` — installs and launches on emulator
+1. `npm run server` — baseline API (`5001`)
+2. `npm run server:hybrid` — hybrid API (`5002`)
+3. `npm start` — Metro ready
+4. `npm run android` or `npm run ios`
 
 First API start may take 1–2 minutes (CLIP model download + index build).
 
@@ -163,6 +171,62 @@ Enable simulator microphone (I/O → Microphone) for voice-search demos.
 For persistent orders/users in production, replace in-memory store with a database.
 
 ---
+
+## Recommended low-cost public deployment path
+
+For a shareable public demo endpoint, the most practical next step is:
+
+1. Deploy **only the Express API** first
+2. Keep the mobile app local/TestFlight/internal for demo use
+3. Freeze the catalog snapshot and prebuild embeddings before production hosting
+
+### Why this order
+
+The current search runtime:
+
+- downloads or loads CLIP at startup
+- builds a product index in-process
+- fetches from multiple public catalog sources
+
+That is acceptable locally, but expensive or fragile for a very cheap public deployment.
+
+### Recommended optimization before public launch
+
+1. Replace live catalog fetch with a checked-in or stored snapshot
+2. Precompute and persist CLIP embeddings
+3. Start the production API from the persisted snapshot instead of rebuilding on every cold boot
+4. Add a simple health/readiness gate for search warmup
+
+### Best-cost hosting recommendation
+
+For the current architecture, the safest low-cost option is a **single Dockerized API service** on a modest always-on host.
+
+Practical choices:
+
+- **Render**
+  - Good ergonomics for Docker + persistent disk
+  - Cheapest paid web service starts below Standard plans, but the CLIP runtime likely needs more than the smallest free/prototype footprint
+- **Railway**
+  - Easy Docker deploy, but pricing starts from a paid usage floor
+- **Fly.io**
+  - Pay-as-you-go style is attractive, but requires a bit more operational setup
+
+### Current recommendation
+
+Until embeddings are prebuilt, prefer:
+
+1. **Render** or **Fly.io** for the API
+2. Start with one small paid instance
+3. Add persistent disk or object-backed snapshot for embeddings/catalog artifacts
+
+If the goal is **minimum spend**, do this first:
+
+1. snapshot catalog
+2. persist embeddings
+3. reduce cold-start and memory pressure
+4. then deploy
+
+That optimization work will make the public endpoint cheaper and more stable than deploying the current dynamic-index build as-is.
 
 ## Production deployment (not implemented)
 

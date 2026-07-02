@@ -41,6 +41,10 @@ import {
   getProviderById,
   resolveProviderBaseUrl,
 } from "../config/llmProviders";
+import {
+  getSearchRuntimeConfig,
+  setSearchRuntimeOverride,
+} from "../config/searchRuntime";
 
 const EXAMPLE_HINTS = [
   "Women's shoes under 50",
@@ -98,6 +102,9 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
   const [model, setModel] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [speechAvailable, setSpeechAvailable] = useState(isSpeechRecognitionAvailable());
+  const [searchRuntimeName, setSearchRuntimeName] = useState(
+    getSearchRuntimeConfig().runtimeName
+  );
 
   const activeProvider = useMemo(() => getProviderById(providerId), [providerId]);
   const runSearchRef = useRef(() => {});
@@ -316,6 +323,13 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
     clearSessionLlmKey();
   };
 
+  const toggleSearchRuntime = () => {
+    const next = searchRuntimeName === "hybrid" ? "baseline" : "hybrid";
+    const config = setSearchRuntimeOverride(next);
+    setSearchRuntimeName(config.runtimeName);
+    setError(null);
+  };
+
   const intentLabel =
     lastIntentSource === "llm"
       ? "AI reasoning"
@@ -470,6 +484,18 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
                 onBlur={() => persistPreferences({ model })}
               />
             </>
+          ) : null}
+
+          {__DEV__ ? (
+            <TouchableOpacity
+              style={styles.runtimeToggle}
+              onPress={toggleSearchRuntime}
+            >
+              <Text style={styles.runtimeToggleLabel}>Search runtime</Text>
+              <Text style={styles.runtimeToggleValue}>
+                {searchRuntimeName === "hybrid" ? "Hybrid :5002" : "Baseline :5001"}
+              </Text>
+            </TouchableOpacity>
           ) : null}
         </View>
       ) : null}
@@ -697,6 +723,28 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#007BFF",
     fontWeight: "600",
+  },
+  runtimeToggle: {
+    marginTop: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    backgroundColor: "#f8fafc",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  runtimeToggleLabel: {
+    fontSize: 13,
+    color: "#475569",
+    fontWeight: "600",
+  },
+  runtimeToggleValue: {
+    fontSize: 13,
+    color: "#0f172a",
+    fontWeight: "700",
   },
   micRow: {
     flexDirection: "row",

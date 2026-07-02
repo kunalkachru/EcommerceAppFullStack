@@ -1,7 +1,7 @@
 # Testing & Implementation Status
 
-**Last updated:** 2026-07-01  
-**Branch target:** `main` (default branch; repo does not use `master`)  
+**Last updated:** 2026-07-02  
+**Branch target:** `codex/hybrid-search-v1` (isolated worktree branch for hybrid search redesign)  
 **Purpose:** Handoff document for external review agents (Codex, Claude, etc.)
 
 > **Navigation:** Start from the [README](../README.md) for the full documentation index (setup, configuration, deployment, testing).
@@ -13,19 +13,21 @@
 This branch completes a demo-ready e-commerce app with:
 
 1. **Reliable cart/add-to-cart flow** (list + PDP, truthful async feedback, structured errors)
-2. **Robust multimodal search** (text, voice, image) with LLM reasoning and rule-based fallback
+2. **Hybrid multimodal search** (text, voice, image) with baseline-vs-hybrid runtime split, LLM reasoning, and rule-based fallback
 3. **Lightweight orders lifecycle** (`mocked_paid` checkout → Orders tab → order detail)
 4. **Catalog coverage products** for common demo price/type gaps (laptops $500–900, gaming monitors under $240)
 
-**Current automated gate status (verified on 2026-07-01):**
+**Current automated gate status (verified on 2026-07-02):**
 
 | Gate | Command | Result |
 |------|---------|--------|
-| Unit/integration (Jest) | `npm test -- --runInBand --forceExit` | **59/59 passed** (13 suites) |
-| Search flows | `npm run verify:search` | **20/20 passed** |
-| ML + catalog | `npm run verify:ml` | **13/13 passed** |
-| Live LLM reasoning | `npm run verify:llm-live` | **7/7 passed** — OpenAI live (`intentSource=llm`); OpenRouter provider wired (key in `src/.env` returned 401 — regenerate at openrouter.ai/keys) |
-| Live LLM reasoning | `npm run verify:llm-live` | **OpenAI live intent extraction verified** (requires `src/.env`) |
+| Unit/integration (Jest) | `npm test -- --watchman=false --runInBand --forceExit` | **77/77 passed** (21 suites) |
+| Hybrid search flows | `API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs` | **20/20 passed** |
+| Hybrid ML + catalog | `API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs` | **13/13 passed** |
+| Baseline vs hybrid comparison | `npm run verify:search:hybrid` | Hybrid passed all hybrid fixtures; baseline gap retained for `900 and 500 laptop between` |
+| Live local-Ollama LLM smoke | `npm run verify:llm-local` | **3 passed, 2 warnings, 0 hard failures** on the current local model; query-quality misses are warnings unless `STRICT_LOCAL_LLM=1` |
+| iOS simulator launch (isolated worktree) | `npm start -- --port 8088` + `npm run ios -- --port 8088 --no-packager --udid 7EABE577-D15B-4B90-848F-EDAC9BF2FC7A` | **App built and launched successfully** on iPhone 17 Pro Max (iOS 26.5) |
+| Live paid-provider LLM reasoning | `API_URL=http://127.0.0.1:5002 node scripts/verify-llm-live.mjs` | **7/7 passed** on 2026-07-02 with user-supplied OpenAI/OpenRouter keys |
 
 ---
 
@@ -51,11 +53,15 @@ This branch completes a demo-ready e-commerce app with:
 | Query normalization (spelled numbers, comparators) | Done | `server/src/queryNormalize.js` |
 | Rule-based intent parser (reversed word order) | Done | `server/src/voiceQueryParser.js` |
 | LLM intent + keyword sanitization + conversational price | Done | `server/src/voiceQueryLLM.js` |
-| Semantic-first ranking + type/price refinement | Done | `server/src/naturalSearch.js` |
+| Hybrid lexical→semantic rerank + baseline compatibility | Done | `server/src/naturalSearch.js`, `server/src/search/text/` |
 | Visual search + similar products | Done | `server/src/visualSearch.js` |
+| Unified search response contract + legacy adapters | Done | `server/src/search/contracts/` |
+| Runtime split (`5001` baseline vs `5002` hybrid) | Done | `server/src/runtime/searchRuntimeConfig.js`, `src/config/searchRuntime.js` |
 | Voice search UI + LLM provider config | Done | `src/components/VoiceSearchCard.jsx` |
+| Dev-only in-app runtime switch | Done | `src/components/VoiceSearchCard.jsx` |
 | Search/parser/LLM unit tests | Done | `__tests__/voiceQueryParser.test.js`, `__tests__/voiceQueryLLM.test.js`, `__tests__/naturalSearch.test.js`, etc. |
 | Search verification script | Done | `scripts/verify-search-flows.mjs` |
+| Golden fixtures + A/B eval | Done | `scripts/fixtures/`, `scripts/eval-hybrid-search.mjs`, `scripts/verify-search-ab.mjs` |
 
 ### Day 3 — Lightweight Orders
 
@@ -108,7 +114,7 @@ Offline client fallback updated: `src/data/catalog-fallback.json` (389 products 
 | `matchProductsByLabels.test.js` | Label matching |
 | `App.test.tsx` | App boot smoke |
 
-**Result:** 13 suites, 59 tests — all passing.
+**Result:** 21 suites, 77 tests — all passing.
 
 **Non-blocking warnings:**
 - React `act(...)` warning in `App.test.tsx` on unmount (pre-existing)
@@ -116,7 +122,7 @@ Offline client fallback updated: `src/data/catalog-fallback.json` (389 products 
 
 ### Layer 2 — Integration / API Scripts
 
-#### `npm run verify:search` (20 checks)
+#### Hybrid search regression (`API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs`)
 
 - Server health + CLIP index
 - Text queries: `below 45`, `Below 45`, `under $50`, `shoes women`, `blue jacket under 50 dollars`, `wireless headphones below 100`, `between 20 and 40`, `lipstick under 20`
@@ -127,19 +133,41 @@ Offline client fallback updated: `src/data/catalog-fallback.json` (389 products 
 - Photo search (jacket, category filter, off-catalog pizza)
 - Voice config (4 LLM providers)
 
-#### `npm run verify:ml` (13 checks)
+#### Hybrid ML verification (`API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs`)
 
 - Server health
-- Catalog size ≥200 (currently **389**)
+- Catalog size ≥200 (currently **270** on the latest hybrid run)
 - Catalog API + categories
 - **Catalog coverage:** laptops $500–900 (≥2), gaming monitors under $240 (≥1)
-- CLIP index ≥200 (currently **385** indexed)
+- CLIP index ≥200 (currently **270** indexed on the latest hybrid run)
 - Visual search, attributes, similar products, category groups
 - Voice search + `shoes women`
 
-### Layer 3 — LLM-Enabled Live Query Validation (Manual/API)
+### Layer 3 — Baseline vs Hybrid Search Validation
 
-Tested with `useLlmReasoning=true`, OpenAI `gpt-4o-mini`, strict LLM mode.
+Automated A/B fixture comparison now covers:
+
+| Query | Baseline | Hybrid |
+|------|----------|--------|
+| `100 under headphones wireless` | Pass | Pass |
+| `900 and 500 laptop between` | Known comparison gap | Pass |
+| `it's a fifty dollars jacket blue please` | Pass | Pass |
+| catalog jacket image | Pass | Pass |
+| off-catalog pizza image | Pass | Pass |
+
+### Layer 4 — LLM-Enabled Live Query Validation (Manual/API)
+
+Fresh paid-provider verification on 2026-07-02:
+
+- OpenAI provider passed:
+  - conversational jacket query
+  - jumbled headphones query
+  - price-first gaming monitor query
+- OpenRouter provider passed:
+  - headphone budget query
+- Result: **7/7 passed** including health and key-load checks
+
+Historical/manual coverage also included `useLlmReasoning=true`, OpenAI `gpt-4o-mini`, strict LLM mode.
 
 **Jumbled vs normal pairs (intent consistency):**
 
@@ -163,10 +191,12 @@ Tested with `useLlmReasoning=true`, OpenAI `gpt-4o-mini`, strict LLM mode.
 
 **Broad sweep (~16 query variants):** ~14–16 pass, 0 errors, LLM used in 100% of successful cases.
 
-### Layer 4 — E2E / Manual Smoke
+### Layer 5 — E2E / Manual Smoke
 
 - Emulator screenshots captured under `docs/e2e/` (login, product list, PDP, cart, checkout, profile, signup)
 - Test photos for visual search under `docs/test-photos/` (README included; binary images gitignored)
+- **Manual guide added:** [HYBRID_SEARCH_TEST_STEPS.md](./HYBRID_SEARCH_TEST_STEPS.md)
+- **Fresh iOS branch launch verified on 2026-07-02:** isolated worktree build launched on booted `iPhone 17 Pro Max` (`iOS 26.5`) via Metro `:8088`
 - **Not automated:** full Detox/Appium E2E suite in CI
 
 ---
@@ -178,15 +208,19 @@ Tested with `useLlmReasoning=true`, OpenAI `gpt-4o-mini`, strict LLM mode.
 npm run server
 
 # Terminal 2 — after CLIP index finishes (~30s first run)
-npm test -- --runInBand --forceExit
-npm run verify:search
-npm run verify:ml
+npm test -- --watchman=false --runInBand --forceExit
+API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs
+API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs
+npm run verify:search:hybrid
 
 # Optional — refresh offline catalog snapshot
 npm run snapshot-catalog
 ```
 
-**LLM live tests:** require `OPENAI_API_KEY` in local `src/.env` (gitignored). Enable AI reasoning in the Voice Search card and paste key per session, or pass `X-LLM-Api-Key` header to `/api/search/voice`.
+**LLM live tests:**
+
+- `npm run verify:llm-local` uses Ollama at `http://127.0.0.1:11434/v1` and is the preferred no-cost verification path
+- `npm run verify:llm-live` requires `OPENAI_API_KEY` in local `src/.env` (gitignored) or an equivalent session key passed to `/api/search/voice`
 
 ---
 
@@ -197,7 +231,8 @@ npm run snapshot-catalog
 | Payment gateway | Not integrated; orders use `mocked_paid` |
 | Automated E2E in CI | Scripts + manual smoke only |
 | Server cart integration tests | Client unit tests cover slice; no dedicated server cart test file |
-| Architecture todos (plan) | Unified search contract metadata, modular pipeline split, golden-query eval metrics — deferred |
+| Paid-provider live LLM verification | Needs real key in `src/.env` or session key pasted in app |
+| Simulator smoke on this machine | Requires local Metro/xcodebuild bind permissions and healthy CoreSimulator service |
 | Catalog false positives | Some products match type keywords in descriptions (e.g. pot with "monitor cooking progress"); mitigated by type-strength ranking + demo coverage products |
 | `server/data/catalog-snapshot.json` | Gitignored; regenerated via `npm run snapshot-catalog` |
 
@@ -210,6 +245,8 @@ npm run snapshot-catalog
 - `server/src/catalogService.js` — merged catalog + demo coverage
 - `server/src/demoCoverageProducts.js` — gap-fill products
 - `server/src/naturalSearch.js` — semantic search + constraints
+- `server/src/runtime/searchRuntimeConfig.js` — baseline vs hybrid runtime matrix
+- `server/src/search/` — contracts, intent, text rerank, visual fusion modules
 - `server/src/voiceQueryParser.js` — rule-based intent
 - `server/src/voiceQueryLLM.js` — LLM intent + normalization
 - `server/src/visualSearch.js` — CLIP image search
@@ -218,6 +255,7 @@ npm run snapshot-catalog
 ### Client
 - `src/redux/cartSlice.jsx` — cart state + errors
 - `src/services/catalogSearchService.js` — search orchestration
+- `src/config/searchRuntime.js` — search-only runtime routing
 - `src/services/ordersService.js` — orders API client
 - `src/screens/ProductListScreen.jsx`, `ProductDetailScreen.jsx`, `CartScreen.jsx`, `CheckoutScreen.jsx`, `OrdersScreen.jsx`
 - `src/components/VoiceSearchCard.jsx` — voice + LLM UI
@@ -226,6 +264,8 @@ npm run snapshot-catalog
 - `__tests__/` — all Jest suites
 - `scripts/verify-search-flows.mjs`
 - `scripts/verify-ml-features.mjs`
+- `scripts/verify-search-ab.mjs`
+- `scripts/eval-hybrid-search.mjs`
 - `scripts/record-demo-android.mjs` · `scripts/record-demo-ios.sh` — demo video capture
 
 ### Demo & architecture docs
@@ -244,12 +284,14 @@ Detailed design and 3-day execution board: `.cursor/plans/robust_hybrid_search_a
 
 ## Review Checklist for External Agents
 
-- [ ] Run `npm test -- --runInBand --forceExit` — expect 59/59
-- [ ] Run `npm run verify:search` — expect 20/20
-- [ ] Run `npm run verify:ml` — expect 13/13
-- [ ] Run `npm run verify:llm-live` — expect OpenAI conversational/jumbled queries with `intentSource=llm`
+- [ ] Run `npm test -- --watchman=false --runInBand --forceExit` — expect 77/77
+- [ ] Run `API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs` — expect 20/20
+- [ ] Run `API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs` — expect 13/13
+- [ ] Run `npm run verify:search:hybrid` — expect hybrid pass, baseline comparison note allowed
+- [ ] Run `npm run verify:llm-local` — expect `intentSource=llm` on the successful cases with the installed Ollama model
+- [ ] Run `npm run verify:llm-live` when paid-provider keys are available
 - [ ] Confirm cart add from list + PDP with logged-in user
 - [ ] Confirm checkout → order appears in Orders tab
-- [ ] Confirm jumbled LLM queries return relevant products (headphones, jacket, laptop, monitor examples above)
+- [ ] Follow [HYBRID_SEARCH_TEST_STEPS.md](./HYBRID_SEARCH_TEST_STEPS.md) for ML and E2E manual validation
 - [ ] Watch demo videos or follow [DEMO_PRESENTATION.md](./DEMO_PRESENTATION.md)
 - [ ] Confirm no secrets committed (`src/.env`, `server/.env` are gitignored)

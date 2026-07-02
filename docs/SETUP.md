@@ -200,10 +200,11 @@ With API running and CLIP index ready:
 npm test -- --runInBand --forceExit
 npm run verify:search
 npm run verify:ml
+npm run verify:llm-local   # optional no-cost Ollama smoke
 npm run verify:llm-live    # requires OPENAI_API_KEY in src/.env
 ```
 
-Expected: **59/59** Jest tests, **20/20** search checks, **13/13** ML checks, live LLM passes with valid keys.  
+Expected: **77/77** Jest tests, **20/20** search checks, **13/13** ML checks, optional local LLM smoke returns no hard failures, live paid-provider LLM passes with valid keys.  
 Details: [TESTING_STATUS.md](./TESTING_STATUS.md)
 
 ---

@@ -32,8 +32,20 @@ const {
   scrubLlmSecretsFromRequest,
   scrubKeyMaterial,
 } = require("./llmKeySecurity");
+const { getSearchRuntimeConfig } = require("./runtime/searchRuntimeConfig");
+const {
+  toLegacyTextSearchResponse,
+  toLegacyVisualSearchResponse,
+} = require("./search/contracts/legacyAdapters");
+const {
+  searchCatalogByText,
+} = require("./search/orchestrators/searchCatalogByText");
+const {
+  searchCatalogByImage,
+} = require("./search/orchestrators/searchCatalogByImage");
 
-const PORT = Number(process.env.PORT) || 5001;
+const runtimeConfig = getSearchRuntimeConfig();
+const PORT = runtimeConfig.port;
 const JWT_SECRET = process.env.JWT_SECRET || "dev-only-change-me";
 const DATA_PATH = path.join(__dirname, "..", "data", "store.json");
 
@@ -260,11 +272,24 @@ async function handleNaturalSearch(req, res) {
   }
 
   try {
-    const result = await searchByVoiceQuery(query.trim(), {
-      limit: 30,
-      llmOptions: built.options,
-    });
-    res.json(result);
+    const result = await searchCatalogByText(
+      query.trim(),
+      {
+        searchByNaturalLanguage: require("./naturalSearch").searchByNaturalLanguage,
+        textDeps: {
+          ensureIndex: require("./visualSearch").ensureIndex,
+          loadClip: require("./visualSearch").loadClip,
+          embedText: require("./visualSearch").embedText,
+          cosine: require("./visualSearch").cosine,
+          CACHE_MODEL_KEY: require("./visualSearch").CACHE_MODEL_KEY,
+        },
+      },
+      {
+        limit: 30,
+        llmOptions: built.options,
+      }
+    );
+    res.json(toLegacyTextSearchResponse(result));
   } catch (err) {
     console.error(
       "[voice-search]",
@@ -292,11 +317,25 @@ app.post("/api/visual-search", visualSearchLimiter, async (req, res) => {
     return res.status(413).json({ message: "Image too large (max ~7MB)" });
   }
   try {
-    const result = await searchByImageBase64(imageBase64, {
-      limit: 8,
-      categoryFilter: categoryFilter || null,
-    });
-    res.json(result);
+    const result = await searchCatalogByImage(
+      imageBase64,
+      {
+        searchByImageBase64,
+        searchByNaturalLanguage: require("./naturalSearch").searchByNaturalLanguage,
+        textDeps: {
+          ensureIndex: require("./visualSearch").ensureIndex,
+          loadClip: require("./visualSearch").loadClip,
+          embedText: require("./visualSearch").embedText,
+          cosine: require("./visualSearch").cosine,
+          CACHE_MODEL_KEY: require("./visualSearch").CACHE_MODEL_KEY,
+        },
+      },
+      {
+        limit: 8,
+        categoryFilter: categoryFilter || null,
+      }
+    );
+    res.json(toLegacyVisualSearchResponse(result));
   } catch (err) {
     console.error("[visual-search]", err);
     const status = err.code === "too_blurry" || err.code === "too_small" ? 422 : 500;
@@ -590,6 +629,8 @@ app.get("/api/orders/:id", authMiddleware, (req, res) => {
 });
 
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Ecommerce API listening on http://0.0.0.0:${PORT}`);
+  console.log(
+    `Ecommerce API listening on http://0.0.0.0:${PORT} (${runtimeConfig.runtimeName})`
+  );
   warmVisualSearchIndex();
 });

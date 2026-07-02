@@ -1,0 +1,24 @@
+[
+  {
+    "id": "catalog-jacket",
+    "imagePath": "docs/test-photos/01-catalog-jacket.jpg",
+    "expectation": {
+      "minMatches": 1
+    }
+  },
+  {
+    "id": "catalog-backpack-with-clothing-filter",
+    "imagePath": "docs/test-photos/02-catalog-backpack.jpg",
+    "categoryFilter": "clothing",
+    "expectation": {
+      "allowNoInventory": true
+    }
+  },
+  {
+    "id": "off-catalog-pizza",
+    "imagePath": "docs/test-photos/12-off-catalog-pizza.jpg",
+    "expectation": {
+      "allowNoInventory": true
+    }
+  }
+]

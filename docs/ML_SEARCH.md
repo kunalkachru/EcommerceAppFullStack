@@ -16,7 +16,12 @@ Search supports three input modes that share a unified ranking philosophy:
 2. **Voice** — speech-to-text on device, then same API as text
 3. **Photo** — camera/gallery image sent as base64 to CLIP visual search
 
-Text/voice uses **semantic-first ranking** (CLIP text embeddings) plus **structured intent** (price, product type, gender) from rules or LLM. Photo search uses **CLIP image embeddings** compared to pre-indexed product image + text vectors.
+Text/voice now supports two runtime modes:
+
+1. **Baseline** — semantic-first CLIP ranking
+2. **Hybrid** — lexical candidate generation, semantic rerank, and structured constraints
+
+Photo search still uses CLIP image embeddings, but the hybrid runtime can reuse text-style fallback logic when the image pipeline needs a safer best-effort result.
 
 ---
 
@@ -33,8 +38,9 @@ flowchart TD
   intent -->|no| rules[voiceQueryParser]
   llm --> naturalSearch[naturalSearch]
   rules --> naturalSearch
-  naturalSearch --> clipText[CLIP_text_embedding]
-  clipText --> rank[Rank_plus_type_price_refine]
+  naturalSearch --> lexical[Lexical_candidate_index]
+  lexical --> clipText[CLIP_text_embedding]
+  clipText --> rank[Semantic_rerank_plus_constraints]
   rank --> results[ProductMatches]
   imagePath --> visualSearch[visualSearch.js]
   visualSearch --> clipImage[CLIP_image_embedding]
@@ -71,10 +77,12 @@ sequenceDiagram
 
 | Layer | File | When used |
 |-------|------|-----------|
-| Normalization | [server/src/queryNormalize.js](../server/src/queryNormalize.js) | Spelled numbers, comparators, reversed phrasing |
-| LLM intent | [server/src/voiceQueryLLM.js](../server/src/voiceQueryLLM.js) | `useLlmReasoning=true` + API key |
-| Rule parser | [server/src/voiceQueryParser.js](../server/src/voiceQueryParser.js) | LLM off or fallback |
-| Ranking | [server/src/naturalSearch.js](../server/src/naturalSearch.js) | CLIP + type/price refinement |
+| Normalization | [server/src/search/intent/queryNormalizer.js](../server/src/search/intent/queryNormalizer.js) | Spelled numbers, comparators, reversed phrasing |
+| LLM intent | [server/src/search/intent/llmIntentResolver.js](../server/src/search/intent/llmIntentResolver.js) | `useLlmReasoning=true` + provider |
+| Rule parser | [server/src/search/intent/ruleIntentResolver.js](../server/src/search/intent/ruleIntentResolver.js) | LLM off or fallback |
+| Lexical retrieval | [server/src/search/text/lexicalCatalogIndex.js](../server/src/search/text/lexicalCatalogIndex.js) | Candidate generation for jumbled/product-first phrasing |
+| Semantic rerank | [server/src/search/text/semanticTextReranker.js](../server/src/search/text/semanticTextReranker.js) | CLIP + type/price refinement |
+| Orchestrator | [server/src/search/text/searchTextCatalog.js](../server/src/search/text/searchTextCatalog.js) | Baseline vs hybrid text runtime |
 
 ### Client entry points
 
@@ -159,6 +167,26 @@ Server LLM fallback: [voiceQueryLLM.js](../server/src/voiceQueryLLM.js)
 
 ---
 
+## Runtime A/B testing
+
+The client can send search requests to either runtime:
+
+| Runtime | Port | Notes |
+|---------|------|-------|
+| Baseline | `5001` | Existing semantic-first behavior |
+| Hybrid | `5002` | Lexical + semantic rerank redesign |
+
+Client runtime switch:
+
+- [src/config/searchRuntime.js](../src/config/searchRuntime.js)
+- Dev-only app toggle in [src/components/VoiceSearchCard.jsx](../src/components/VoiceSearchCard.jsx)
+
+Server runtime switch:
+
+- [server/src/runtime/searchRuntimeConfig.js](../server/src/runtime/searchRuntimeConfig.js)
+
+---
+
 ## Configuration for ML demos
 
 | Setting | Location |
@@ -181,6 +209,8 @@ Details: [CONFIGURATION.md](./CONFIGURATION.md)
 | Ranking tests | `__tests__/naturalSearch.test.js` |
 | Search integration | `npm run verify:search` |
 | ML + catalog | `npm run verify:ml` |
+| Local live LLM | `npm run verify:llm-local` |
+| Paid-provider live LLM | `npm run verify:llm-live` |
 
 Full status: [TESTING_STATUS.md](./TESTING_STATUS.md)
 

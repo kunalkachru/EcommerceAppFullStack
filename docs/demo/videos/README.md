@@ -10,8 +10,10 @@ Short screen recordings (<60 seconds) for presentation and reviewer onboarding.
 |-------|----------|---------|--------|
 | `android/app-flow-demo.mp4` | Android | Login → browse → cart → checkout → orders | ✅ Recorded |
 | `android/ml-features-demo.mp4` | Android | Text search → voice/LLM → photo search | ⏳ Re-record: `npm run record:demo:android` (emulator required) |
-| `ios/app-flow-demo.mp4` | iOS | Same app flow on simulator | ⏳ Re-record: `npm run record:demo:ios` |
-| `ios/ml-features-demo.mp4` | iOS | Same ML demo on simulator | ⏳ Re-record: `npm run record:demo:ios` |
+| `ios/app-flow-demo-short.mp4` | iOS | Same app flow on simulator (<60s reviewer cut) | ✅ Recorded |
+| `ios/ml-features-demo-short.mp4` | iOS | Same ML demo on simulator (<60s reviewer cut) | ✅ Recorded |
+| `ios/app-flow-demo.mp4` | iOS | Same app flow on simulator (full raw capture) | ✅ Recorded |
+| `ios/ml-features-demo.mp4` | iOS | Same ML demo on simulator (full raw capture) | ✅ Recorded |
 
 Screenshot fallbacks: [docs/e2e/](../e2e/)
 
@@ -29,7 +31,7 @@ npm run record:demo:android
 npm run record:demo:ios
 ```
 
-Output is written to this directory. Videos are capped at ~55 seconds via platform record limits.
+Output is written to this directory. If the raw simulator capture runs long, create a short reviewer cut and keep both files.
 
 ---
 
