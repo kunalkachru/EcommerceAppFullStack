@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import {
   screenshot, dumpUi, findNodes, tap, tapContentDesc, clearAndType,
-  hideKeyboard, sleep, swipe,
+  hideKeyboard, sleep, swipe, tapTab,
 } from "./e2e-adb.mjs";
 
 const EMAIL = "test@example.com";
@@ -15,8 +15,8 @@ async function api(method, path, body, token) {
   return res.json();
 }
 
-function tapTab(i) {
-  tap(180 + i * 360, 2980);
+function tapTabByName(name) {
+  tapTab(name);
 }
 
 async function getToken() {
@@ -27,7 +27,7 @@ async function main() {
   let token = await getToken();
   console.log("API cart at start:", await api("GET", "/api/cart", null, token));
 
-  tapTab(2);
+  tapTabByName("cart");
   sleep(2500);
   screenshot("flow-04-cart");
   let xml = dumpUi();
@@ -89,7 +89,7 @@ async function main() {
   token = await getToken();
   console.log("Cart after order API:", await api("GET", "/api/cart", null, token));
 
-  tapTab(3);
+  tapTabByName("profile");
   sleep(2000);
   screenshot("flow-08-profile");
   console.log("Profile UI:", findNodes(dumpUi()).map((n) => n.text).filter(Boolean));

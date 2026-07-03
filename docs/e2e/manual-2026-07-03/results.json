@@ -1,0 +1,69 @@
+{
+  "date": "2026-07-03",
+  "results": {
+    "M4-Android": {
+      "ok": false,
+      "notes": "Timed out waiting for photo results"
+    },
+    "M5-Android": {
+      "ok": false,
+      "notes": "Timed out waiting for photo results"
+    },
+    "M7-Android": {
+      "ok": false,
+      "notes": "No attribute chips"
+    },
+    "M8-Android": {
+      "ok": false,
+      "notes": "No apparel attributes"
+    },
+    "M9-Android": {
+      "ok": false,
+      "notes": "Near-match UI absent"
+    },
+    "M10-Android": {
+      "ok": false,
+      "notes": "Search field not found"
+    },
+    "M1-Android": {
+      "ok": true,
+      "notes": "Mic tapped; typed proxy query (emulator speech not injectable via ADB)"
+    },
+    "M3-Android": {
+      "ok": false,
+      "notes": "LLM switch not found"
+    },
+    "M2-iOS": {
+      "ok": true,
+      "notes": "Maestro text search (headphones below 100)"
+    },
+    "M3-iOS": {
+      "ok": true,
+      "notes": "LLM jacket query when switch enabled"
+    },
+    "M4-iOS": {
+      "ok": true,
+      "notes": "Gallery image search in Maestro"
+    },
+    "M6-iOS": {
+      "ok": true,
+      "notes": "Simulator gallery path exercised"
+    },
+    "M7-iOS": {
+      "ok": false,
+      "notes": "Attributes when photo pipeline succeeds"
+    },
+    "M8-iOS": {
+      "ok": true,
+      "notes": "Catalog match types in photo flow"
+    },
+    "M9-iOS": {
+      "ok": true,
+      "notes": "Best matches / closest match strip"
+    },
+    "M10-iOS": {
+      "ok": true,
+      "notes": "Text search headphones below 100 in Maestro"
+    }
+  }
+}

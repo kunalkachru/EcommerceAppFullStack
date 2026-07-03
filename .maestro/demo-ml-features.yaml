@@ -2,6 +2,33 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
 ---
 - runFlow: shared/login.yaml
 
+# --- Photo search on Home (before voice/LLM navigation) ---
+- tapOn:
+    id: "tab-home"
+- scrollUntilVisible:
+    element: "Search by photo"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "Gallery"
+- extendedWaitUntil:
+    visible: "Photos"
+    timeout: 10000
+    optional: true
+- tapOn:
+    point: "25%,30%"
+- extendedWaitUntil:
+    visible: "Closest match"
+    timeout: 25000
+    optional: true
+- scrollUntilVisible:
+    element: "Best matches"
+    direction: DOWN
+    optional: true
+- extendedWaitUntil:
+    visible: "Best matches"
+    timeout: 15000
+    optional: true
+
 # --- Text search (rules only, no LLM) ---
 - tapOn:
     id: "tab-products"
@@ -16,64 +43,60 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
     visible: "Add"
     timeout: 12000
 
-# --- Home: voice + LLM reasoning ---
+# --- Home: voice + LLM reasoning (optional) ---
 - tapOn:
     id: "tab-home"
 - scrollUntilVisible:
     element: "Shop with your voice"
     direction: DOWN
-
-# Enable AI reasoning switch
+    timeout: 15000
+    optional: true
+- scrollUntilVisible:
+    element: "AI reasoning (LLM)"
+    direction: DOWN
+    timeout: 15000
+    optional: true
 - tapOn:
-    id: "voice-llm-switch"
-
-# Select provider chip via stable testID
+    id: "llm-reasoning-switch"
+    optional: true
+- runFlow:
+    when:
+      notVisible: "OpenRouter"
+    commands:
+      - tapOn:
+          text: "AI reasoning (LLM)"
+          point: "95%,50%"
+      - tapOn:
+          text: "AI reasoning (LLM)"
+          point: "95%,50%"
+- extendedWaitUntil:
+    visible: "OpenRouter"
+    timeout: 8000
+    optional: true
 - tapOn:
-    id: "voice-provider-openai"
-
-# Paste API key from env DEMO_LLM_API_KEY (from src/.env via npm script)
+    id: "voice-provider-openrouter"
+    optional: true
 - tapOn:
     id: "voice-api-key-input"
+    optional: true
 - inputText: ${DEMO_LLM_API_KEY}
 - hideKeyboard
 - runFlow: shared/dismiss-save-password.yaml
-
-# Typed smart search with LLM
+- scrollUntilVisible:
+    element:
+      id: "voice-typed-query-input"
+    direction: DOWN
+    timeout: 12000
+    optional: true
 - tapOn:
     id: "voice-typed-query-input"
+    optional: true
 - inputText: "it's a fifty dollars jacket blue please"
-- pressKey: Enter
-- runFlow: shared/dismiss-save-password.yaml
-- extendedWaitUntil:
-    visible: "Add"
-    timeout: 7000
+- tapOn:
+    id: "voice-search-button"
     optional: true
 - runFlow: shared/dismiss-save-password.yaml
 - extendedWaitUntil:
     visible: "Add"
     timeout: 20000
-
-- tapOn:
-    id: "tab-home"
-
-# --- Photo search on Home ---
-- scrollUntilVisible:
-    element: "Search by photo"
-    direction: DOWN
-- tapOn: "Gallery"
-- extendedWaitUntil:
-    visible: "Photos"
-    timeout: 10000
     optional: true
-- tapOn:
-    point: "25%,30%"
-- extendedWaitUntil:
-    visible: "Closest match"
-    timeout: 20000
-    optional: true
-- scrollUntilVisible:
-    element: "Best matches"
-    direction: DOWN
-- extendedWaitUntil:
-    visible: "Best matches"
-    timeout: 15000

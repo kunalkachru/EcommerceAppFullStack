@@ -28,6 +28,9 @@ This branch completes a demo-ready e-commerce app with:
 | Live local-Ollama LLM smoke | `npm run verify:llm-local` | **3 passed, 2 warnings, 0 hard failures** on the current local model; query-quality misses are warnings unless `STRICT_LOCAL_LLM=1` |
 | iOS simulator launch (isolated worktree) | `npm start -- --port 8088` + `npm run ios -- --port 8088 --no-packager --udid 7EABE577-D15B-4B90-848F-EDAC9BF2FC7A` | **App built and launched successfully** on iPhone 17 Pro Max (iOS 26.5) |
 | Live paid-provider LLM reasoning | `API_URL=http://127.0.0.1:5002 node scripts/verify-llm-live.mjs` | **7/7 passed** on 2026-07-02 with user-supplied OpenAI/OpenRouter keys |
+| Android emulator ML smoke | `npm run verify:emulator` | **7/7 passed × 3 consecutive runs** on Pixel 7 Pro (2026-07-02) |
+| Android commerce E2E | `npm run verify:e2e-android` | Login → browse → cart → checkout → profile (requires emulator + API) |
+| Android nav/session | `npm run verify:android-nav` | Browse CTA, stack reset, cart persist, logout (requires emulator + API) |
 
 ---
 
@@ -194,10 +197,13 @@ Historical/manual coverage also included `useLlmReasoning=true`, OpenAI `gpt-4o-
 ### Layer 5 — E2E / Manual Smoke
 
 - Emulator screenshots captured under `docs/e2e/` (login, product list, PDP, cart, checkout, profile, signup)
+- **Android automation (2026-07-02 hardening):** `scripts/e2e-adb.mjs` uses testIDs, fixed clipboard text entry, tab navigation via `tab-*` IDs — see [2026-07-02-android-automation-design.md](./superpowers/specs/2026-07-02-android-automation-design.md)
+- **npm gates:** `verify:emulator`, `verify:e2e-android`, `verify:android-nav`
 - Test photos for visual search under `docs/test-photos/` (README included; binary images gitignored)
-- **Manual guide added:** [HYBRID_SEARCH_TEST_STEPS.md](./HYBRID_SEARCH_TEST_STEPS.md)
+- **Manual ML matrix:** [MANUAL_ML_VALIDATION.md](./MANUAL_ML_VALIDATION.md) (mic + camera realism)
+- **Manual guide:** [HYBRID_SEARCH_TEST_STEPS.md](./HYBRID_SEARCH_TEST_STEPS.md)
 - **Fresh iOS branch launch verified on 2026-07-02:** isolated worktree build launched on booted `iPhone 17 Pro Max` (`iOS 26.5`) via Metro `:8088`
-- **Not automated:** full Detox/Appium E2E suite in CI
+- **Not automated:** full Detox/Appium E2E suite in CI; true microphone and camera capture flows (manual matrix)
 
 ---
 
@@ -292,6 +298,8 @@ Detailed design and 3-day execution board: `.cursor/plans/robust_hybrid_search_a
 - [ ] Run `npm run verify:llm-live` when paid-provider keys are available
 - [ ] Confirm cart add from list + PDP with logged-in user
 - [ ] Confirm checkout → order appears in Orders tab
-- [ ] Follow [HYBRID_SEARCH_TEST_STEPS.md](./HYBRID_SEARCH_TEST_STEPS.md) for ML and E2E manual validation
+- [ ] Follow [MANUAL_ML_VALIDATION.md](./MANUAL_ML_VALIDATION.md) for mic/camera realism
+- [ ] Run `npm run verify:emulator` with Android emulator + API (expect catalog/gallery/PDP checks)
+- [ ] Run `npm run verify:e2e-android` for full commerce smoke (optional but recommended)
 - [ ] Watch demo videos or follow [DEMO_PRESENTATION.md](./DEMO_PRESENTATION.md)
 - [ ] Confirm no secrets committed (`src/.env`, `server/.env` are gitignored)

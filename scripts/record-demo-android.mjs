@@ -1,13 +1,9 @@
 #!/usr/bin/env node
 /**
  * Record Android demo videos (<60s) via adb screenrecord + automated UI flow.
- *
- * Prerequisites: API running, Metro running, app on emulator, test user registered.
- *
- *   npm run record:demo:android
  */
 import { spawn, execSync } from "node:child_process";
-import { mkdirSync, existsSync } from "node:fs";
+import { mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -15,20 +11,23 @@ import {
   findNodes,
   tap,
   tapContentDesc,
+  tapTestId,
+  tapTab,
   clearAndType,
   hideKeyboard,
   sleep,
   launchApp,
   swipe,
-  inputText,
+  loginIfNeeded,
+  waitForAnyText,
+  DEVICE,
+  ADB,
 } from "./e2e-adb.mjs";
 import { loadClientEnv, resolveDemoLlmKey, CLIENT_ENV_PATH } from "./load-env.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const OUT_DIR = join(ROOT, "docs", "demo", "videos");
-const DEVICE = process.env.ADB_DEVICE || "emulator-5554";
-const ADB = `adb -s ${DEVICE}`;
 const RECORD_SEC = 55;
 const EMAIL = "test@example.com";
 const PASSWORD = "secret123";
@@ -36,16 +35,6 @@ const API = "http://127.0.0.1:5001";
 
 function adb(cmd) {
   return execSync(`${ADB} ${cmd}`, { encoding: "utf8" }).trim();
-}
-
-function tapTab(i) {
-  tap(144 + i * 288, 2980);
-}
-
-function tapEditText(i) {
-  const nodes = findNodes(dumpUi(), { className: "EditText" });
-  if (!nodes[i]) throw new Error(`EditText index ${i} not found`);
-  tap(nodes[i].center.x, nodes[i].center.y);
 }
 
 async function ensureApi() {
@@ -84,30 +73,6 @@ async function clearCart() {
   }
 }
 
-async function login() {
-  let xml = dumpUi();
-  if (!xml.includes("Email") && !xml.includes("Sign in")) return;
-
-  const scrollBtn = findNodes(xml).find((n) => n.text === "Sign in ↓");
-  if (scrollBtn?.center) tap(scrollBtn.center.x, scrollBtn.center.y);
-  sleep(1200);
-
-  tapEditText(0);
-  sleep(300);
-  clearAndType(EMAIL);
-  tapEditText(1);
-  sleep(300);
-  clearAndType(PASSWORD);
-  hideKeyboard();
-  try {
-    tapContentDesc("Login");
-  } catch {
-    const login = findNodes(dumpUi(), { text: "Login" });
-    if (login[0]) tap(login[0].center.x, login[0].center.y);
-  }
-  sleep(4500);
-}
-
 function tapSearchField() {
   for (let attempt = 0; attempt < 4; attempt++) {
     const xml = dumpUi();
@@ -126,8 +91,7 @@ function tapSearchField() {
     swipe(720, 1200, 720, 600, 300);
     sleep(1200);
   }
-  // Pixel 7 Pro fallback (search bar ~y=780)
-  tap(720, 780);
+  throw new Error("Product search field not found");
 }
 
 function enableLlmWithKeyFromEnv() {
@@ -137,42 +101,52 @@ function enableLlmWithKeyFromEnv() {
     return false;
   }
 
-  tapTab(0);
+  tapTab("home");
   sleep(2000);
   swipe(720, 1600, 720, 400, 400);
   sleep(800);
 
-  const llmRow = findNodes(dumpUi()).find((n) => n.text?.includes("AI reasoning"));
-  if (llmRow) tap(llmRow.center.x + 280, llmRow.center.y);
+  tapTestId("llm-reasoning-switch");
   sleep(1000);
 
-  const openrouter = findNodes(dumpUi(), { text: "OpenRouter" });
-  if (openrouter[0]) tap(openrouter[0].center.x, openrouter[0].center.y);
+  tapTestId("voice-provider-openrouter");
   sleep(800);
 
-  const keyField = findNodes(dumpUi(), { className: "EditText" }).find(
-    (n) => n.hint?.includes("sk-") || n.text?.includes("sk-")
-  );
-  const field = keyField || findNodes(dumpUi(), { className: "EditText" })[0];
-  if (field) {
-    tap(field.center.x, field.center.y);
-    sleep(300);
-    clearAndType(key.slice(0, 40));
-    inputText(key.slice(40).replace(/@/g, "\\@"));
-    hideKeyboard();
-  }
+  tapTestId("voice-api-key-input");
+  sleep(300);
+  clearAndType(key);
+  hideKeyboard();
 
-  const typed = findNodes(dumpUi()).find((n) => n.hint?.includes("Or type"));
-  if (typed) {
-    tap(typed.center.x, typed.center.y);
-    sleep(300);
-    clearAndType("it's a fifty dollars jacket blue please");
-    hideKeyboard();
-  }
-  const findBtn = findNodes(dumpUi(), { text: "Find products" });
-  if (findBtn[0]) tap(findBtn[0].center.x, findBtn[0].center.y);
+  tapTestId("voice-typed-query-input");
+  sleep(300);
+  clearAndType("it's a fifty dollars jacket blue please");
+  hideKeyboard();
+
+  tapTestId("voice-search-button");
   sleep(5000);
   return true;
+}
+
+function pickSeededGalleryPhoto() {
+  tapTestId("photo-gallery-button");
+  sleep(5000);
+  const xml = dumpUi();
+  const folder = findNodes(xml).find(
+    (n) =>
+      n.text?.includes("ShopEaseTest") ||
+      n.contentDesc?.includes("ShopEaseTest") ||
+      n.text?.includes("Pictures")
+  );
+  if (folder) {
+    tap(folder.center.x, folder.center.y);
+    sleep(2500);
+  }
+  const imageCell = findNodes(dumpUi()).find(
+    (n) => n.className?.includes("Image") && n.clickable
+  );
+  if (imageCell) tap(imageCell.center.x, imageCell.center.y);
+  sleep(6000);
+  waitForAnyText(["Closest match", "Best matches"], { timeoutMs: 20000 });
 }
 
 async function recordVideo(name, flowFn) {
@@ -205,11 +179,15 @@ async function recordVideo(name, flowFn) {
 async function runAppFlowDemo() {
   launchApp();
   sleep(5000);
-  await login();
+  await loginIfNeeded({ email: EMAIL, password: PASSWORD });
 
-  tapTab(1);
+  tapTab("products");
   sleep(2500);
-  tap(360, 1100);
+  const xml = dumpUi();
+  const firstProduct = findNodes(xml).find(
+    (n) => n.text && n.text.length > 20 && !n.text.includes("catalog") && !n.text.includes("Search")
+  );
+  if (firstProduct) tap(firstProduct.center.x, firstProduct.center.y);
   sleep(2500);
 
   try {
@@ -223,7 +201,7 @@ async function runAppFlowDemo() {
   if (ok.length) tap(ok[0].center.x, ok[0].center.y);
   sleep(1500);
 
-  tapTab(2);
+  tapTab("cart");
   sleep(2500);
   swipe(720, 2200, 720, 900, 400);
   sleep(500);
@@ -251,16 +229,16 @@ async function runAppFlowDemo() {
   }
   sleep(3000);
 
-  tapTab(3);
+  tapTab("orders");
   sleep(4000);
 }
 
 async function runMlFeaturesDemo() {
   launchApp();
   sleep(5000);
-  await login();
+  await loginIfNeeded({ email: EMAIL, password: PASSWORD });
 
-  tapTab(1);
+  tapTab("products");
   sleep(4000);
   tapSearchField();
   sleep(400);
@@ -272,28 +250,12 @@ async function runMlFeaturesDemo() {
 
   swipe(720, 1400, 720, 500, 350);
   sleep(800);
-
-  const gallery = findNodes(dumpUi(), { text: "Gallery" });
-  if (gallery[0]) {
-    tap(gallery[0].center.x, gallery[0].center.y);
-    sleep(5000);
-    const pic = findNodes(dumpUi()).find(
-      (n) => n.text?.includes("ShopEase") || n.contentDesc?.includes("ShopEase")
-    );
-    if (pic) tap(pic.center.x, pic.center.y);
-    else tap(360, 800);
-    sleep(6000);
-  }
+  pickSeededGalleryPhoto();
 
   swipe(720, 1600, 720, 500, 350);
   sleep(1500);
-  const voiceHint = findNodes(dumpUi()).find((n) => n.text?.includes("Voice Search"));
-  if (voiceHint) {
-    swipe(720, 1400, 720, 600, 300);
-    sleep(2000);
-  }
 
-  tapTab(1);
+  tapTab("products");
   sleep(2000);
   tapSearchField();
   sleep(300);

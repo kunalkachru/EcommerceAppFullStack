@@ -10,6 +10,7 @@ import {
   Switch,
   Linking,
   ScrollView,
+  Pressable,
 } from "react-native";
 import { useSelector } from "react-redux";
 import Voice from "@react-native-voice/voice";
@@ -342,7 +343,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
             : null;
 
   return (
-    <View style={styles.card}>
+    <View style={styles.card} testID="voice-search-card">
       <Text style={styles.title}>Shop with your voice</Text>
       <Text style={styles.hint}>
         Mic → free on-device speech-to-text. Turn on AI reasoning and paste your
@@ -355,19 +356,28 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
         </Text>
       ) : null}
 
-      <View style={styles.llmRow}>
+      <View style={styles.llmRow} testID="llm-reasoning-row">
         <View style={styles.llmLabelWrap}>
           <Ionicons name="sparkles" size={18} color="#6b46c1" />
           <Text style={styles.llmLabel}>AI reasoning (LLM)</Text>
         </View>
-        <Switch
-          testID="voice-llm-switch"
-          value={useLlmReasoning}
-          onValueChange={onToggleLlm}
-          trackColor={{ false: "#cfd4da", true: "#b794f4" }}
-          thumbColor={useLlmReasoning ? "#6b46c1" : "#f4f3f4"}
-          disabled={searching}
-        />
+        <Pressable
+          testID="llm-reasoning-switch"
+          accessibilityLabel="AI reasoning LLM switch"
+          accessibilityRole="switch"
+          accessibilityState={{ checked: useLlmReasoning }}
+          onPress={() => !searching && onToggleLlm(!useLlmReasoning)}
+          hitSlop={8}
+        >
+          <Switch
+            value={useLlmReasoning}
+            onValueChange={onToggleLlm}
+            pointerEvents="none"
+            trackColor={{ false: "#cfd4da", true: "#b794f4" }}
+            thumbColor={useLlmReasoning ? "#6b46c1" : "#f4f3f4"}
+            disabled={searching}
+          />
+        </Pressable>
       </View>
 
       {useLlmReasoning ? (

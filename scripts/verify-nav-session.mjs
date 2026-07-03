@@ -9,10 +9,17 @@ import {
   findNodes,
   tap,
   tapContentDesc,
-  clearAndType,
-  hideKeyboard,
+  tapTab,
+  tapText,
   sleep,
+  loginIfNeeded,
+  tapBrowseProducts,
+  ensureAppForeground,
   launchApp,
+  swipe,
+  DEVICE,
+  PACKAGE,
+  ADB,
 } from "./e2e-adb.mjs";
 
 const EMAIL = "test@example.com";
@@ -36,55 +43,55 @@ const info = (id, note) => {
 async function api(method, path, body, token) {
   const headers = { "Content-Type": "application/json" };
   if (token) headers.Authorization = `Bearer ${token}`;
-  const res = await fetch(`${API}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  return res.json();
-}
-
-function tapTab(i) {
-  tap(180 + i * 360, 2980);
-}
-
-function tapEditText(i) {
-  const nodes = findNodes(dumpUi(), { className: "EditText" });
-  tap(nodes[i].center.x, nodes[i].center.y);
+  let lastErr;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      const res = await fetch(`${API}${path}`, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : undefined,
+      });
+      return res.json();
+    } catch (e) {
+      lastErr = e;
+      sleep(1000);
+    }
+  }
+  throw lastErr;
 }
 
 function uiHas(text) {
   return findNodes(dumpUi(), { text }).length > 0;
 }
 
-function uiHasSearchBar() {
-  return findNodes(dumpUi(), { text: "Search products..." }).length > 0;
+function uiHasCartItems() {
+  const xml = dumpUi();
+  if (xml.includes("Your cart is empty.")) return false;
+  if (xml.includes("Grand Total:")) return true;
+  if (/Cart \(\d+ items\)/.test(xml)) return true;
+  return findNodes(xml).some((n) => n.text?.includes("Grand Total"));
 }
 
-async function login() {
-  for (let i = 0; i < 8; i++) {
-    const xml = dumpUi();
-    if (findNodes(xml, { contentDesc: "Login", clickable: true }).length) break;
-    sleep(2000);
-  }
-  tapEditText(0);
-  sleep(300);
-  clearAndType(EMAIL);
-  tapEditText(1);
-  sleep(300);
-  clearAndType(PASSWORD);
-  hideKeyboard();
-  sleep(500);
-  try {
-    tapContentDesc("Login");
-  } catch {
-    tap(720, 1806);
-  }
-  sleep(5000);
+function uiOnLoginScreen() {
+  const xml = dumpUi();
+  return (
+    xml.includes("login-email") ||
+    findNodes(xml, { text: "Login" }).length > 0 ||
+    findNodes(xml, { text: "Sign in" }).length > 0 ||
+    xml.includes("Sign in ↓")
+  );
+}
+
+function uiHasSearchBar() {
+  const xml = dumpUi();
+  return (
+    findNodes(xml, { text: "Search products..." }).length > 0 ||
+    findNodes(xml).some((n) => n.hint?.includes("Search products"))
+  );
 }
 
 async function main() {
-  console.log("=== Setup ===");
+  console.log(`=== Setup on ${DEVICE} ===`);
   try {
     const health = await api("GET", "/health");
     if (!health.ok) throw new Error("API down");
@@ -97,27 +104,47 @@ async function main() {
   let token = (await api("POST", "/api/users/login", { email: EMAIL, password: PASSWORD })).token;
   await api("DELETE", "/api/cart/clear", null, token);
 
-  execSync("adb -s emulator-5554 shell pm clear com.ecommerceappfullstack");
+  execSync(`${ADB} shell pm clear ${PACKAGE}`);
   launchApp();
-  sleep(15000);
+  sleep(8000);
 
   console.log("\n=== 1. Login ===");
-  await login();
-  if (uiHas("Welcome to the E-Commerce App")) pass("login", "Reached home");
+  await loginIfNeeded({ email: EMAIL, password: PASSWORD });
+  if (uiHas("What are you shopping for today?")) pass("login", "Reached home");
   else fail("login", "Not on home after login");
 
   console.log("\n=== 2. Add product + open PDP ===");
-  tapContentDesc("GO TO PRODUCT LIST");
+  tapBrowseProducts();
   sleep(3500);
-  if (uiHasSearchBar()) pass("nav-home-to-list", "Go to Product List opens catalog");
-  else fail("nav-home-to-list", `Expected product list, got: ${findNodes(dumpUi()).map((n) => n.text).filter(Boolean).slice(0, 8)}`);
+  if (uiHasSearchBar()) pass("nav-home-to-list", "Browse all products opens catalog");
+  else fail("nav-home-to-list", "Expected product list");
 
-  tap(360, 1200);
-  sleep(2500);
-  if (uiHas("ADD TO CART") || uiHas("Add to Cart")) pass("nav-list-to-pdp", "Product detail visible");
-  else fail("nav-list-to-pdp", "PDP not shown");
+  swipe(720, 1400, 720, 600, 350);
+  sleep(800);
+  const xml = dumpUi();
+  const firstProduct = findNodes(xml).find(
+    (n) =>
+      n.contentDesc &&
+      n.contentDesc.length > 10 &&
+      n.clickable &&
+      !n.contentDesc.startsWith("Filter") &&
+      !n.contentDesc.includes("Search by photo")
+  );
+  if (!firstProduct) fail("nav-list-to-pdp", "No product card found");
+  else {
+    tap(firstProduct.center.x, firstProduct.center.y);
+    sleep(2500);
+    if (uiHas("ADD TO CART") || uiHas("Add to Cart")) pass("nav-list-to-pdp", "Product detail visible");
+    else fail("nav-list-to-pdp", "PDP not shown");
+  }
 
-  tapContentDesc("ADD TO CART");
+  try {
+    tapContentDesc("ADD TO CART");
+  } catch {
+    const add = findNodes(dumpUi(), { text: "Add to Cart" });
+    if (add[0]) tap(add[0].center.x, add[0].center.y);
+    else throw new Error("Add to Cart not found");
+  }
   sleep(1500);
   const ok = findNodes(dumpUi(), { text: "OK" });
   if (ok.length) tap(ok[0].center.x, ok[0].center.y);
@@ -129,34 +156,33 @@ async function main() {
   else fail("cart-api-add", "Server cart empty after add");
 
   console.log("\n=== 3. Home → Product List (must NOT stay on PDP) ===");
-  tapTab(0);
+  tapTab("home");
   sleep(2000);
-  tapContentDesc("GO TO PRODUCT LIST");
+  tapBrowseProducts();
   sleep(3500);
   screenshot("verify-home-to-list-after-pdp");
-  if (uiHasSearchBar()) pass("nav-home-reset-stack", "Home button returns to product list, not PDP");
-  else if (uiHas("ADD TO CART")) fail("nav-home-reset-stack", "Still on PDP (reviews/add to cart screen)");
+  if (uiHasSearchBar()) pass("nav-home-reset-stack", "Home returns to product list, not PDP");
+  else if (uiHas("ADD TO CART")) fail("nav-home-reset-stack", "Still on PDP");
   else fail("nav-home-reset-stack", "Unexpected screen");
 
   console.log("\n=== 4. Cart tab shows items ===");
-  tapTab(2);
+  tapTab("cart");
   sleep(3000);
   screenshot("verify-cart-with-items");
-  if (uiHas("Your cart is empty.")) fail("nav-cart-items", "Cart empty after add");
-  else if (uiHas("Cart (") && !uiHas("Cart (0 items)")) pass("nav-cart-items", "Cart tab shows line items");
+  if (uiHasCartItems()) pass("nav-cart-items", "Cart tab shows line items");
   else fail("nav-cart-items", "Cart state unclear");
 
   console.log("\n=== 5. Session: kill app + relaunch (auth + cart persist) ===");
-  execSync("adb -s emulator-5554 shell am force-stop com.ecommerceappfullstack");
+  execSync(`${ADB} shell am force-stop ${PACKAGE}`);
   sleep(1000);
-  launchApp();
+  ensureAppForeground();
   sleep(7000);
   screenshot("verify-after-relaunch");
 
   if (uiHas("Login")) fail("session-auth-persist", "Login screen after relaunch — auth not restored");
-  else if (uiHas("Welcome to the E-Commerce App")) pass("session-auth-persist", "Still logged in after app kill");
+  else if (uiHas("What are you shopping for today?")) pass("session-auth-persist", "Still logged in after app kill");
 
-  tapTab(2);
+  tapTab("cart");
   sleep(3000);
   token = (await api("POST", "/api/users/login", { email: EMAIL, password: PASSWORD })).token;
   const cartAfterRelaunch = await api("GET", "/api/cart", null, token);
@@ -164,26 +190,30 @@ async function main() {
   if (!cartUiEmpty && cartAfterRelaunch.items?.length > 0) {
     pass("session-cart-persist", `Cart restored: UI has items, API qty=${cartAfterRelaunch.items[0].quantity}`);
   } else if (cartAfterRelaunch.items?.length > 0 && cartUiEmpty) {
-    fail("session-cart-persist", "API has cart but UI empty (fetchCart on focus issue?)");
+    fail("session-cart-persist", "API has cart but UI empty");
   } else {
     fail("session-cart-persist", `UI empty=${cartUiEmpty}, API items=${cartAfterRelaunch.items?.length ?? 0}`);
   }
 
   console.log("\n=== 6. Search is NOT persisted (expected) ===");
-  tapTab(1);
+  tapTab("products");
   sleep(2500);
-  tapTab(0);
+  tapTab("home");
   sleep(1500);
-  tapContentDesc("GO TO PRODUCT LIST");
+  tapBrowseProducts();
   sleep(3000);
   info("session-search", "Search/filter state is local React state only — not saved to AsyncStorage or API (by design)");
 
   console.log("\n=== 7. Logout clears server cart ===");
-  tapTab(3);
+  tapTab("profile");
   sleep(2000);
-  tapContentDesc("Logout");
-  sleep(4000);
-  if (uiHas("Login")) pass("logout-ui", "Back to login");
+  try {
+    tapText("Logout");
+  } catch {
+    tapContentDesc("Logout");
+  }
+  sleep(6000);
+  if (uiOnLoginScreen()) pass("logout-ui", "Back to login");
   else fail("logout-ui", "Not on login");
 
   token = (await api("POST", "/api/users/login", { email: EMAIL, password: PASSWORD })).token;

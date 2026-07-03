@@ -14,6 +14,9 @@ import {
   tap,
   tapText,
   tapContentDesc,
+  tapTestId,
+  tapTab,
+  tapBrowseProducts,
   clearAndType,
   hideKeyboard,
   inputText,
@@ -21,6 +24,11 @@ import {
   launchApp,
   logcatErrors,
   swipe,
+  loginIfNeeded,
+  waitForText,
+  DEVICE,
+  PACKAGE,
+  ADB,
 } from "./e2e-adb.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -28,7 +36,6 @@ const ROOT = join(__dirname, "..");
 const API = "http://127.0.0.1:5001";
 const EMAIL = "test@example.com";
 const PASSWORD = "secret123";
-const USER_ID = "5a41ec7a-2850-4e10-a86c-a0a98758ea48";
 
 const results = [];
 
@@ -43,23 +50,6 @@ function fail(id, note) {
 function warn(id, note) {
   results.push({ id, status: "WARN", note });
   console.log(`! ${id}: ${note}`);
-}
-
-function tapHint(hint) {
-  const xml = dumpUi();
-  const nodes = findNodes(xml, { text: hint });
-  if (!nodes.length) throw new Error(`No field for hint: ${hint}`);
-  tap(nodes[0].center.x, nodes[0].center.y);
-  return nodes[0];
-}
-
-function waitForUi(matchFn, { attempts = 10, delayMs = 1500 } = {}) {
-  for (let i = 0; i < attempts; i++) {
-    const xml = dumpUi();
-    if (matchFn(xml)) return xml;
-    sleep(delayMs);
-  }
-  return null;
 }
 
 async function api(method, path, body, token) {
@@ -83,26 +73,6 @@ async function api(method, path, body, token) {
   throw lastErr;
 }
 
-function readStore() {
-  return JSON.parse(
-    readFileSync(join(ROOT, "server/data/store.json"), "utf8")
-  );
-}
-
-function tapEditTextByIndex(index) {
-  const xml = dumpUi();
-  const nodes = findNodes(xml, { className: "EditText" });
-  if (nodes.length <= index) throw new Error(`EditText index ${index} not found`);
-  tap(nodes[index].center.x, nodes[index].center.y);
-  return nodes[index];
-}
-
-function tapTabIcon(index) {
-  // Bottom tab bar: Home=0, Products=1, Cart=2, Profile=3 — icons ~y=2950 on 3120 height
-  const x = 180 + index * 360;
-  tap(x, 2980);
-}
-
 function dismissAlertIfPresent() {
   const xml = dumpUi();
   const ok = findNodes(xml, { text: "OK" });
@@ -115,6 +85,8 @@ function dismissAlertIfPresent() {
 }
 
 async function main() {
+  console.log(`=== E2E on ${DEVICE} ===`);
+
   console.log("=== E2E: API health ===");
   try {
     const health = await api("GET", "/health");
@@ -137,50 +109,32 @@ async function main() {
     fail("credentials", e.message);
   }
 
-  // Clear cart for clean test
   if (token) {
     await api("DELETE", "/api/cart/clear", null, token);
     pass("api-cart-clear", "Cart cleared before UI test");
   }
 
   console.log("\n=== E2E: UI Login ===");
-  execSync(`adb -s emulator-5554 shell pm clear com.ecommerceappfullstack`, { stdio: "inherit" });
+  execSync(`${ADB} shell pm clear ${PACKAGE}`, { stdio: "inherit" });
   launchApp();
   sleep(6000);
   screenshot("01-login-screen");
 
   try {
-    tapEditTextByIndex(0);
-    sleep(300);
-    clearAndType(EMAIL);
-    sleep(300);
-    tapEditTextByIndex(1);
-    sleep(300);
-    clearAndType(PASSWORD);
-    sleep(300);
-    hideKeyboard();
-    tapContentDesc("Login");
-    sleep(5000);
+    await loginIfNeeded({ email: EMAIL, password: PASSWORD });
     screenshot("02-after-login");
-
-    const afterLoginXml = dumpUi();
-    if (findNodes(afterLoginXml, { text: "Welcome to the E-Commerce App" }).length) {
-      pass("ui-login", "Landed on Home after login");
-    } else if (findNodes(afterLoginXml, { text: "Login" }).length) {
-      const err = logcatErrors(15);
-      fail("ui-login", `Still on login. Logcat: ${err.slice(0, 200)}`);
-    } else {
-      pass("ui-login", "Left login screen (main tabs visible)");
-    }
+    waitForText("What are you shopping for today?");
+    pass("ui-login", "Landed on Home after login");
   } catch (e) {
-    fail("ui-login", e.message);
+    const err = logcatErrors(15);
+    fail("ui-login", `${e.message}. Logcat: ${err.slice(0, 200)}`);
     screenshot("02-login-failed");
   }
 
   console.log("\n=== E2E: Home → Products ===");
   try {
-    tapText("Go to Product List");
-    sleep(2000);
+    tapBrowseProducts();
+    sleep(2500);
     screenshot("03-product-list");
     const xml = dumpUi();
     if (findNodes(xml, { className: "EditText" }).length >= 1) {
@@ -191,19 +145,29 @@ async function main() {
   }
 
   console.log("\n=== E2E: Product detail + add to cart ===");
-  let addedProductId = "1";
   try {
-    // Tap first product card (approx center of list below filters)
-    tap(720, 1200);
+    swipe(720, 1400, 720, 600, 350);
+    sleep(800);
+    const listXml = dumpUi();
+  const firstProduct = findNodes(listXml).find(
+    (n) =>
+      n.contentDesc &&
+      n.contentDesc.length > 10 &&
+      n.clickable &&
+      !n.contentDesc.startsWith("Filter") &&
+      !n.contentDesc.includes("Search by photo") &&
+      !n.contentDesc.includes("Add to Cart")
+  );
+  if (!firstProduct) throw new Error("No product card found");
+  tap(firstProduct.center.x, firstProduct.center.y);
     sleep(2500);
     screenshot("04-product-detail");
-    const xml = dumpUi();
-    const addBtn = findNodes(xml, { text: "ADD TO CART" });
+    const detailXml = dumpUi();
+    const addBtn = findNodes(detailXml, { text: "ADD TO CART" });
     if (!addBtn.length) {
-      // React Native Button may uppercase differently
-      const alt = findNodes(xml, { text: "Add to Cart" });
+      const alt = findNodes(detailXml, { text: "Add to Cart" });
       if (alt.length) tap(alt[0].center.x, alt[0].center.y);
-      else tap(720, 1100);
+      else throw new Error("Add to Cart not found");
     } else {
       tap(addBtn[0].center.x, addBtn[0].center.y);
     }
@@ -213,16 +177,11 @@ async function main() {
     pass("add-to-cart", "Tapped Add to Cart + dismissed alert");
 
     if (token) {
-      try {
-        const cart = await api("GET", "/api/cart", null, token);
-        if (cart.items?.length > 0) {
-          addedProductId = cart.items[0].productId;
-          pass("backend-add-to-cart", `API cart has ${cart.items.length} item(s): ${cart.items[0].title}`);
-        } else {
-          fail("backend-add-to-cart", "Cart empty after add in UI");
-        }
-      } catch (e) {
-        fail("backend-add-to-cart", e.message);
+      const cart = await api("GET", "/api/cart", null, token);
+      if (cart.items?.length > 0) {
+        pass("backend-add-to-cart", `API cart has ${cart.items.length} item(s): ${cart.items[0].title}`);
+      } else {
+        fail("backend-add-to-cart", "Cart empty after add in UI");
       }
     }
   } catch (e) {
@@ -231,13 +190,16 @@ async function main() {
 
   console.log("\n=== E2E: Cart tab ===");
   try {
-    tapTabIcon(2);
+    tapTab("cart");
     sleep(2500);
     screenshot("05-cart");
-    const xml = dumpUi();
-    if (findNodes(xml, { text: "Your cart is empty." }).length) {
+    const cartXml = dumpUi();
+    if (cartXml.includes("Your cart is empty.")) {
       fail("ui-cart-items", "Cart shows empty after add");
-    } else if (findNodes(xml, { text: "Grand Total:" }).length || findNodes(xml, { text: "Cart (" }).length) {
+    } else if (
+      cartXml.includes("Grand Total:") ||
+      /Cart \(\d+ items\)/.test(cartXml)
+    ) {
       pass("ui-cart-items", "Cart shows line items");
     } else {
       warn("ui-cart-items", "Cart state unclear from UI dump");
@@ -280,20 +242,25 @@ async function main() {
       fail("nav-checkout", "Proceed to Checkout not found");
     }
 
-    // Fill shipping
     const fields = findNodes(dumpUi(), { className: "EditText" });
     const values = ["E2E Tester", "123 Test St", "Austin", "78701", "5551234567"];
     for (let i = 0; i < Math.min(fields.length, values.length); i++) {
       tap(fields[i].center.x, fields[i].center.y);
       sleep(200);
-      inputText(values[i]);
+      clearAndType(values[i]);
       sleep(200);
     }
-    tapText("Credit Card");
+    const pay = findNodes(dumpUi()).find((n) => n.text?.includes("Credit Card"));
+    if (pay) tap(pay.center.x, pay.center.y);
+    else throw new Error("Credit Card payment option not found");
     sleep(500);
     swipe(720, 2400, 720, 1200, 400);
     sleep(500);
-    tapText("Place Order");
+    try {
+      tapText("Place Order");
+    } catch {
+      tapContentDesc("Place Order");
+    }
     sleep(2500);
     screenshot("08-order-summary");
 
@@ -316,7 +283,7 @@ async function main() {
 
   console.log("\n=== E2E: Profile + logout ===");
   try {
-    tapTabIcon(3);
+    tapTab("profile");
     sleep(2000);
     screenshot("09-profile");
     const xml = dumpUi();
@@ -325,10 +292,19 @@ async function main() {
     } else {
       warn("profile-info", "Could not verify profile email/name in UI");
     }
-    tapContentDesc("Logout");
-    sleep(3000);
+    try {
+      tapText("Logout");
+    } catch {
+      tapContentDesc("Logout");
+    }
+    sleep(6000);
     screenshot("10-after-logout");
-    if (findNodes(dumpUi(), { text: "Login" }).length) {
+    const logoutXml = dumpUi();
+    if (
+      logoutXml.includes("login-email") ||
+      findNodes(logoutXml, { text: "Login" }).length ||
+      logoutXml.includes("Sign in ↓")
+    ) {
       pass("logout", "Returned to login screen");
     } else fail("logout", "Not on login after logout");
   } catch (e) {
@@ -337,10 +313,26 @@ async function main() {
 
   console.log("\n=== E2E: Signup link navigation ===");
   try {
-    tapContentDesc("Don't have an account? Sign Up");
+    let signupXml = dumpUi();
+    const scrollBtn = findNodes(signupXml).find((n) => n.text === "Sign in ↓");
+    if (scrollBtn?.center) tap(scrollBtn.center.x, scrollBtn.center.y);
+    sleep(1200);
+    swipe(720, 1800, 720, 400, 350);
+    sleep(1000);
+    signupXml = dumpUi();
+    const link = findNodes(signupXml).find(
+      (n) => n.contentDesc === "Sign Up" || n.text?.includes("Sign Up")
+    );
+    if (link) tap(link.center.x, link.center.y);
+    else throw new Error("Sign Up link not found");
     sleep(2000);
     screenshot("11-signup");
-    if (findNodes(dumpUi(), { text: "Sign Up" }).length || findNodes(dumpUi(), { className: "EditText" }).length >= 3) {
+    const afterXml = dumpUi();
+    if (
+      findNodes(afterXml, { text: "Sign Up" }).length ||
+      findNodes(afterXml, { className: "EditText" }).length >= 3 ||
+      afterXml.includes("Create account")
+    ) {
       pass("signup-nav", "Signup screen reachable from login link");
     } else fail("signup-nav", "Signup screen not detected");
   } catch (e) {

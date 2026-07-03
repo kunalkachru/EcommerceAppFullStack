@@ -83,7 +83,7 @@ describe("VoiceSearchCard automation hooks", () => {
       await Promise.resolve();
     });
 
-    expect(() => tree.root.findByProps({ testID: "voice-llm-switch" })).not.toThrow();
+    expect(() => tree.root.findByProps({ testID: "llm-reasoning-switch" })).not.toThrow();
     expect(() => tree.root.findByProps({ testID: "voice-provider-openai" })).not.toThrow();
     const apiKeyInput = tree.root.findByProps({ testID: "voice-api-key-input" });
     expect(apiKeyInput.props.autoComplete).toBe("off");

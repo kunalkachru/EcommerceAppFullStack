@@ -126,8 +126,16 @@ const HomeScreen = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <Text style={styles.greeting}>Hi, {displayName}</Text>
-      <Text style={styles.subtitle}>What are you shopping for today?</Text>
+      <View style={styles.hero}>
+        <View style={styles.heroBadge}>
+          <Text style={styles.heroBadgeText}>ShopEase</Text>
+        </View>
+        <Text style={styles.greeting}>Hi, {displayName}</Text>
+        <Text style={styles.subtitle}>What are you shopping for today?</Text>
+        <Text style={styles.heroTagline}>
+          Voice, AI reasoning, and photo search — one tap away.
+        </Text>
+      </View>
 
       {shopCategories.length > 0 ? (
         <View style={styles.categorySection}>
@@ -153,7 +161,7 @@ const HomeScreen = () => {
         }}
       />
 
-      <View style={styles.visualCard}>
+      <View style={styles.visualCard} testID="photo-search-section">
         <Text style={styles.sectionTitle}>Search by photo</Text>
         <Text style={styles.sectionHint}>
           Snap one product — AI matches it across {catalogTotal || "300+"} catalog items.
@@ -167,6 +175,7 @@ const HomeScreen = () => {
 
         <View style={styles.pickerRow}>
           <TouchableOpacity
+            testID="photo-camera-button"
             style={styles.pickerBtn}
             onPress={() => pickImage("camera")}
             disabled={analyzing}
@@ -174,6 +183,7 @@ const HomeScreen = () => {
             <Text style={styles.pickerBtnText}>Camera</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            testID="photo-gallery-button"
             style={[styles.pickerBtn, styles.pickerBtnSecondary]}
             onPress={() => pickImage("gallery")}
             disabled={analyzing}
@@ -312,6 +322,7 @@ const HomeScreen = () => {
       </View>
 
       <TouchableOpacity
+        testID="browse-all-products"
         style={styles.browseBtn}
         onPress={() => navigateToProductList(navigation)}
       >
@@ -346,16 +357,41 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 32,
   },
+  hero: {
+    backgroundColor: "#1a1a2e",
+    borderRadius: 20,
+    padding: 22,
+    marginBottom: 18,
+  },
+  heroBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(0,123,255,0.2)",
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    marginBottom: 10,
+  },
+  heroBadgeText: {
+    color: "#7ec8ff",
+    fontWeight: "800",
+    fontSize: 12,
+    letterSpacing: 1,
+  },
   greeting: {
     fontSize: 28,
     fontWeight: "800",
-    color: "#1a1a2e",
+    color: "#ffffff",
   },
   subtitle: {
     fontSize: 16,
-    color: "#5c6370",
+    color: "#c8d0dc",
     marginTop: 4,
-    marginBottom: 12,
+  },
+  heroTagline: {
+    fontSize: 14,
+    color: "#9aa3af",
+    marginTop: 10,
+    lineHeight: 20,
   },
   categorySection: {
     marginBottom: 16,

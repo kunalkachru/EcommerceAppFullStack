@@ -248,6 +248,63 @@ These are complementary to API hosting, not replacements for it:
 3. Use **Appetize** for browser-shareable demos
 4. Use **BrowserStack App Live** for broader QA regression on real devices
 
+None of the above is automated in this repository yet.
+
+---
+
+## Deployment planning (2026-07-02)
+
+Recommended path for a **low-cost public demo** after Android automation is trustworthy (`npm run verify:emulator` green).
+
+### Phase A — Backend API (priority)
+
+| Option | Pros | Cons | Est. cost |
+|--------|------|------|-----------|
+| **Railway** | Simple Node deploy, env vars, HTTPS | CLIP cold start; memory for index | ~$5–20/mo |
+| **Render** | Free tier for smoke; easy Docker | Free tier sleeps; slow CLIP warm-up | $0–25/mo |
+| **Fly.io** | Global regions, volumes for model cache | More ops setup | ~$5–15/mo |
+
+**Recommendation:** Start with **Railway** or **Render** Web Service for `server/` only. Use a persistent volume or warm-up health check for CLIP index.
+
+**Env matrix (server):**
+
+| Variable | Required | Notes |
+|----------|----------|-------|
+| `PORT` | Yes | Platform-assigned |
+| `JWT_SECRET` | Yes | Generate for production |
+| `NODE_ENV` | Yes | `production` |
+| LLM keys | No | User-supplied in app session; server accepts per-request keys |
+
+### Phase B — Mobile demo surface
+
+| Option | When | Notes |
+|--------|------|-------|
+| **Internal APK / adb install** | First | Fastest; share build artifact |
+| **TestFlight (iOS)** | After API HTTPS URL stable | Update `src/config/api.js` or build-time env |
+| **Play internal track** | After API HTTPS URL stable | Same API host override |
+| **BrowserStack App Live** | Optional | After backend stable; good for reviewer demos |
+
+**Client API host:** Override default in `src/config/api.js` or inject at build time — emulator uses `10.0.2.2`, production needs `https://api.yourdomain.com`.
+
+### Phase C — LLM key model (unchanged)
+
+- `src/.env` stays **gitignored** for developer keys
+- App stores session keys **in memory only** (`llmSessionStore`)
+- Reviewers paste their own OpenRouter/OpenAI keys in the Voice Search card
+
+### Phase D — CI gates before public demo
+
+1. `npm test -- --runInBand --forceExit`
+2. `npm run verify:search` + `npm run verify:ml`
+3. `npm run verify:emulator` (Android smoke)
+4. Manual sign-off: [MANUAL_ML_VALIDATION.md](./MANUAL_ML_VALIDATION.md)
+
+### Maestro-on-Android (deferred)
+
+Evaluate porting `.maestro/demo-ml-features.yaml` with `appId: com.ecommerceappfullstack` only after ADB scripts pass three consecutive runs — see [2026-07-02-android-automation-design.md](./superpowers/specs/2026-07-02-android-automation-design.md).
+
+---
+
 ## Production deployment (not implemented)
 
 To deploy beyond local demo, you would need:
@@ -295,4 +352,6 @@ See [TESTING_STATUS.md](./TESTING_STATUS.md) for full test matrix.
 | `npm run server` | Start API |
 | `npm run snapshot-catalog` | Refresh offline catalog JSON |
 | `npm run seed:emulator-photos` | Push test images to Android emulator |
-| `npm run verify:emulator` | Emulator ML smoke checks |
+| `npm run verify:emulator` | Android emulator ML/catalog smoke |
+| `npm run verify:e2e-android` | Android commerce E2E smoke |
+| `npm run verify:android-nav` | Android nav + session persistence |
