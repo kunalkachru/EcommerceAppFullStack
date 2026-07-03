@@ -54,7 +54,21 @@ OpenRouter keys use `sk-or-…` from [openrouter.ai/keys](https://openrouter.ai/
 
 ## API host (client → server)
 
-File: `src/config/api.js`
+File: `src/config/api.js`  
+Cloud toggle: `src/config/apiTarget.js`
+
+| Mode | Config | URL |
+|------|--------|-----|
+| Local (default dev) | `API_TARGET_MODE = 'local'` | `http://10.0.2.2:5001` (Android) / `http://127.0.0.1:5001` (iOS) |
+| Railway cloud | `API_TARGET_MODE = 'cloud'` | `https://cooperative-presence-production-f5d9.up.railway.app` |
+
+Set in `src/config/apiTarget.js` before rebuilding the app. `index.js` calls `applyApiTarget()` at startup.
+
+Verify cloud API from Mac:
+
+```bash
+npm run verify:cloud
+```
 
 | Platform | Default host | URL |
 |----------|--------------|-----|

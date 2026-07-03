@@ -142,25 +142,48 @@ async function fetchCatalog({ force = false } = {}) {
   let merged = [];
 
   try {
-    const [dummy, fake, escuela] = await Promise.all([
-      fetchJson("https://dummyjson.com/products?limit=0").then((body) =>
-        (body.products || []).map(mapDummyJson)
-      ),
-      fetchJson("https://fakestoreapi.com/products").then((body) =>
-        (body || []).map(mapFakeStore)
-      ),
-      fetchJson("https://api.escuelajs.co/api/v1/products").then((body) =>
-        (body || []).map(mapEscuela)
-      ),
+    const sources = await Promise.all([
+      fetchJson("https://dummyjson.com/products?limit=0")
+        .then((body) => ({
+          name: "dummyjson",
+          products: (body.products || []).map(mapDummyJson),
+        }))
+        .catch((err) => {
+          console.warn("[catalog] dummyjson failed:", err.message);
+          return { name: "dummyjson", products: [] };
+        }),
+      fetchJson("https://fakestoreapi.com/products")
+        .then((body) => ({
+          name: "fakestore",
+          products: (body || []).map(mapFakeStore),
+        }))
+        .catch((err) => {
+          console.warn("[catalog] fakestore failed:", err.message);
+          return { name: "fakestore", products: [] };
+        }),
+      fetchJson("https://api.escuelajs.co/api/v1/products")
+        .then((body) => ({
+          name: "escuelajs",
+          products: (body || []).map(mapEscuela),
+        }))
+        .catch((err) => {
+          console.warn("[catalog] escuelajs failed:", err.message);
+          return { name: "escuelajs", products: [] };
+        }),
     ]);
 
-    sourceStats.push(
-      { name: "dummyjson", count: dummy.length },
-      { name: "fakestore", count: fake.length },
-      { name: "escuelajs", count: escuela.length }
-    );
+    for (const source of sources) {
+      sourceStats.push({ name: source.name, count: source.products.length });
+    }
 
-    merged = mergeProducts([dummy, fake, escuela, getDemoCoverageProducts()]);
+    merged = mergeProducts([
+      ...sources.map((s) => s.products),
+      getDemoCoverageProducts(),
+    ]);
+
+    if (!merged.length) {
+      throw new Error("All live catalog sources failed");
+    }
   } catch (err) {
     console.warn("[catalog] Live fetch failed:", err.message);
     const snapshot = await loadSnapshot();

@@ -1,5 +1,6 @@
 import axios from "axios";
-import { resolveApiHost, resolveApiScheme } from "./api";
+import { getApiBaseUrl, resolveApiHost, resolveApiScheme } from "./api";
+import { isCloudApiTarget } from "./apiTarget";
 
 const SEARCH_RUNTIME_DEFAULTS = {
   baseline: {
@@ -55,6 +56,9 @@ export function clearSearchRuntimeOverride() {
 }
 
 export function getSearchApiBaseUrl() {
+  if (isCloudApiTarget()) {
+    return getApiBaseUrl();
+  }
   const { port } = getSearchRuntimeConfig();
   return `${resolveApiScheme()}://${resolveApiHost()}:${port}`;
 }

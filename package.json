@@ -21,6 +21,7 @@
     "verify:android-nav": "node scripts/verify-nav-session.mjs",
     "verify:android-ml": "node scripts/verify-emulator-ml.mjs",
     "verify:manual-ml": "node scripts/run-manual-ml-validation.mjs",
+    "verify:cloud": "node scripts/verify-cloud-api.mjs",
     "seed:emulator-photos": "node scripts/seed-emulator-photos.mjs",
     "record:demo:android": "node scripts/record-demo-android.mjs",
     "record:demo:ios": "node scripts/record-demo-ios.mjs",

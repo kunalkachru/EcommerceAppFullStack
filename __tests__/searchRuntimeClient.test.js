@@ -1,3 +1,10 @@
+jest.mock("../src/config/apiTarget", () => ({
+  API_TARGET_MODE: "local",
+  isCloudApiTarget: () => false,
+  applyApiTarget: () => "local",
+  CLOUD_API: { host: "example.up.railway.app", useHttps: true },
+}));
+
 describe("search runtime client routing", () => {
   beforeEach(() => {
     jest.resetModules();
@@ -5,6 +12,7 @@ describe("search runtime client routing", () => {
     delete global.__SEARCH_RUNTIME__;
     delete global.__API_HOST__;
     delete global.__API_USE_HTTPS__;
+    delete global.__API_PORT__;
   });
 
   afterEach(() => {
