@@ -632,5 +632,7 @@ app.listen(PORT, "0.0.0.0", () => {
   console.log(
     `Ecommerce API listening on http://0.0.0.0:${PORT} (${runtimeConfig.runtimeName})`
   );
-  warmVisualSearchIndex();
+  if (process.env.SKIP_CLIP_WARMUP !== "1") {
+    warmVisualSearchIndex();
+  }
 });
