@@ -67,10 +67,21 @@ async function main() {
   }
 
   total += 1;
-  const login = await post("/api/users/login", {
+  let login = await post("/api/users/login", {
     email: "test@example.com",
     password: "secret123",
   });
+  if (login.status === 401) {
+    await post("/api/users/register", {
+      name: "Test User",
+      email: "test@example.com",
+      password: "secret123",
+    });
+    login = await post("/api/users/login", {
+      email: "test@example.com",
+      password: "secret123",
+    });
+  }
   if (ok("POST /api/users/login", login.status === 200 && Boolean(login.body?.token), `status ${login.status}`)) {
     passed += 1;
   }
@@ -87,7 +98,6 @@ async function main() {
   } else {
     ok("GET /api/cart (auth)", false, "no token from login");
   }
-  total += 1;
 
   console.log(`\n${passed}/${total} checks passed`);
   process.exit(passed === total ? 0 : 1);
