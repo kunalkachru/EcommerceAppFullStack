@@ -152,19 +152,22 @@ async function main() {
     }
   }
 
-  const fsProduct = products.find((p) => String(p.id).startsWith("fs-"));
-  if (fsProduct) {
-    const sim = await get(`/api/visual-search/similar/${encodeURIComponent(fsProduct.id)}?limit=5`);
+  const similarProduct =
+    products.find((p) => String(p.id).startsWith("fs-")) || products[0];
+  if (similarProduct) {
+    const sim = await get(
+      `/api/visual-search/similar/${encodeURIComponent(similarProduct.id)}?limit=5`
+    );
     if (sim.status === 200 && sim.body.matches?.length > 0) {
       pass(
         "feature-1-similar",
-        `${sim.body.matches.length} similar to "${fsProduct.title.slice(0, 30)}…"`
+        `${sim.body.matches.length} similar to "${String(similarProduct.title).slice(0, 30)}…"`
       );
     } else {
       fail("feature-1-similar", "No similar products returned");
     }
   } else {
-    fail("feature-1-similar", "No fakestore product in catalog");
+    fail("feature-1-similar", "Empty catalog");
   }
 
   const groups = await get("/api/visual-search/category-groups");

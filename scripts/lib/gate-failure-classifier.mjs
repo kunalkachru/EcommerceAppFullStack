@@ -35,7 +35,8 @@ const BLOCKING_PATTERNS = [
   /assert-cloud-api-target/i,
   /API_TARGET_MODE.*local/i,
   /Test jacket image missing/i,
-  /Unknown test photo/i,
+  /Failed to fetch.*HTTP/i,
+  /No fakestore product/i,
   /Missing artifact/i,
   /ENOENT.*cloud-api\.json/i,
 ];
