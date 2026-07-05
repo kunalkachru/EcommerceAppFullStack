@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveApiUrl } from "./lib/cloud-api-url.mjs";
+import { loadTestPhotoBase64 } from "./lib/test-photo-fixtures.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const API = resolveApiUrl();
@@ -124,13 +125,11 @@ async function main() {
     fail("clip-index", `Only ${status.indexCount} indexed (target ≥${MIN_INDEX})`);
   }
 
-  const jacketPath = join(__dirname, "..", "docs/test-photos/01-catalog-jacket.jpg");
-  let imageBase64;
+  let imageBase64 = null;
   try {
-    imageBase64 = readFileSync(jacketPath).toString("base64");
-  } catch {
-    fail("visual-search-photo", "Test jacket image missing — run npm run seed:emulator-photos");
-    imageBase64 = null;
+    imageBase64 = await loadTestPhotoBase64("01-catalog-jacket.jpg");
+  } catch (e) {
+    fail("visual-search-photo", e.message);
   }
 
   if (imageBase64) {

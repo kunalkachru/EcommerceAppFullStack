@@ -2,11 +2,11 @@
 /**
  * Exhaustive search-flow verification (voice, text, photo, LLM on/off).
  */
-import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
 import { resolveApiUrl } from "./lib/cloud-api-url.mjs";
+import { loadTestPhotoBase64 } from "./lib/test-photo-fixtures.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -106,9 +106,8 @@ async function main() {
     else fail(`local:${q}`, `${m.length} products`);
   }
 
-  const jacketPath = join(__dirname, "..", "docs/test-photos/01-catalog-jacket.jpg");
   try {
-    const b64 = readFileSync(jacketPath).toString("base64");
+    const b64 = await loadTestPhotoBase64("01-catalog-jacket.jpg");
     const visual = await post("/api/visual-search", { imageBase64: b64 });
     const matches = visual.data.matches ?? [];
     if (visual.status === 200 && matches.length >= 1) {
@@ -120,9 +119,8 @@ async function main() {
     fail("photo-jacket", e.message);
   }
 
-  const backpackPath = join(__dirname, "..", "docs/test-photos/02-catalog-backpack.jpg");
   try {
-    const b64 = readFileSync(backpackPath).toString("base64");
+    const b64 = await loadTestPhotoBase64("02-catalog-backpack.jpg");
     const visual = await post("/api/visual-search", {
       imageBase64: b64,
       categoryFilter: "clothing",
@@ -136,9 +134,8 @@ async function main() {
     fail("photo-category-filter", e.message);
   }
 
-  const pizzaPath = join(__dirname, "..", "docs/test-photos/12-off-catalog-pizza.jpg");
   try {
-    const b64 = readFileSync(pizzaPath).toString("base64");
+    const b64 = await loadTestPhotoBase64("12-off-catalog-pizza.jpg");
     const visual = await post("/api/visual-search", { imageBase64: b64 });
     const matches = visual.data.matches ?? [];
     if (visual.status === 200) {
