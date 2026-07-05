@@ -89,14 +89,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		93270E9A80D34E7CB1D88582 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Resources;
-			path = "";
-			sourceTree = "<group>";
-		};
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (

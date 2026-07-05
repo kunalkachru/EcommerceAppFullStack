@@ -1,0 +1,38 @@
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible: "ShopEase"
+    timeout: 20000
+- runFlow:
+    when:
+      visible: "Sign in ↓"
+    commands:
+      - tapOn: "Sign in ↓"
+- extendedWaitUntil:
+    visible: "Sign in"
+    timeout: 8000
+- scrollUntilVisible:
+    element:
+      id: "signup-link"
+    direction: DOWN
+    timeout: 12000
+- tapOn:
+    id: "signup-link"
+- assertVisible:
+    id: "screen-signup"
+- tapOn: "Already have an account? Login"
+- runFlow: ../shared/login-only.yaml
+- assertVisible:
+    id: "screen-home"
+- tapOn:
+    id: "tab-profile"
+- assertVisible:
+    id: "screen-profile"
+- tapOn:
+    id: "profile-logout"
+- extendedWaitUntil:
+    visible:
+      id: "login-email"
+    timeout: 15000

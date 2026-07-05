@@ -21,7 +21,7 @@ const OrderSummaryScreen = ({ route }) => {
   const orderStatus = order?.orderStatus || "placed";
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="screen-order-summary">
       <Text style={styles.header}>Order Summary</Text>
 
       {order && (

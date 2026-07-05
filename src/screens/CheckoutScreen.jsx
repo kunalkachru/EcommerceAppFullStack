@@ -83,6 +83,7 @@ const CheckoutScreen = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView
+      testID="screen-checkout"
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
@@ -96,24 +97,28 @@ const CheckoutScreen = ({ navigation }) => {
         {/* Shipping Details Form */}
         <View style={styles.form}>
           <TextInput
+            testID="checkout-field-fullname"
             style={styles.input}
             placeholder="Full Name"
             value={shippingInfo.name}
             onChangeText={(text) => setShippingInfo({ ...shippingInfo, name: text })}
           />
           <TextInput
+            testID="checkout-field-address"
             style={styles.input}
             placeholder="Address"
             value={shippingInfo.address}
             onChangeText={(text) => setShippingInfo({ ...shippingInfo, address: text })}
           />
           <TextInput
+            testID="checkout-field-city"
             style={styles.input}
             placeholder="City"
             value={shippingInfo.city}
             onChangeText={(text) => setShippingInfo({ ...shippingInfo, city: text })}
           />
           <TextInput
+            testID="checkout-field-zipcode"
             style={styles.input}
             placeholder="Zip Code"
             keyboardType="numeric"
@@ -121,6 +126,7 @@ const CheckoutScreen = ({ navigation }) => {
             onChangeText={(text) => setShippingInfo({ ...shippingInfo, zipCode: text })}
           />
           <TextInput
+            testID="checkout-field-phone"
             style={styles.input}
             placeholder="Phone Number"
             keyboardType="phone-pad"
@@ -133,7 +139,11 @@ const CheckoutScreen = ({ navigation }) => {
 
         {/* Payment Selection */}
         <Text style={styles.summaryHeader}>Select Payment Method</Text>
-        <TouchableOpacity style={styles.paymentOption} onPress={() => setPaymentMethod("Credit Card")}>
+        <TouchableOpacity
+          testID="checkout-payment-credit-card"
+          style={styles.paymentOption}
+          onPress={() => setPaymentMethod("Credit Card")}
+        >
           <Text style={[styles.paymentText, paymentMethod === "Credit Card" && styles.selected]}>💳 Credit Card</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.paymentOption} onPress={() => setPaymentMethod("PayPal")}>
@@ -155,6 +165,7 @@ const CheckoutScreen = ({ navigation }) => {
 
         {/* Place Order Button */}
         <TouchableOpacity
+          testID="checkout-place-order"
           style={[styles.orderButton, isPlacingOrder && styles.orderButtonDisabled]}
           onPress={handlePlaceOrder}
           disabled={isPlacingOrder}

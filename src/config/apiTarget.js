@@ -1,12 +1,14 @@
 /**
  * Switch mobile app API target: local Metro + localhost API vs Railway cloud.
- * Set API_TARGET_MODE to 'cloud' for Phase C cloud regression; 'local' for default dev.
+ * Cloud host: config/cloud-api.json (shared with verify/build scripts).
  */
+import cloudApiConfig from "../../config/cloud-api.json";
+
 export const API_TARGET_MODE = "cloud";
 
 export const CLOUD_API = {
-  host: "cooperative-presence-production-f5d9.up.railway.app",
-  useHttps: true,
+  host: cloudApiConfig.host,
+  useHttps: cloudApiConfig.useHttps !== false,
 };
 
 export function applyApiTarget() {
@@ -16,7 +18,7 @@ export function applyApiTarget() {
   global.__API_HOST__ = CLOUD_API.host;
   global.__API_USE_HTTPS__ = CLOUD_API.useHttps;
   global.__API_PORT__ = null;
-  global.__SEARCH_RUNTIME__ = "baseline";
+  global.__SEARCH_RUNTIME__ = cloudApiConfig.searchRuntime || "baseline";
   return "cloud";
 }
 

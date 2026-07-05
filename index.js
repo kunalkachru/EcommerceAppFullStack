@@ -4,10 +4,11 @@
 
 import { applyApiTarget } from "./src/config/apiTarget";
 
+// Apply cloud/local API host before any module reads getApiBaseUrl() at load time.
 applyApiTarget();
 
-import {AppRegistry} from 'react-native';
-import App from './App';
-import {name as appName} from './app.json';
+const { AppRegistry } = require("react-native");
+const App = require("./App").default;
+const { name: appName } = require("./app.json");
 
 AppRegistry.registerComponent(appName, () => App);

@@ -1,4 +1,4 @@
-appId: org.reactjs.native.example.EcommerceAppFullStack
+appId: ${APP_ID}
 ---
 # Shared login — demo credentials only (not LLM secrets)
 - launchApp:
@@ -14,25 +14,4 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
 - extendedWaitUntil:
     visible: "Sign in"
     timeout: 8000
-# Use testIDs — tapping "Password" label often leaves focus on email and concatenates both fields
-- tapOn:
-    id: "login-email"
-- eraseText
-- inputText: "test@example.com"
-- hideKeyboard
-- tapOn:
-    id: "login-password"
-- eraseText
-- inputText: "secret123"
-- hideKeyboard
-- tapOn:
-    id: "login-submit"
-- runFlow: dismiss-save-password.yaml
-- extendedWaitUntil:
-    visible: "What are you shopping for today?"
-    timeout: 5000
-    optional: true
-- runFlow: dismiss-save-password.yaml
-- extendedWaitUntil:
-    visible: "What are you shopping for today?"
-    timeout: 15000
+- runFlow: login-only.yaml

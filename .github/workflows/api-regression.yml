@@ -1,0 +1,36 @@
+# Free API smoke — no emulator/simulator (zero cloud device cost)
+name: API regression
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main, master]
+  push:
+    branches: [main, master]
+    paths:
+      - "server/**"
+      - "config/cloud-api.json"
+      - "scripts/verify-cloud*.mjs"
+      - "scripts/verify-ml*.mjs"
+      - "scripts/verify-search*.mjs"
+
+jobs:
+  cloud-api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - run: npm ci
+
+      - name: Secrets policy
+        run: npm run verify:secrets-policy
+
+      - name: Cloud API + CLIP + ML + search
+        run: npm run verify:cloud:all
+        env:
+          CLIP_WAIT_MS: "600000"

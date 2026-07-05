@@ -210,6 +210,7 @@ const ProductListScreen = ({ navigation }) => {
             onPress={() => navigation.navigate("ProductDetail", { product: item })}
             accessibilityLabel={item.title}
             accessibilityRole="button"
+            testID={`product-list-item-${item.id}`}
           >
             <Image
               source={{ uri: item.image }}
@@ -327,6 +328,7 @@ const ProductListScreen = ({ navigation }) => {
             )}
           </TouchableOpacity>
           <TextInput
+            testID="product-search-input"
             style={styles.searchBar}
             placeholder="Search products... e.g. below 45"
             value={searchQuery}
@@ -438,7 +440,7 @@ const ProductListScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="screen-product-list">
       <FlatList
         style={styles.list}
         data={filteredProducts}

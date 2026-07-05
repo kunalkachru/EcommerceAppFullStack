@@ -1,0 +1,60 @@
+{
+  "name": "ShopEase Cloud Demo",
+  "description": "React Native e-commerce demo with CLIP search — API on Railway",
+  "repository": "EcommerceAppFullStack",
+  "platforms": {
+    "android": {
+      "applicationId": "com.ecommerceappfullstack",
+      "buildScript": "npm run build:demo:apk",
+      "artifact": "dist/demo/shopease-cloud-demo.apk",
+      "appetizePlatform": "android"
+    },
+    "ios": {
+      "bundleId": "org.reactjs.native.example.EcommerceAppFullStack",
+      "buildScript": "npm run build:demo:ios-sim",
+      "artifact": "dist/demo/shopease-cloud-demo-ios-sim.zip",
+      "appetizePlatform": "ios",
+      "note": "Simulator build for Appetize; device IPA requires Apple signing (TestFlight / BS)"
+    }
+  },
+  "api": {
+    "configFile": "config/cloud-api.json",
+    "mobileToggle": "src/config/apiTarget.js → API_TARGET_MODE = cloud"
+  },
+  "demoLogin": {
+    "email": "test@example.com",
+    "password": "secret123"
+  },
+  "llmKeys": {
+    "inBuild": false,
+    "userEntersInApp": "Voice Search card → paste OpenAI/OpenRouter key (session memory only)"
+  },
+  "upload": {
+    "appetize": {
+      "script": "npm run upload:appetize -- --platform android|ios",
+      "tokenEnv": "APPETIZE_API_TOKEN",
+      "runsOn": "GitHub Actions (push main / manual) or developer machine locally",
+      "docs": "https://appetize.io/docs"
+    },
+    "browserStack": {
+      "script": "npm run upload:browserstack",
+      "credentialsEnv": ["BROWSERSTACK_USERNAME", "BROWSERSTACK_ACCESS_KEY"]
+    }
+  },
+  "githubIntegration": {
+    "appetizeAutoDeploy": true,
+    "githubActionsWorkflows": [".github/workflows/appetize-demo.yml"],
+    "requiredSecrets": [
+      "APPETIZE_API_TOKEN",
+      "APPETIZE_PUBLIC_KEY_ANDROID"
+    ],
+    "optionalSecrets": ["APPETIZE_PUBLIC_KEY_IOS"],
+    "secretsSource": "GitHub Actions secrets only — never src/.env in CI",
+    "note": "Push to main (or workflow_dispatch) builds APK + iOS sim zip and uploads to Appetize. LLM keys never in CI."
+  },
+  "publicKeys": {
+    "android": "b_syzdh2dfef37uy3fyeib33aky4",
+    "ios": "",
+    "_comment": "Stable demo URLs — not secret. iOS key added after first manual CI upload with include_ios."
+  }
+}

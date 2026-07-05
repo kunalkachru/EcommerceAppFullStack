@@ -2,12 +2,15 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { getApiBaseUrl } from "../../config/api";
 import catalogFallback from "../../data/catalog-fallback.json";
 
-export const catalogApi = createApi({
-  reducerPath: "catalogApi",
-  baseQuery: fetchBaseQuery({
+const dynamicBaseQuery = (args, api, extraOptions) =>
+  fetchBaseQuery({
     baseUrl: getApiBaseUrl(),
     timeout: 25000,
-  }),
+  })(args, api, extraOptions);
+
+export const catalogApi = createApi({
+  reducerPath: "catalogApi",
+  baseQuery: dynamicBaseQuery,
   keepUnusedDataFor: 300,
   endpoints: (builder) => ({
     getProducts: builder.query({

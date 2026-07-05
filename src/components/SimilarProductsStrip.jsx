@@ -30,7 +30,7 @@ const SimilarProductsStrip = ({
   }
 
   return (
-    <View style={styles.wrap}>
+    <View style={styles.wrap} testID="pdp-similar-section">
       <Text style={styles.heading}>{title}</Text>
       <ScrollView
         horizontal

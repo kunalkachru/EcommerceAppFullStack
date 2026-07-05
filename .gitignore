@@ -80,5 +80,15 @@ docs/demo/videos/.build/
 !.yarn/sdks
 !.yarn/versions
 
-#secrets
+#secrets — never commit real keys; use src/.env.example → src/.env locally
 .env
+**/.env
+!**/.env.example
+src/.env
+server/.env
+
+# Demo binaries (Appetize / BrowserStack) — build locally, upload manually or via scripts
+dist/demo/*.apk
+dist/demo/*.zip
+dist/demo/build-meta.json
+dist/demo/_ios_staging/

@@ -2,7 +2,6 @@ import axios from "axios";
 import { getApiBaseUrl } from "../config/api";
 
 const apiClient = axios.create({
-  baseURL: getApiBaseUrl(),
   timeout: 15000,
 });
 
@@ -36,6 +35,7 @@ function shouldTriggerAuthFailure(error) {
 }
 
 apiClient.interceptors.request.use((config) => {
+  config.baseURL = getApiBaseUrl();
   const token = getAuthToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

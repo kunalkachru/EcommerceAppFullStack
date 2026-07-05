@@ -18,8 +18,9 @@ import {
   recoverToApp,
   DEVICE,
 } from "./e2e-adb.mjs";
+import { resolveApiUrl } from "./lib/cloud-api-url.mjs";
 
-const API = "http://127.0.0.1:5001";
+const API = resolveApiUrl();
 
 const results = [];
 

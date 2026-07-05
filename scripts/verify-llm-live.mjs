@@ -5,12 +5,13 @@
  */
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadClientEnv, CLIENT_ENV_PATH } from "./load-env.mjs";
+import { loadClientEnv, CLIENT_ENV_PATH, llmRequestOptions } from "./load-env.mjs";
+import { resolveApiUrl } from "./lib/cloud-api-url.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const ENV_PATH = CLIENT_ENV_PATH;
-const API = process.env.API_URL || "http://127.0.0.1:5001";
+const API = resolveApiUrl();
 
 const results = [];
 
@@ -85,7 +86,7 @@ async function main() {
   }
 
   if (openaiKey) {
-    pass("openai-key-present", "OPENAI_API_KEY loaded from src/.env");
+    pass("openai-key-present", "OPENAI_API_KEY loaded from local env (src/.env or process env)");
 
     const openaiCases = [
       {
@@ -116,7 +117,7 @@ async function main() {
   }
 
   if (openrouterKey) {
-    pass("openrouter-key-present", "OPENROUTER_API_KEY loaded from src/.env");
+    pass("openrouter-key-present", "OPENROUTER_API_KEY loaded from local env (src/.env or process env)");
 
     const res = await postVoice("wireless headphones below 100", {
       apiKey: openrouterKey,

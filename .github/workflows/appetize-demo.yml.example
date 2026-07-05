@@ -1,0 +1,8 @@
+# Redirect — use the real workflow
+
+This example is **deprecated**. The active workflow is:
+
+**[`.github/workflows/appetize-demo.yml`](../appetize-demo.yml)**
+
+Quick start: **[scripts/lib/CI_CD_QUICKSTART.md](../../scripts/lib/CI_CD_QUICKSTART.md)**  
+Full guide: **[docs/APPETIZE_BROWSERSTACK.md](../../docs/APPETIZE_BROWSERSTACK.md)**

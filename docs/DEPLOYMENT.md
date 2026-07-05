@@ -1,8 +1,8 @@
 # Deployment Guide
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-07-03
 
-> **Cloud deployment: not implemented (TBD).** This repo ships as a **local full-stack demo** only. There is no production host, CI/CD pipeline, or container deployment checked in. See [Production deployment (not implemented)](#production-deployment-not-implemented) below.
+> **Cloud deployment: Railway (live).** The Express API runs on Railway with commerce + CLIP search. See [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md). Self-hosted OCI: [OCI_DEPLOY.md](./OCI_DEPLOY.md). Local dev remains the default workflow below.
 
 How the full-stack application is deployed and run **today**.
 
@@ -248,7 +248,7 @@ These are complementary to API hosting, not replacements for it:
 3. Use **Appetize** for browser-shareable demos
 4. Use **BrowserStack App Live** for broader QA regression on real devices
 
-None of the above is automated in this repository yet.
+Build and upload scripts: **[APPETIZE_BROWSERSTACK.md](./APPETIZE_BROWSERSTACK.md)** (`npm run build:demo:apk`, `upload:appetize`).
 
 ---
 
@@ -314,10 +314,10 @@ To deploy beyond local demo, you would need:
 3. **Database** — PostgreSQL/MongoDB for users, carts, orders
 4. **Persistent catalog** — snapshot DB or scheduled `snapshot-catalog` job
 5. **CLIP model cache** — warm index on deploy or object storage for vectors
-6. **Mobile release builds** — Android APK/AAB, iOS TestFlight with `__API_HOST__` pointing to deployed API
+6. **Mobile release builds** — `npm run build:demo:apk` / `build:demo:ios-sim` (see [APPETIZE_BROWSERSTACK.md](./APPETIZE_BROWSERSTACK.md))
 7. **Secrets** — JWT_SECRET, LLM keys via platform secret manager (not `.env` in repo)
 
-None of the above is automated in this repository yet.
+Store/CI automation (TestFlight, Play internal track) is not configured yet.
 
 ### Demo assets (repo only — not in app builds)
 

@@ -4,7 +4,36 @@ React Native mobile app + Node/Express API with multimodal search (text, voice, 
 
 **Stack:** React Native 0.85 · React 19 · Redux Toolkit · Express · CLIP (`@xenova/transformers`)
 
-**Branch:** `main` · **Last updated:** 2026-07-02
+**Branch:** `main` · **Last updated:** 2026-07-03
+
+---
+
+## Cloud demo (Railway + Appetize)
+
+The API runs on **Railway**; the mobile demo APK is auto-deployed to **Appetize** on push to `main`.
+
+| Topic | Document |
+|-------|----------|
+| **CI/CD — how to run & trigger workflows** | **[scripts/lib/CI_CD_QUICKSTART.md](./scripts/lib/CI_CD_QUICKSTART.md)** |
+| **Deploy Railway, RAM settings** | **[docs/RAILWAY_DEPLOY.md](./docs/RAILWAY_DEPLOY.md)** |
+| **Run verify / E2E scripts (Android + iOS)** | **[docs/CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md)** |
+| **Appetize / BrowserStack APK & upload** | **[docs/APPETIZE_BROWSERSTACK.md](./docs/APPETIZE_BROWSERSTACK.md)** |
+| **Self-hosted OCI (optional)** | **[docs/OCI_DEPLOY.md](./docs/OCI_DEPLOY.md)** |
+
+**Live Android demo:** https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4
+
+```bash
+# Pre-push (same gate as GitHub Actions)
+npm run verify:cloud:deploy-gate
+npm run build:demo:apk
+
+# Manual Appetize upload
+npm run upload:appetize -- --platform android
+
+# Trigger CI manually: GitHub → Actions → "Appetize demo deploy" → Run workflow
+```
+
+Quick cloud smoke: `npm run verify:cloud` · Full API gate: `npm run verify:cloud:all` · Deploy gate: `npm run verify:cloud:deploy-gate` · Live LLM: `npm run verify:cloud:llm` (needs local `src/.env`) · Android E2E: `npm run verify:e2e-android:cloud` · iOS: `IOS_FRESH_SIM=1 npm run verify:e2e-ios:cloud`
 
 ---
 
@@ -13,6 +42,7 @@ React Native mobile app + Node/Express API with multimodal search (text, voice, 
 ```bash
 npm install && cd server && npm install && cd ..
 cp server/.env.example server/.env   # set JWT_SECRET
+cp src/.env.example src/.env           # optional: OPENAI / OPENROUTER keys for live LLM (gitignored)
 npm run server                       # Terminal 1 — API :5001
 npm start                            # Terminal 2 — Metro :8081
 npm run android                      # Terminal 3 — Android (see below for iOS)
@@ -35,7 +65,9 @@ Start here for onboarding, review, or handoff to Codex/Claude.
 |----------|-------------|
 | **[docs/SETUP.md](./docs/SETUP.md)** | Prerequisites, install, 3-terminal startup, verification |
 | **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)** | Env vars, API host, LLM keys, catalog, auth, permissions |
-| **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** | How the full stack runs today (local demo), architecture diagram, production gaps |
+| **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** | How the full stack runs today (local + Railway), architecture diagram |
+| **[docs/RAILWAY_DEPLOY.md](./docs/RAILWAY_DEPLOY.md)** | Railway setup, RAM limits, CLI, troubleshooting |
+| **[docs/CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md)** | **Verification & E2E scripts** — cloud API, Android emulator, iOS simulator |
 | **[docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)** | **Complete testing & implementation status** — gates, results, review checklist |
 | **[docs/HYBRID_SEARCH_TEST_STEPS.md](./docs/HYBRID_SEARCH_TEST_STEPS.md)** | Manual ML + E2E validation steps with expected outcomes |
 
@@ -73,7 +105,8 @@ Start here for onboarding, review, or handoff to Codex/Claude.
 | Jumbled / conversational queries | ✅ Hybrid fixes reversed-range and price-first edge cases |
 | Orders | ✅ Lightweight (`mocked_paid`, Orders tab) |
 | Payment gateway | ❌ Not integrated |
-| Cloud production deploy | ❌ Local demo only — see [DEPLOYMENT.md](./docs/DEPLOYMENT.md) |
+| Cloud production deploy | ✅ Railway (Hobby) — see [RAILWAY_DEPLOY.md](./docs/RAILWAY_DEPLOY.md) |
+| Cloud regression scripts | ✅ [CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md) |
 
 **Full detail:** [docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)
 
@@ -97,13 +130,22 @@ The result is that CLIP remains important for image search and semantic relevanc
 
 ## Testing status (current gates)
 
-Run with API server up (`npm run server`) after CLIP index finishes.
+Run with API server up (`npm run server`) after CLIP index finishes, **or** against Railway — see **[docs/CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md)**.
 
 | Command | Expected result |
 |---------|-----------------|
 | `npm test -- --watchman=false --runInBand --forceExit` | **83/83** tests (25 suites) |
 | `npm run verify:search` | **20/20** search flow checks |
 | `npm run verify:ml` | **13/13** ML + catalog checks |
+| `npm run verify:cloud:all` | Cloud API + CLIP + ML + search (Railway) |
+| `npm run verify:cloud:llm` | Live LLM reasoning vs Railway (`src/.env` keys, not in repo) |
+| `npm run verify:secrets-policy` | Scan git-tracked files for accidental API key commits |
+| `npm run build:demo:apk` | Release APK for Appetize / BrowserStack (cloud API embedded) |
+| `npm run build:demo:ios-sim` | iOS simulator zip for Appetize (macOS) |
+| `npm run upload:appetize` | Upload build via Appetize API (`APPETIZE_API_TOKEN` in `src/.env`) |
+| `npm run upload:browserstack` | Upload APK to BrowserStack App Live |
+| `npm run verify:e2e-android:cloud` | Android commerce E2E vs cloud |
+| `IOS_FRESH_SIM=1 npm run verify:e2e-ios:cloud` | iOS Maestro E2E vs cloud |
 | `npm run verify:search:hybrid` | Hybrid passes all hybrid fixtures; baseline-only gaps shown for comparison |
 | `npm run verify:llm-local` | Optional local Ollama smoke test for the LLM path (no paid credits; model quality may vary) |
 | `npm run verify:llm-live` | Live OpenAI/OpenRouter intent extraction (keys in `src/.env`; run with `API_URL=http://127.0.0.1:5002` for hybrid) |
@@ -160,6 +202,10 @@ Catalog: **>=200 products required** · current local health on 2026-07-02 repor
 | `npm run verify:search:hybrid` | Side-by-side baseline vs hybrid verification |
 | `npm run verify:llm-local` | Optional local-Ollama LLM smoke verification |
 | `npm run verify:llm-live` | **Live LLM reasoning** (requires keys in `src/.env`) |
+| `npm run verify:cloud` | Cloud commerce smoke (Railway) |
+| `npm run verify:cloud:all` | Full cloud API regression |
+| `npm run verify:e2e-android:cloud` | Android E2E vs cloud |
+| `npm run verify:e2e-ios:cloud` | iOS Maestro E2E vs cloud |
 | `npm run snapshot-catalog` | Refresh offline catalog JSON |
 | `npm run seed:emulator-photos` | Seed test photos to Android emulator |
 | `npm run record:demo:android` | Record both demo videos (Android emulator → `docs/demo/videos/`) |
@@ -169,14 +215,11 @@ Catalog: **>=200 products required** · current local health on 2026-07-02 repor
 
 ## Deployment (how we run it today)
 
-The app is deployed as a **local full-stack demo** on the developer machine:
+**Local:** Express API `:5001`, Metro `:8081`, Android/iOS simulators.
 
-1. **Express API** on `0.0.0.0:5001` (catalog, auth, cart, orders, CLIP search)
-2. **Metro** on `:8081` (JS bundle)
-3. **Android emulator or iOS simulator** connecting to host via `10.0.2.2` or `127.0.0.1`
+**Cloud (primary demo API):** Railway — [RAILWAY_DEPLOY.md](./docs/RAILWAY_DEPLOY.md). Regression scripts: [CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md).
 
-No cloud deployment or CI/CD is configured in this repo.  
-Details, architecture diagram, and production checklist: **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
+Full architecture: **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
 
 ---
 

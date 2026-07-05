@@ -62,6 +62,7 @@ const CartScreen = ({ navigation }) => {
         </Text>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
+            testID="cart-qty-plus"
             style={styles.button}
             disabled={loading}
             onPress={() =>
@@ -97,7 +98,7 @@ const CartScreen = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="screen-cart">
       <Text style={styles.header}>Cart ({cartItems.length} items)</Text>
       {errorMessage ? (
         <>
@@ -140,6 +141,7 @@ const CartScreen = ({ navigation }) => {
             <Text style={styles.clearCartText}>Clear Cart</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            testID="cart-proceed-checkout"
             style={styles.checkoutButton}
             onPress={() => navigateToCheckout(navigation)}
           >

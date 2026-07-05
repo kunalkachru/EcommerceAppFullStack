@@ -21,10 +21,11 @@ import {
   PACKAGE,
   ADB,
 } from "./e2e-adb.mjs";
+import { resolveApiUrl } from "./lib/cloud-api-url.mjs";
 
 const EMAIL = "test@example.com";
 const PASSWORD = "secret123";
-const API = "http://127.0.0.1:5001";
+const API = resolveApiUrl();
 
 const results = [];
 const pass = (id, note) => {

@@ -1,0 +1,180 @@
+# Demo mobile builds → Appetize (deploy) or GitHub Artifacts (PR preview).
+#
+# Trigger priority:
+#   1. push to main        → preflight + Android → Appetize (zero macOS cost)
+#   2. workflow_dispatch   → same; optional include_ios (macOS, opt-in)
+#   3. pull_request        → Android APK artifact only (no Appetize, no preflight wait)
+#
+# SETUP: GitHub → Settings → Secrets → Actions
+#   APPETIZE_API_TOKEN          (required)
+#   APPETIZE_PUBLIC_KEY_ANDROID (required — stable demo URL)
+#   APPETIZE_PUBLIC_KEY_IOS     (optional until first iOS upload)
+#
+# Run locally: npm run verify:cloud:deploy-gate && npm run build:demo:apk
+# Docs: docs/APPETIZE_BROWSERSTACK.md · scripts/lib/CI_CD_QUICKSTART.md
+
+name: Appetize demo deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "android/**"
+      - "ios/**"
+      - "config/**"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/build-demo-*.mjs"
+      - "scripts/upload-appetize.mjs"
+      - "scripts/verify-cloud*.mjs"
+      - "scripts/assert-cloud-api-target.mjs"
+      - "scripts/lib/**"
+      - ".github/workflows/appetize-demo.yml"
+  workflow_dispatch:
+    inputs:
+      include_ios:
+        description: "Build and upload iOS sim zip to Appetize (uses macOS minutes)"
+        type: boolean
+        default: false
+  pull_request:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "android/**"
+      - "ios/**"
+      - "config/**"
+      - "package.json"
+      - "package-lock.json"
+      - "scripts/build-demo-*.mjs"
+      - "scripts/upload-appetize.mjs"
+      - "scripts/verify-cloud*.mjs"
+      - "scripts/assert-cloud-api-target.mjs"
+      - "scripts/lib/**"
+      - ".github/workflows/appetize-demo.yml"
+
+concurrency:
+  group: appetize-demo-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'main' }}
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    name: Railway deploy gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Skip preflight on PR (artifact preview only)
+        if: github.event_name == 'pull_request'
+        run: echo "PR builds skip Railway gate — download APK artifact for UI review."
+
+      - name: Cloud API + CLIP + ML + search gate
+        if: github.event_name != 'pull_request'
+        run: npm run verify:cloud:deploy-gate
+        env:
+          CLIP_WAIT_MS: "600000"
+
+  android:
+    name: Android APK
+    needs: preflight
+    if: always() && !cancelled() && (needs.preflight.result == 'success' || needs.preflight.result == 'skipped')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Assert cloud API target
+        run: node scripts/assert-cloud-api-target.mjs
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build release demo APK
+        env:
+          DEMO_APK_ABIS: arm64-v8a,x86_64
+        run: npm run build:demo:apk
+
+      - name: Upload APK artifact (PR preview)
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-apk-pr-${{ github.event.pull_request.number }}
+          path: dist/demo/shopease-cloud-demo.apk
+          retention-days: 14
+
+      - name: Verify GitHub secrets (Appetize Android)
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+          APPETIZE_PUBLIC_KEY_ANDROID: ${{ secrets.APPETIZE_PUBLIC_KEY_ANDROID }}
+        run: node scripts/assert-github-secrets.mjs --context appetize-android
+
+      - name: Upload to Appetize (main / manual)
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+          APPETIZE_PUBLIC_KEY_ANDROID: ${{ secrets.APPETIZE_PUBLIC_KEY_ANDROID }}
+        run: npm run upload:appetize -- --platform android --note "CI ${{ github.sha }} (${{ github.ref_name }})"
+
+  ios:
+    name: iOS sim zip → Appetize
+    needs: preflight
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      inputs.include_ios == true &&
+      needs.preflight.result == 'success'
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Assert cloud API target
+        run: node scripts/assert-cloud-api-target.mjs
+
+      - name: CocoaPods
+        run: npx pod-install
+
+      - name: Build iOS simulator demo zip
+        run: npm run build:demo:ios-sim
+
+      - name: Verify GitHub secrets (Appetize iOS)
+        env:
+          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+          APPETIZE_PUBLIC_KEY_IOS: ${{ secrets.APPETIZE_PUBLIC_KEY_IOS }}
+        run: node scripts/assert-github-secrets.mjs --context appetize-ios
+
+      - name: Upload to Appetize
+        env:
+          APPETIZE_API_TOKEN: ${{ secrets.APPETIZE_API_TOKEN }}
+          APPETIZE_PUBLIC_KEY_IOS: ${{ secrets.APPETIZE_PUBLIC_KEY_IOS }}
+        run: npm run upload:appetize -- --platform ios --note "CI ${{ github.sha }} (${{ github.ref_name }})"

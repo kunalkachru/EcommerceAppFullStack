@@ -1,0 +1,14 @@
+appId: ${APP_ID}
+---
+- runFlow: ../shared/login.yaml
+- tapOn:
+    id: "tab-products"
+- extendedWaitUntil:
+    visible:
+      id: "screen-product-list"
+    timeout: 12000
+- tapOn: "Essence Mascara Lash Princess"
+- extendedWaitUntil:
+    visible:
+      id: "pdp-add-to-cart"
+    timeout: 10000

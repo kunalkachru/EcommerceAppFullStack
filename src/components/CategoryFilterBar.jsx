@@ -54,6 +54,7 @@ const CategoryFilterBar = ({ categories, selectedCategory, onSelect }) => (
       return (
         <Pressable
           key={category}
+          testID={`filter-category-${category.toLowerCase().replace(/\s+/g, "-")}`}
           accessibilityRole="button"
           accessibilityLabel={`Filter by ${category}`}
           accessibilityState={{ selected }}

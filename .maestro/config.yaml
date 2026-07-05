@@ -1,0 +1,3 @@
+# Maestro workspace config — APP_ID set per platform in run-e2e-all.mjs
+env:
+  APP_ID: org.reactjs.native.example.EcommerceAppFullStack

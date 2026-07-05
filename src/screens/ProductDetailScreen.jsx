@@ -124,7 +124,7 @@ const ProductDetailScreen = ({ route }) => {
   const addButtonLabel = adding || isCartPendingForProduct ? "Adding..." : "Add to Cart";
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.container}>
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.container} testID="screen-product-detail">
       <Image source={{ uri: product.image }} style={styles.image} resizeMode="contain" />
 
       <Text style={styles.name}>{product.title}</Text>
@@ -135,6 +135,7 @@ const ProductDetailScreen = ({ route }) => {
 
       <View style={styles.primaryActions}>
         <TouchableOpacity
+          testID="pdp-add-to-cart"
           accessibilityLabel="Add to Cart"
           accessibilityRole="button"
           style={[

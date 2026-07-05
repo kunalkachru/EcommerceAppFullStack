@@ -1,0 +1,19 @@
+appId: ${APP_ID}
+---
+- runFlow: ../shared/login.yaml
+- tapOn:
+    id: "tab-home"
+- scrollUntilVisible:
+    element:
+      id: "voice-search-card"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: "voice-typed-query-input"
+- inputText: "wireless headphones below 100"
+- hideKeyboard
+- tapOn:
+    id: "voice-search-button"
+- extendedWaitUntil:
+    visible: "Add"
+    timeout: 20000

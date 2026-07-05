@@ -122,6 +122,7 @@ const LoginScreen = ({ navigation }) => {
           <TouchableOpacity
             onPress={() => navigation.navigate("Signup")}
             accessibilityLabel="Sign Up"
+            testID="signup-link"
           >
             <Text style={styles.linkText}>
               Don't have an account? Sign Up

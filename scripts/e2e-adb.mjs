@@ -181,22 +181,37 @@ export function pasteFromClipboard(text) {
   sleep(200);
 }
 
+export function selectAllInField() {
+  // Ctrl+A (KEYCODE_CTRL_LEFT=113, KEYCODE_A=29) — works on most Android emulators
+  try {
+    adb("shell input keycombination 113 29");
+  } catch {
+    /* fallback below */
+  }
+  sleep(100);
+}
+
+export function fillTestId(testId, value, { timeoutMs = 8000 } = {}) {
+  tapTestId(testId, { timeoutMs });
+  sleep(400);
+  selectAllInField();
+  clearField();
+  sleep(150);
+  inputText(String(value));
+  sleep(300);
+  hideKeyboard();
+  sleep(400);
+}
+
+export function readFieldTextByTestId(xml, testId) {
+  const node = findByTestId(xml, testId);
+  return node?.text || node?.hint || "";
+}
 export function clearAndType(value) {
+  selectAllInField();
   clearField();
   if (!value) return;
-  const str = String(value);
-  const needsPaste = /['"\n\\]/.test(str) || /[^a-zA-Z0-9._\-@% ]/.test(str);
-  if (needsPaste) {
-    pasteFromClipboard(str);
-    return;
-  }
-  if (str.length <= 40) {
-    inputText(str);
-    return;
-  }
-  for (let i = 0; i < str.length; i += 40) {
-    inputText(str.slice(i, i + 40));
-  }
+  pasteFromClipboard(String(value));
 }
 
 export function tapText(text, opts = {}) {
@@ -324,6 +339,44 @@ export function uiIncludes(...needles) {
   return needles.every((needle) => xml.includes(needle));
 }
 
+export function dismissPhotoPermissionDialog() {
+  const xml = dumpUi();
+  if (
+    !xml.includes("access photos") &&
+    !xml.includes("access photo") &&
+    !xml.includes("photos and videos")
+  ) {
+    return false;
+  }
+  const allow = findNodes(xml).find(
+    (n) =>
+      n.clickable &&
+      (n.text === "Allow all" ||
+        n.text === "Allow" ||
+        n.text === "Allow limited access")
+  );
+  if (allow?.center) {
+    tap(allow.center.x, allow.center.y);
+    sleep(1500);
+    return true;
+  }
+  return false;
+}
+
+export function grantPhotoPermissions() {
+  for (const perm of [
+    "android.permission.READ_MEDIA_IMAGES",
+    "android.permission.READ_MEDIA_VIDEO",
+    "android.permission.READ_EXTERNAL_STORAGE",
+  ]) {
+    try {
+      adb(`shell pm grant ${PACKAGE} ${perm}`);
+    } catch {
+      /* not applicable on this API level */
+    }
+  }
+}
+
 export async function loginIfNeeded({
   email = "test@example.com",
   password = "secret123",
@@ -361,26 +414,23 @@ export async function loginIfNeeded({
   if (scrollBtn?.center) tap(scrollBtn.center.x, scrollBtn.center.y);
   sleep(1200);
 
-  try {
-    tapTestId("login-email", { timeoutMs: 8000 });
-  } catch {
-    const edits = findNodes(dumpUi(), { className: "EditText" });
-    if (!edits.length) throw new Error("Login email field not found");
-    tap(edits[0].center.x, edits[0].center.y);
-  }
-  sleep(300);
-  clearAndType(email);
+  fillTestId("login-email", email);
+  fillTestId("login-password", password);
 
-  try {
-    tapTestId("login-password", { timeoutMs: 8000 });
-  } catch {
-    const edits = findNodes(dumpUi(), { className: "EditText" });
-    if (edits.length < 2) throw new Error("Login password field not found");
-    tap(edits[1].center.x, edits[1].center.y);
+  const beforeSubmit = dumpUi();
+  const emailVal = readFieldTextByTestId(beforeSubmit, "login-email");
+  if (emailVal !== email) {
+    throw new Error(
+      `Email field wrong before submit — got "${emailVal}", expected "${email}"`
+    );
   }
-  sleep(300);
-  clearAndType(password);
-  hideKeyboard();
+  const passNode = findByTestId(beforeSubmit, "login-password");
+  if (passNode?.text === email || passNode?.text === "Email") {
+    throw new Error("Password value appears in email field — focus mix-up");
+  }
+
+  swipe(720, 2600, 720, 1200, 350);
+  sleep(500);
 
   try {
     tapTestId("login-submit", { timeoutMs: 5000 });

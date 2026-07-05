@@ -1,0 +1,78 @@
+appId: ${APP_ID}
+---
+- runFlow: ../shared/login.yaml
+- tapOn:
+    id: "tab-products"
+- extendedWaitUntil:
+    visible:
+      id: "screen-product-list"
+    timeout: 12000
+- tapOn: "Essence Mascara Lash Princess"
+- extendedWaitUntil:
+    visible:
+      id: "pdp-add-to-cart"
+    timeout: 10000
+- tapOn:
+    id: "pdp-add-to-cart"
+- runFlow:
+    when:
+      visible: "OK"
+    commands:
+      - tapOn: "OK"
+- tapOn:
+    id: "tab-cart"
+- extendedWaitUntil:
+    visible:
+      id: "screen-cart"
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: "cart-proceed-checkout"
+    direction: DOWN
+- tapOn:
+    id: "cart-proceed-checkout"
+- extendedWaitUntil:
+    visible:
+      id: "screen-checkout"
+    timeout: 10000
+- tapOn:
+    id: "checkout-field-fullname"
+- inputText: "Demo User"
+- tapOn:
+    id: "checkout-field-address"
+- inputText: "1 Demo Street"
+- tapOn:
+    id: "checkout-field-city"
+- inputText: "Austin"
+- tapOn:
+    id: "checkout-field-zipcode"
+- inputText: "78701"
+- tapOn:
+    id: "checkout-field-phone"
+- inputText: "5551234567"
+- tapOn:
+    id: "screen-checkout"
+- swipe:
+    start: "50%,75%"
+    end: "50%,35%"
+- tapOn: "💳 Credit Card"
+- scrollUntilVisible:
+    element:
+      id: "checkout-place-order"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "checkout-place-order"
+- runFlow:
+    when:
+      visible: "Order Failed"
+    commands:
+      - tapOn: "OK"
+- runFlow:
+    when:
+      visible: "Please fill in"
+    commands:
+      - tapOn: "OK"
+- extendedWaitUntil:
+    visible: "Order Summary"
+    timeout: 60000

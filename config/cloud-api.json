@@ -1,0 +1,5 @@
+{
+  "host": "cooperative-presence-production-f5d9.up.railway.app",
+  "useHttps": true,
+  "searchRuntime": "baseline"
+}

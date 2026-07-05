@@ -6,9 +6,10 @@
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveApiUrl } from "./lib/cloud-api-url.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const API = process.env.API_URL || "http://127.0.0.1:5001";
+const API = resolveApiUrl();
 const MIN_CATALOG = 200;
 const MIN_INDEX = 200;
 

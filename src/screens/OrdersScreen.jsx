@@ -97,7 +97,7 @@ const OrdersScreen = ({ navigation }) => {
 
   if (loading && !orders.length && !error) {
     return (
-      <View style={styles.center}>
+      <View style={styles.center} testID="screen-orders">
         <ActivityIndicator size="large" color="#28A745" />
         <Text style={styles.loadingText}>Loading your orders...</Text>
       </View>
@@ -105,7 +105,7 @@ const OrdersScreen = ({ navigation }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="screen-orders">
       <Text style={styles.header}>Your Orders</Text>
       {error && (
         <View style={styles.errorBox}>

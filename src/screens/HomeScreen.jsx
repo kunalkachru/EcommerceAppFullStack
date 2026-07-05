@@ -7,7 +7,6 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
-  FlatList,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useSelector } from "react-redux";
@@ -107,8 +106,15 @@ const HomeScreen = () => {
     });
   };
 
-  const renderMatch = ({ item }) => (
-    <TouchableOpacity style={styles.matchCard} onPress={() => openProduct(item)}>
+  const renderMatch = (item) => (
+    <TouchableOpacity
+      key={String(item.id)}
+      style={styles.matchCard}
+      onPress={() => openProduct(item)}
+      accessibilityRole="button"
+      accessibilityLabel={item.title}
+      testID={`photo-match-card-${item.id}`}
+    >
       <Image source={{ uri: item.image }} style={styles.matchImage} resizeMode="contain" />
       <Text style={styles.matchPercent}>
         {item.matchPercent ?? Math.round((item.matchScore ?? 0) * 100)}% similar
@@ -125,7 +131,13 @@ const HomeScreen = () => {
   const shopCategories = useMemo(() => getTopCategories(products, 8), [products]);
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      testID="screen-home"
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      nestedScrollEnabled
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={styles.hero}>
         <View style={styles.heroBadge}>
           <Text style={styles.heroBadgeText}>ShopEase</Text>
@@ -213,18 +225,24 @@ const HomeScreen = () => {
           </View>
         ) : null}
 
-        {!analyzing && previewUri && topMatch?.image ? (
-          <View style={styles.compareRow}>
+        {!analyzing && topMatch?.image ? (
+          <TouchableOpacity
+            testID="photo-closest-match"
+            style={styles.compareRow}
+            onPress={() => openProduct(topMatch)}
+            accessibilityRole="button"
+            accessibilityLabel={`Open closest match: ${topMatch.title}`}
+          >
             <View style={styles.compareCol}>
               <Text style={styles.compareLabel}>Your photo</Text>
               <Image source={{ uri: previewUri }} style={styles.compareThumb} resizeMode="cover" />
             </View>
             <Text style={styles.compareArrow}>→</Text>
             <View style={styles.compareCol}>
-              <Text style={styles.compareLabel}>Closest match</Text>
+              <Text style={styles.compareLabel}>Closest match (tap)</Text>
               <Image source={{ uri: topMatch.image }} style={styles.compareThumb} resizeMode="contain" />
             </View>
-          </View>
+          </TouchableOpacity>
         ) : null}
 
         {!analyzing && attributes.length > 0 ? (
@@ -276,18 +294,14 @@ const HomeScreen = () => {
         ) : null}
 
         {!analyzing && matches.length > 0 ? (
-          <>
-            <Text style={styles.matchesHeading}>Best matches</Text>
-            <FlatList
-              data={matches}
-              horizontal
-              keyExtractor={(item) => String(item.id)}
-              renderItem={renderMatch}
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.matchesList}
-            />
+          <View testID="photo-results-section">
+            <Text style={styles.matchesHeading}>Best matches (tap to open)</Text>
+            <View style={styles.matchesRow}>
+              {matches.map((item) => renderMatch(item))}
+            </View>
             {searchHint ? (
               <TouchableOpacity
+                testID="photo-see-all-results"
                 style={styles.seeAllBtn}
                 onPress={() =>
                   navigateToProductListWithMatchResults(navigation, {
@@ -302,7 +316,7 @@ const HomeScreen = () => {
                 </Text>
               </TouchableOpacity>
             ) : null}
-          </>
+          </View>
         ) : null}
 
         {previewUri && !analyzing && matches.length === 0 && outcome ? (
@@ -315,7 +329,7 @@ const HomeScreen = () => {
         ) : null}
 
         {previewUri && !analyzing ? (
-          <TouchableOpacity onPress={clearSearch}>
+          <TouchableOpacity testID="photo-clear-search" onPress={clearSearch}>
             <Text style={styles.clearText}>Clear photo search</Text>
           </TouchableOpacity>
         ) : null}
@@ -577,7 +591,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     color: "#1a1a2e",
   },
-  matchesList: {
+  matchesRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
     paddingBottom: 8,
   },

@@ -2,7 +2,7 @@ import {
   launchCamera,
   launchImageLibrary,
 } from "react-native-image-picker";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import {
   ensureCameraPermission,
   ensureGalleryPermission,
@@ -23,6 +23,49 @@ export const cameraOptions = {
   cameraType: "back",
 };
 
+/** Android 13+ photo picker often returns uri without inline base64. */
+async function readBase64FromUri(uri) {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = () => {
+      if (xhr.status !== 200 && xhr.status !== 0) {
+        reject(new Error(`HTTP ${xhr.status}`));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const dataUrl = reader.result;
+        if (typeof dataUrl !== "string" || !dataUrl.includes(",")) {
+          reject(new Error("Could not encode image"));
+          return;
+        }
+        resolve(dataUrl.split(",")[1]);
+      };
+      reader.onerror = () => reject(reader.error ?? new Error("read failed"));
+      reader.readAsDataURL(xhr.response);
+    };
+    xhr.onerror = () => reject(new Error("xhr failed"));
+    xhr.responseType = "blob";
+    xhr.open("GET", uri);
+    xhr.send();
+  });
+}
+
+async function normalizeAsset(asset) {
+  if (!asset?.uri) return null;
+  if (asset.base64) return asset;
+  try {
+    const base64 = await readBase64FromUri(asset.uri);
+    return { ...asset, base64 };
+  } catch (err) {
+    console.warn("photoPicker: base64 read failed", err?.message ?? err);
+    if (Platform.OS === "android") {
+      Alert.alert("Photo error", "Could not read image data. Try another photo.");
+    }
+    return null;
+  }
+}
+
 /**
  * Open camera or gallery and return the first asset (uri + base64).
  */
@@ -39,7 +82,7 @@ export async function pickPhotoAsset(source) {
   const options = source === "camera" ? cameraOptions : pickerOptions;
 
   return new Promise((resolve) => {
-    launcher(options, (response) => {
+    launcher(options, async (response) => {
       if (response.didCancel) {
         resolve(null);
         return;
@@ -54,14 +97,7 @@ export async function pickPhotoAsset(source) {
         return;
       }
       const asset = response.assets?.[0];
-      if (asset?.uri && asset?.base64) {
-        resolve(asset);
-        return;
-      }
-      if (asset?.uri) {
-        Alert.alert("Photo error", "Could not read image data. Try another photo.");
-      }
-      resolve(null);
+      resolve(await normalizeAsset(asset));
     });
   });
 }

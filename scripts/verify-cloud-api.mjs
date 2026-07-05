@@ -5,10 +5,12 @@
  *   npm run verify:cloud
  *   API_URL=https://your-app.up.railway.app npm run verify:cloud
  */
+import { DEFAULT_CLOUD_API } from "./lib/cloud-api-url.mjs";
+
 const BASE =
   process.env.API_URL ||
   process.env.RAILWAY_URL ||
-  "https://cooperative-presence-production-f5d9.up.railway.app";
+  DEFAULT_CLOUD_API;
 
 async function get(path) {
   const res = await fetch(`${BASE}${path}`);

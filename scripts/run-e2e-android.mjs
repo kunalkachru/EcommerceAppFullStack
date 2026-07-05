@@ -31,11 +31,19 @@ import {
   ADB,
 } from "./e2e-adb.mjs";
 
+import { resolveApiUrl } from "./lib/cloud-api-url.mjs";
+import {
+  createApiClient,
+  DEFAULT_EMAIL,
+  DEFAULT_PASSWORD,
+} from "./e2e-api-helpers.mjs";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
-const API = "http://127.0.0.1:5001";
-const EMAIL = "test@example.com";
-const PASSWORD = "secret123";
+const API = resolveApiUrl();
+const { api, login, waitForCart } = createApiClient(API);
+const EMAIL = DEFAULT_EMAIL;
+const PASSWORD = DEFAULT_PASSWORD;
 
 const results = [];
 
@@ -52,27 +60,6 @@ function warn(id, note) {
   console.log(`! ${id}: ${note}`);
 }
 
-async function api(method, path, body, token) {
-  const headers = { "Content-Type": "application/json" };
-  if (token) headers.Authorization = `Bearer ${token}`;
-  let lastErr;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const res = await fetch(`${API}${path}`, {
-        method,
-        headers,
-        body: body ? JSON.stringify(body) : undefined,
-      });
-      const text = await res.text();
-      return text ? JSON.parse(text) : {};
-    } catch (e) {
-      lastErr = e;
-      sleep(500);
-    }
-  }
-  throw lastErr;
-}
-
 function dismissAlertIfPresent() {
   const xml = dumpUi();
   const ok = findNodes(xml, { text: "OK" });
@@ -85,7 +72,7 @@ function dismissAlertIfPresent() {
 }
 
 async function main() {
-  console.log(`=== E2E on ${DEVICE} ===`);
+  console.log(`=== E2E on ${DEVICE} (API: ${API}) ===`);
 
   console.log("=== E2E: API health ===");
   try {
@@ -100,11 +87,10 @@ async function main() {
   console.log("\n=== E2E: Login via API (credential check) ===");
   let token;
   try {
-    const login = await api("POST", "/api/users/login", { email: EMAIL, password: PASSWORD });
-    if (login.token) {
-      token = login.token;
+    token = await login(EMAIL, PASSWORD);
+    if (token) {
       pass("credentials", `${EMAIL} / ${PASSWORD} works via API`);
-    } else fail("credentials", JSON.stringify(login));
+    } else fail("credentials", "No token returned");
   } catch (e) {
     fail("credentials", e.message);
   }
@@ -125,6 +111,7 @@ async function main() {
     screenshot("02-after-login");
     waitForText("What are you shopping for today?");
     pass("ui-login", "Landed on Home after login");
+    token = (await login(EMAIL, PASSWORD)) || token;
   } catch (e) {
     const err = logcatErrors(15);
     fail("ui-login", `${e.message}. Logcat: ${err.slice(0, 200)}`);
@@ -177,11 +164,11 @@ async function main() {
     pass("add-to-cart", "Tapped Add to Cart + dismissed alert");
 
     if (token) {
-      const cart = await api("GET", "/api/cart", null, token);
+      const cart = await waitForCart(token, { minItems: 1, timeoutMs: 20000 });
       if (cart.items?.length > 0) {
         pass("backend-add-to-cart", `API cart has ${cart.items.length} item(s): ${cart.items[0].title}`);
       } else {
-        fail("backend-add-to-cart", "Cart empty after add in UI");
+        fail("backend-add-to-cart", "Cart empty after add in UI (waited 20s)");
       }
     }
   } catch (e) {
@@ -217,10 +204,10 @@ async function main() {
       sleep(2000);
       screenshot("06-cart-qty-plus");
       if (token) {
-        const cart = await api("GET", "/api/cart", null, token);
+        const cart = await waitForCart(token, { minItems: 1, minQty: 2, timeoutMs: 20000 });
         const qty = cart.items?.[0]?.quantity;
         if (qty === 2) pass("backend-cart-qty", "Quantity increased to 2 in API");
-        else fail("backend-cart-qty", `Expected qty 2, got ${qty}`);
+        else fail("backend-cart-qty", `Expected qty 2, got ${qty ?? "undefined"} (waited 20s)`);
       }
     } else fail("cart-qty-plus", "No + button found");
   } catch (e) {

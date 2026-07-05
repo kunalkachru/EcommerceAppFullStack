@@ -30,7 +30,7 @@ const SignupScreen = ({ navigation }) => {
   }, [user, token, loading, error, navigation]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="screen-signup">
       <Text style={styles.title}>Sign Up</Text>
 
       <TextInput
@@ -67,7 +67,10 @@ const SignupScreen = ({ navigation }) => {
         {loading ? <ActivityIndicator color="white" /> : <Text style={styles.buttonText}>Sign Up</Text>}
       </TouchableOpacity>
 
-      <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+      <TouchableOpacity
+        testID="signup-login-link"
+        onPress={() => navigation.navigate("Login")}
+      >
         <Text style={styles.linkText}>Already have an account? Login</Text>
       </TouchableOpacity>
     </View>

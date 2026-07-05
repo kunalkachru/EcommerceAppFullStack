@@ -1,32 +1,58 @@
 #!/usr/bin/env bash
-# OCI E2.1.Micro deploy — Oracle Linux 9. No dnf update. Skips CLIP warm-up.
+# Generic OCI VM deploy — run ON the VM (Oracle Linux 9) or via SSH.
+# No instance-specific defaults. Set env vars before running.
+#
+# Example:
+#   export PUBLIC_HOST=api.example.com
+#   export GIT_REPO=https://github.com/your-org/EcommerceAppFullStack.git
+#   export SKIP_CLIP_WARMUP=0
+#   bash scripts/deploy-oci-vm.sh
 set -euo pipefail
 
-PUBLIC_IP="${PUBLIC_IP:-141.147.34.18}"
-APP_DIR="/opt/ecommerce"
-LOG_PREFIX="[deploy-oci-micro]"
+PUBLIC_HOST="${PUBLIC_HOST:?Set PUBLIC_HOST to your public IP or domain}"
+GIT_REPO="${GIT_REPO:-https://github.com/kunalkachru/EcommerceAppFullStack.git}"
+APP_DIR="${APP_DIR:-/opt/ecommerce}"
+DEPLOY_USER="${DEPLOY_USER:-opc}"
+SKIP_CLIP="${SKIP_CLIP_WARMUP:-0}"
+NODE_HEAP_MB="${NODE_HEAP_MB:-2048}"
+LOG_PREFIX="[deploy-oci-vm]"
 
 log() { echo "${LOG_PREFIX} $*"; }
 
-log "=== wait for other dnf (max 30 min) ==="
-for i in $(seq 1 180); do
-  if pgrep -f '/bin/dnf' >/dev/null 2>&1; then
-    [ $((i % 6)) -eq 0 ] && log "dnf still running..."
+wait_dnf() {
+  for i in $(seq 1 120); do
+    pgrep -f '/bin/dnf' >/dev/null || return 0
+    [ $((i % 6)) -eq 0 ] && log "waiting for dnf..."
     sleep 10
-  else
-    break
+  done
+  log "WARN: dnf still running after 20min"
+}
+
+install_one() {
+  local pkg="$1"
+  if rpm -q "$pkg" >/dev/null 2>&1; then
+    log "skip $pkg (installed)"
+    return 0
   fi
-done
+  wait_dnf
+  log "install $pkg"
+  sudo dnf install -y "$pkg"
+}
 
 log "=== packages ==="
-sudo dnf install -y git make gcc-c++
-sudo dnf install -y nginx firewalld
-sudo dnf install -y vips-devel
+free -h
+install_one git
+install_one make
+install_one gcc-c++
+install_one nginx
+install_one firewalld
+install_one vips-devel
 
 log "=== nodejs 22 ==="
 if ! command -v node >/dev/null 2>&1; then
+  wait_dnf
   curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
-  sudo dnf install -y nodejs
+  install_one nodejs
 fi
 node -v
 npm -v
@@ -38,16 +64,15 @@ sudo firewall-cmd --permanent --add-service=http
 sudo firewall-cmd --permanent --add-service=https
 sudo firewall-cmd --reload
 
-log "=== clone ==="
+log "=== clone $GIT_REPO ==="
 sudo mkdir -p "$APP_DIR"
-sudo chown opc:opc "$APP_DIR"
+sudo chown "$DEPLOY_USER:$DEPLOY_USER" "$APP_DIR"
 if [ ! -d "$APP_DIR/.git" ]; then
-  git clone https://github.com/kunalkachru/EcommerceAppFullStack.git "$APP_DIR"
+  git clone "$GIT_REPO" "$APP_DIR"
 fi
 
-log "=== skip CLIP warm-up ==="
 INDEX="$APP_DIR/server/src/index.js"
-grep -q 'SKIP_CLIP_WARMUP' "$INDEX" || \
+grep -q SKIP_CLIP_WARMUP "$INDEX" || \
   sed -i 's/warmVisualSearchIndex();/if (process.env.SKIP_CLIP_WARMUP !== "1") warmVisualSearchIndex();/' "$INDEX"
 
 log "=== npm install ==="
@@ -62,23 +87,23 @@ PORT=5001
 NODE_ENV=production
 JWT_SECRET=${SECRET}
 SEARCH_RUNTIME=baseline
-SKIP_CLIP_WARMUP=1
+SKIP_CLIP_WARMUP=${SKIP_CLIP}
 EOF
   chmod 600 .env
 fi
 
 log "=== systemd ==="
-sudo tee /etc/systemd/system/ecommerce-api.service > /dev/null <<'UNIT'
+sudo tee /etc/systemd/system/ecommerce-api.service > /dev/null <<UNIT
 [Unit]
 Description=EcommerceAppFullStack API
 After=network.target
 
 [Service]
 Type=simple
-User=opc
-WorkingDirectory=/opt/ecommerce/server
-EnvironmentFile=/opt/ecommerce/server/.env
-Environment=NODE_OPTIONS=--max-old-space-size=384
+User=${DEPLOY_USER}
+WorkingDirectory=${APP_DIR}/server
+EnvironmentFile=${APP_DIR}/server/.env
+Environment=NODE_OPTIONS=--max-old-space-size=${NODE_HEAP_MB}
 ExecStart=/usr/bin/node src/index.js
 Restart=on-failure
 RestartSec=20
@@ -96,7 +121,7 @@ log "=== nginx ==="
 sudo tee /etc/nginx/conf.d/ecommerce-api.conf > /dev/null <<NGINX
 server {
     listen 80;
-    server_name ${PUBLIC_IP};
+    server_name ${PUBLIC_HOST};
     client_max_body_size 10M;
     location / {
         proxy_pass http://127.0.0.1:5001;
@@ -114,8 +139,8 @@ sudo systemctl reload nginx
 sudo setsebool -P httpd_can_network_connect 1 2>/dev/null || true
 
 log "=== verify ==="
-systemctl is-active ecommerce-api
 curl -sf http://127.0.0.1:5001/health && echo
 curl -sf http://127.0.0.1/health && echo
-journalctl -u ecommerce-api -n 15 --no-pager
-log "DONE"
+systemctl is-active ecommerce-api
+journalctl -u ecommerce-api -n 10 --no-pager
+log "DONE — public: http://${PUBLIC_HOST}/health"

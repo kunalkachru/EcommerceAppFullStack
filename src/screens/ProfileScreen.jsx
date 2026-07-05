@@ -16,14 +16,14 @@ const ProfileScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="screen-profile">
       <Text style={styles.title}>Profile</Text>
       {user ? (
         <>
           <Text style={styles.info}>Name: {user.name}</Text>
           <Text style={styles.info}>Email: {user.email}</Text>
 
-          <TouchableOpacity style={styles.button} onPress={handleLogout}>
+          <TouchableOpacity testID="profile-logout" style={styles.button} onPress={handleLogout}>
             <Text style={styles.buttonText}>Logout</Text>
           </TouchableOpacity>
         </>

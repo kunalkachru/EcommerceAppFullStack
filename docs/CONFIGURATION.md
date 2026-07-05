@@ -30,7 +30,14 @@ cp server/.env.example server/.env
 
 ## Client LLM keys (`src/.env`)
 
-Optional file for local development (gitignored):
+Copy the example file — **never commit real keys**:
+
+```bash
+cp src/.env.example src/.env
+# Edit src/.env locally with your OPENAI_API_KEY and/or OPENROUTER_API_KEY
+```
+
+Optional file for local development and verify scripts (gitignored):
 
 ```env
 OPENAI_API_KEY=sk-...
@@ -50,6 +57,23 @@ Supported providers in UI:
 
 OpenRouter keys use `sk-or-…` from [openrouter.ai/keys](https://openrouter.ai/keys). If you get HTTP 401, regenerate the key on OpenRouter's site.
 
+**Scripts that read `src/.env`:** `verify:llm-live`, `verify:cloud:llm`, `record:demo:ios`, `record:demo:android`, iOS Maestro E2E (ML flow), optional `upload:appetize` / `upload:browserstack`. Keys are sent per request in `X-LLM-Api-Key` only — never written to the repo. Run `npm run verify:secrets-policy` before commits.
+
+### LLM key policy (non‑negotiable)
+
+| Location | LLM keys stored? |
+|----------|------------------|
+| GitHub repo | **Never** |
+| GitHub Actions / Secrets | **Not configured** (no workflows) |
+| Railway production env | **Do not set** `OPENAI_API_KEY` / `LLM_API_KEY` for public demo |
+| APK / IPA / Appetize build | **Never** |
+| Mobile app (Appetize users) | User pastes in UI → **RAM only** → `X-LLM-Api-Key` per request |
+| Railway server | Pass-through per request; **not persisted** (`clientKeyOnly: true`) |
+
+`src/.env` on a developer laptop is for **local verify scripts only**. It is gitignored and is **not** bundled into Appetize builds. See [APPETIZE_BROWSERSTACK.md](./APPETIZE_BROWSERSTACK.md) § GitHub vs Appetize.
+
+Optional upload tokens in `src/.env` (`APPETIZE_API_TOKEN`, `BROWSERSTACK_*`) are **Appetize/BrowserStack account credentials** — not LLM keys — and are also never committed or shipped in the app.
+
 ---
 
 ## API host (client → server)
@@ -60,9 +84,9 @@ Cloud toggle: `src/config/apiTarget.js`
 | Mode | Config | URL |
 |------|--------|-----|
 | Local (default dev) | `API_TARGET_MODE = 'local'` | `http://10.0.2.2:5001` (Android) / `http://127.0.0.1:5001` (iOS) |
-| Railway cloud | `API_TARGET_MODE = 'cloud'` | `https://cooperative-presence-production-f5d9.up.railway.app` |
+| Railway cloud | `API_TARGET_MODE = 'cloud'` | `https://…` from **`config/cloud-api.json`** |
 
-Set in `src/config/apiTarget.js` before rebuilding the app. `index.js` calls `applyApiTarget()` at startup.
+Set `API_TARGET_MODE` in `src/config/apiTarget.js` before rebuilding the app. Cloud host is **`config/cloud-api.json`** (shared with verify/build scripts). `index.js` calls `applyApiTarget()` at startup.
 
 Verify cloud API from Mac:
 
