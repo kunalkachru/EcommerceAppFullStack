@@ -4,13 +4,28 @@ React Native mobile app + Node/Express API with multimodal search (text, voice, 
 
 **Stack:** React Native 0.85 · React 19 · Redux Toolkit · Express · CLIP (`@xenova/transformers`)
 
-**Branch:** `main` · **Last updated:** 2026-07-03
+**Branch:** `main` · **Last updated:** 2026-07-05
+
+---
+
+## Try the app (browser — no install)
+
+The latest Android build is deployed automatically from `main` to **Appetize**. Open it in your browser:
+
+| Device | Link |
+|--------|------|
+| **Phone (Pixel 7)** | **[Open live demo →](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4?device=pixel7&osVersion=13.0&toolbar=true&scale=100)** |
+| **Tablet** | [Open on Pixel Tablet →](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4?device=pixelTablet&osVersion=13.0&toolbar=true&scale=100) |
+
+**Demo login:** `test@example.com` / `secret123` · API: Railway (cloud)
+
+CI/CD, upload, and secrets: **[scripts/lib/CI_CD_QUICKSTART.md](./scripts/lib/CI_CD_QUICKSTART.md)** · Full Appetize guide: **[docs/APPETIZE_BROWSERSTACK.md](./docs/APPETIZE_BROWSERSTACK.md)**
 
 ---
 
 ## Cloud demo (Railway + Appetize)
 
-The API runs on **Railway**; the mobile demo APK is auto-deployed to **Appetize** on push to `main`.
+The API runs on **Railway**; the mobile demo APK is auto-deployed to **Appetize** on push to `main`. **Start here:** [Try the app](#try-the-app-browser--no-install) above.
 
 | Topic | Document |
 |-------|----------|
@@ -19,8 +34,6 @@ The API runs on **Railway**; the mobile demo APK is auto-deployed to **Appetize*
 | **Run verify / E2E scripts (Android + iOS)** | **[docs/CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md)** |
 | **Appetize / BrowserStack APK & upload** | **[docs/APPETIZE_BROWSERSTACK.md](./docs/APPETIZE_BROWSERSTACK.md)** |
 | **Self-hosted OCI (optional)** | **[docs/OCI_DEPLOY.md](./docs/OCI_DEPLOY.md)** |
-
-**Live Android demo:** https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4
 
 ```bash
 # Pre-push (same gate as GitHub Actions)
