@@ -12,9 +12,9 @@ const LOCAL_DIR = join(ROOT, "docs", "test-photos");
 /** Same samples as scripts/seed-emulator-photos.mjs */
 export const TEST_PHOTO_URLS = {
   "01-catalog-jacket.jpg":
-    "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg",
+    "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_t.png",
   "02-catalog-backpack.jpg":
-    "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
+    "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_t.png",
   "12-off-catalog-pizza.jpg":
     "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800",
 };
