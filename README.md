@@ -1,8 +1,8 @@
-# ShopEase — Full-Stack E-Commerce Demo
+# ShopEase — AI-Powered Mobile Commerce Demo
 
-React Native mobile app + Node/Express API with multimodal search (text, voice, image), CLIP visual search, cart/checkout, and lightweight orders.
+A full-stack **React Native** shopping app: browse a live catalog, manage cart & checkout, track orders — plus **multimodal product search** (text, voice, and photo) powered by hybrid ranking and CLIP visual similarity.
 
-**Stack:** React Native 0.85 · React 19 · Redux Toolkit · Express · CLIP (`@xenova/transformers`)
+**Stack:** React Native 0.85 · React 19 · Redux Toolkit · Express · CLIP · Railway (cloud API)
 
 **Branch:** `main` · **Last updated:** 2026-07-05
 
@@ -10,22 +10,126 @@ React Native mobile app + Node/Express API with multimodal search (text, voice, 
 
 ## Try the app (browser — no install)
 
-The latest Android build is deployed automatically from `main` to **Appetize**. Open it in your browser:
+The latest Android build deploys automatically from `main` to **Appetize**. Open it in your browser:
 
 | Device | Link |
 |--------|------|
 | **Phone (Pixel 7)** | **[Open live demo →](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4?device=pixel7&osVersion=13.0&toolbar=true&scale=100)** |
 | **Tablet** | [Open on Pixel Tablet →](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4?device=pixelTablet&osVersion=13.0&toolbar=true&scale=100) |
 
-**Demo login:** `test@example.com` / `secret123` · API: Railway (cloud)
-
-CI/CD, upload, and secrets: **[scripts/lib/CI_CD_QUICKSTART.md](./scripts/lib/CI_CD_QUICKSTART.md)** · Full Appetize guide: **[docs/APPETIZE_BROWSERSTACK.md](./docs/APPETIZE_BROWSERSTACK.md)**
+**Demo login:** `test@example.com` / `secret123`
 
 ---
 
-## Cloud demo (Railway + Appetize)
+## Watch it
 
-The API runs on **Railway**; the mobile demo APK is auto-deployed to **Appetize** on push to `main`. **Start here:** [Try the app](#try-the-app-browser--no-install) above.
+Screen recordings from the app (each under 60 seconds). Click a screenshot to play the video.
+
+| Commerce flow | Multimodal search |
+|---------------|-------------------|
+| [![Login → browse → cart → checkout → orders](./docs/e2e/08-order-summary.png)](./docs/demo/videos/app-flow-demo.mp4) | [![Text, voice & photo search](./docs/e2e/photo-search-results.png)](./docs/demo/videos/ml-features-demo.mp4) |
+| **[▶ App flow demo](./docs/demo/videos/app-flow-demo.mp4)** | **[▶ ML features demo](./docs/demo/videos/ml-features-demo.mp4)** |
+
+<details>
+<summary>Inline playback (may load slowly on GitHub)</summary>
+
+<video src="./docs/demo/videos/app-flow-demo.mp4" controls width="320"></video>
+<video src="./docs/demo/videos/ml-features-demo.mp4" controls width="320"></video>
+
+</details>
+
+More recordings (iOS simulator cuts): [docs/demo/videos/README.md](./docs/demo/videos/README.md) · Live demo script: [docs/DEMO_PRESENTATION.md](./docs/DEMO_PRESENTATION.md)
+
+---
+
+## What ShopEase does
+
+End-to-end **e-commerce** on mobile — not just search.
+
+| Journey | What works today |
+|---------|------------------|
+| **Discover** | Home, categories, product list & detail (289+ products from merged public catalogs + demo coverage) |
+| **Shop** | Add to cart from list or PDP, update quantities, remove items |
+| **Checkout** | Shipping form, place order, order confirmation screen |
+| **Account** | JWT login/signup, profile, persisted session |
+| **Orders** | Order history tab with line items and status (`mocked_paid` — no real payment gateway) |
+
+---
+
+## Multimodal product search
+
+ShopEase’s differentiator: find products the way people actually shop — not only by exact keywords.
+
+| Mode | How it works |
+|------|----------------|
+| **Text** | Hybrid **lexical + semantic** ranking; handles price caps, product types, and jumbled phrasing (`240 under gaming monitor`, `fifty dollars jacket blue`) |
+| **Voice** | On-device speech-to-text → same search API; optional **LLM intent extraction** (price, type, keywords) with rule-based fallback |
+| **Photo** | **CLIP** compares your photo embedding to catalog image+text vectors; tap closest match → product detail |
+
+Hybrid search evolved from a CLIP-only design: lexical candidates + semantic rerank + explicit constraints make noisy spoken and conversational queries much more reliable. Full pipeline: **[docs/ML_SEARCH.md](./docs/ML_SEARCH.md)**
+
+---
+
+## Architecture at a glance
+
+```mermaid
+flowchart LR
+  Login[Login] --> Home[Home]
+  Home --> Browse[Browse / Search]
+  Browse -->|text| Results[Ranked products]
+  Browse -->|voice| Results
+  Browse -->|photo| Results
+  Results --> PDP[Product detail]
+  PDP --> Cart[Cart]
+  Cart --> Checkout[Checkout]
+  Checkout --> Orders[Orders]
+```
+
+```mermaid
+flowchart LR
+  App[React Native app] -->|HTTPS| API[Railway Express API]
+  API --> Catalog[Product catalog]
+  API --> CLIP[CLIP vector index]
+  API -->|optional| LLM[LLM intent API]
+  App --> Appetize[Appetize browser demo]
+```
+
+| Layer | Technology |
+|-------|------------|
+| Mobile | React Native 0.85, React Navigation, Redux Toolkit |
+| API | Express on Railway (auth, cart, orders, search) |
+| Search | Hybrid lexical→semantic + CLIP image search |
+| Demo deploy | GitHub Actions → APK → Appetize (stable URL) |
+
+Deep dives: **[docs/README.md](./docs/README.md)** · **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** · **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
+
+---
+
+## For developers
+
+Everything below is the technical reference: local setup, verification gates, CI/CD, and doc index.
+
+### Quick start
+
+```bash
+npm install && cd server && npm install && cd ..
+cp server/.env.example server/.env   # set JWT_SECRET
+cp src/.env.example src/.env           # optional: OPENAI / OPENROUTER keys for live LLM (gitignored)
+npm run server                       # Terminal 1 — API :5001
+npm start                            # Terminal 2 — Metro :8081
+npm run android                      # Terminal 3 — Android (see below for iOS)
+```
+
+| Platform | Deploy guide |
+|----------|--------------|
+| **Android emulator** | [SETUP § Android](./docs/SETUP.md#android-emulator-deployment) · [DEPLOYMENT § Android](./docs/DEPLOYMENT.md#android-emulator) |
+| **iOS simulator** | [SETUP § iOS](./docs/SETUP.md#ios-simulator-deployment) · [DEPLOYMENT § iOS](./docs/DEPLOYMENT.md#ios-simulator) |
+
+Full instructions: **[docs/SETUP.md](./docs/SETUP.md)** · Local runtime: **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
+
+### Cloud demo & CI/CD
+
+The API runs on **Railway**; the mobile demo APK auto-deploys to **Appetize** on push to `main`.
 
 | Topic | Document |
 |-------|----------|
@@ -48,34 +152,11 @@ npm run upload:appetize -- --platform android
 
 Quick cloud smoke: `npm run verify:cloud` · Full API gate: `npm run verify:cloud:all` · Deploy gate: `npm run verify:cloud:deploy-gate` · Live LLM: `npm run verify:cloud:llm` (needs local `src/.env`) · Android E2E: `npm run verify:e2e-android:cloud` · iOS: `IOS_FRESH_SIM=1 npm run verify:e2e-ios:cloud`
 
----
-
-## Quick start
-
-```bash
-npm install && cd server && npm install && cd ..
-cp server/.env.example server/.env   # set JWT_SECRET
-cp src/.env.example src/.env           # optional: OPENAI / OPENROUTER keys for live LLM (gitignored)
-npm run server                       # Terminal 1 — API :5001
-npm start                            # Terminal 2 — Metro :8081
-npm run android                      # Terminal 3 — Android (see below for iOS)
-```
-
-| Platform | Deploy guide |
-|----------|--------------|
-| **Android emulator** | [SETUP § Android](./docs/SETUP.md#android-emulator-deployment) · [DEPLOYMENT § Android](./docs/DEPLOYMENT.md#android-emulator) |
-| **iOS simulator** | [SETUP § iOS](./docs/SETUP.md#ios-simulator-deployment) · [DEPLOYMENT § iOS](./docs/DEPLOYMENT.md#ios-simulator) |
-
-Full instructions: **[docs/SETUP.md](./docs/SETUP.md)** · Local runtime: **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
-
----
-
-## Documentation index
-
-Start here for onboarding, review, or handoff to Codex/Claude.
+### Documentation index
 
 | Document | Description |
 |----------|-------------|
+| **[docs/README.md](./docs/README.md)** | **Documentation hub** — by audience (portfolio, reviewers, developers) |
 | **[docs/SETUP.md](./docs/SETUP.md)** | Prerequisites, install, 3-terminal startup, verification |
 | **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)** | Env vars, API host, LLM keys, catalog, auth, permissions |
 | **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** | How the full stack runs today (local + Railway), architecture diagram |
@@ -83,33 +164,16 @@ Start here for onboarding, review, or handoff to Codex/Claude.
 | **[docs/CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md)** | **Verification & E2E scripts** — cloud API, Android emulator, iOS simulator |
 | **[docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)** | **Complete testing & implementation status** — gates, results, review checklist |
 | **[docs/HYBRID_SEARCH_TEST_STEPS.md](./docs/HYBRID_SEARCH_TEST_STEPS.md)** | Manual ML + E2E validation steps with expected outcomes |
-
-### Demo & architecture
-
-| Document | Description |
-|----------|-------------|
 | **[docs/DEMO_PRESENTATION.md](./docs/DEMO_PRESENTATION.md)** | Live demo script, talking points, reviewer checklist |
 | **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** | System architecture (client, API, data flow) |
 | **[docs/ML_SEARCH.md](./docs/ML_SEARCH.md)** | Multimodal search pipelines (text, voice, CLIP) |
-| [docs/demo/videos/README.md](./docs/demo/videos/README.md) | Two demo screen recordings (app flow + ML) |
-
-### Planning & architecture
-
-| Document | Description |
-|----------|-------------|
+| [docs/demo/videos/README.md](./docs/demo/videos/README.md) | Demo screen recordings (app flow + ML) |
 | [docs/UI_REVAMP_PLAN.md](./docs/UI_REVAMP_PLAN.md) | UI revamp planning notes |
 | [docs/adr/0001-client-data-unistyles-rtk.md](./docs/adr/0001-client-data-unistyles-rtk.md) | ADR: client data layer (Unistyles + RTK) |
-
-### Test assets
-
-| Path | Description |
-|------|-------------|
 | [docs/test-photos/README.md](./docs/test-photos/README.md) | Visual-search test photo guide |
 | [docs/e2e/](./docs/e2e/) | Manual E2E screenshots (login, cart, checkout, search) |
 
----
-
-## Project status (summary)
+### Project status (summary)
 
 | Area | Status |
 |------|--------|
@@ -123,25 +187,7 @@ Start here for onboarding, review, or handoff to Codex/Claude.
 
 **Full detail:** [docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)
 
----
-
-## ML search design evolution
-
-Before this PR, text and voice search leaned heavily on a CLIP-first semantic path. That design worked for obvious product phrases and image similarity, but it was weaker on jumbled wording, reversed price phrasing, and conversational requests like "it's a fifty dollars jacket blue please" because there was no strong lexical retrieval layer or structured constraint pass in front of ranking.
-
-This PR evolves the design into a hybrid search runtime:
-
-- lexical candidate generation for text and transcribed voice queries
-- semantic reranking to keep CLIP-style meaning matching
-- explicit price/type constraint handling for order-mismatched and budget-first phrasing
-- optional LLM intent extraction with rule-based fallback instead of relying on CLIP-text alone
-- unified response contracts so text, voice, and image flows can share safer fallback behavior
-
-The result is that CLIP remains important for image search and semantic relevance, but it is no longer carrying the entire text/voice interpretation problem by itself. The refined design is more robust for modern shopping behavior, especially noisy spoken input, price-led queries, and mixed multimodal discovery.
-
----
-
-## Testing status (current gates)
+### Testing status (current gates)
 
 Run with API server up (`npm run server`) after CLIP index finishes, **or** against Railway — see **[docs/CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md)**.
 
@@ -165,9 +211,7 @@ Run with API server up (`npm run server`) after CLIP index finishes, **or** agai
 
 Catalog: **>=200 products required** · current local health on 2026-07-02 reported **289 products / 285 indexed** on the baseline runtime · Demo coverage products: **6**
 
----
-
-## Repository layout
+### Repository layout
 
 ```
 ├── src/                    # React Native app (screens, components, redux, services)
@@ -178,7 +222,7 @@ Catalog: **>=200 products required** · current local health on 2026-07-02 repor
 └── android/ ios/           # Native project files
 ```
 
-### Key server modules
+#### Key server modules
 
 | File | Role |
 |------|------|
@@ -189,7 +233,7 @@ Catalog: **>=200 products required** · current local health on 2026-07-02 repor
 | `server/src/voiceQueryParser.js` | Rule-based intent fallback |
 | `server/src/visualSearch.js` | CLIP image search |
 
-### Key client modules
+#### Key client modules
 
 | File | Role |
 |------|------|
@@ -199,9 +243,7 @@ Catalog: **>=200 products required** · current local health on 2026-07-02 repor
 | `src/components/VoiceSearchCard.jsx` | Voice + LLM UI |
 | `src/screens/OrdersScreen.jsx` | Order history |
 
----
-
-## npm scripts
+### npm scripts
 
 | Script | Description |
 |--------|-------------|
@@ -224,19 +266,7 @@ Catalog: **>=200 products required** · current local health on 2026-07-02 repor
 | `npm run record:demo:android` | Record both demo videos (Android emulator → `docs/demo/videos/`) |
 | `npm run record:demo:ios` | Record both demo videos (iOS simulator → same two files) |
 
----
-
-## Deployment (how we run it today)
-
-**Local:** Express API `:5001`, Metro `:8081`, Android/iOS simulators.
-
-**Cloud (primary demo API):** Railway — [RAILWAY_DEPLOY.md](./docs/RAILWAY_DEPLOY.md). Regression scripts: [CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md).
-
-Full architecture: **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
-
----
-
-## Configuration
+### Configuration
 
 | What | Where |
 |------|-------|
@@ -246,9 +276,7 @@ Full architecture: **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
 
 Full reference: **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)**
 
----
-
-## External review checklist (Codex / Claude)
+### External review checklist (Codex / Claude)
 
 1. Read this README, then **[docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)**
 2. Run the verification commands above, starting with **`npm run verify:llm-local`** for no-cost validation and **`npm run verify:llm-live`** only when paid-provider keys are available

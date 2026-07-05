@@ -1,10 +1,12 @@
 # Demo Presentation Guide
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-07-05
 
 Live demo script, talking points, and video references for stakeholders and code reviewers.
 
-> **Navigation:** [README](../README.md) · [Architecture](./ARCHITECTURE.md) · [ML Search](./ML_SEARCH.md) · [Setup](./SETUP.md)
+> **Navigation:** [README](../README.md) · [Docs index](./README.md) · [Architecture](./ARCHITECTURE.md) · [ML Search](./ML_SEARCH.md) · [Setup](./SETUP.md)
+
+**Try live (no install):** [Appetize demo](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4?device=pixel7&osVersion=13.0&toolbar=true&scale=100) · Login `test@example.com` / `secret123`
 
 ---
 
@@ -35,14 +37,14 @@ Live demo script, talking points, and video references for stakeholders and code
 | [app-flow-demo.mp4](./demo/videos/app-flow-demo.mp4) | Login → browse → cart → checkout → orders |
 | [ml-features-demo.mp4](./demo/videos/ml-features-demo.mp4) | Text search → LLM reasoning + key → voice/photo search |
 
-Platform-specific assets:
+Platform-specific assets (iOS simulator):
 
 | Platform | App flow | ML features |
 |----------|----------|-------------|
-| Android | [android/app-flow-demo.mp4](./demo/videos/android/app-flow-demo.mp4) | [android/ml-features-demo.mp4](./demo/videos/android/ml-features-demo.mp4) |
-| iOS | [ios/app-flow-demo-short.mp4](./demo/videos/ios/app-flow-demo-short.mp4) | [ios/ml-features-demo-short.mp4](./demo/videos/ios/ml-features-demo-short.mp4) |
+| iOS (short) | [ios/app-flow-demo-short.mp4](./demo/videos/ios/app-flow-demo-short.mp4) | [ios/ml-features-demo-short.mp4](./demo/videos/ios/ml-features-demo-short.mp4) |
+| iOS (full) | [ios/app-flow-demo.mp4](./demo/videos/ios/app-flow-demo.mp4) | [ios/ml-features-demo.mp4](./demo/videos/ios/ml-features-demo.mp4) |
 
-Raw iOS captures are also available beside the short cuts as `ios/app-flow-demo.mp4` and `ios/ml-features-demo.mp4`.
+Primary Android recordings: [app-flow-demo.mp4](./demo/videos/app-flow-demo.mp4) · [ml-features-demo.mp4](./demo/videos/ml-features-demo.mp4)
 
 Re-record on Android: `npm run record:demo:android` · iOS: `npm run record:demo:ios` (same two output files)
 

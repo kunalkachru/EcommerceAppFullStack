@@ -1,6 +1,6 @@
 # Configuration Guide
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-07-05
 
 All configuration points for the ShopEase full-stack demo app.
 

@@ -2,31 +2,35 @@
 
 Two short screen recordings (<60s each) for presentation and reviewer onboarding.
 
+**Last updated:** 2026-07-05
+
 ---
 
-## Files (exactly two)
+## Files (primary — Android recordings)
 
 | Video | Content |
 |-------|---------|
 | [app-flow-demo.mp4](./app-flow-demo.mp4) | Login → browse → cart → checkout → orders |
 | [ml-features-demo.mp4](./ml-features-demo.mp4) | Text search → LLM + key → voice/photo search |
 
-Supplemental platform assets:
+Embedded on the [README](../../README.md#watch-it) with screenshot posters.
 
-| Video | Platform | Content | Status |
-|-------|----------|---------|--------|
-| `android/app-flow-demo.mp4` | Android | Login → browse → cart → checkout → orders | ✅ Recorded |
-| `android/ml-features-demo.mp4` | Android | Text search → voice/LLM → photo search | ⏳ Re-record: `npm run record:demo:android` (emulator required) |
-| `ios/app-flow-demo-short.mp4` | iOS | Same app flow on simulator (<60s reviewer cut) | ✅ Recorded |
-| `ios/ml-features-demo-short.mp4` | iOS | Same ML demo on simulator (<60s reviewer cut) | ✅ Recorded |
-| `ios/app-flow-demo.mp4` | iOS | Same app flow on simulator (full raw capture) | ✅ Recorded |
-| `ios/ml-features-demo.mp4` | iOS | Same ML demo on simulator (full raw capture) | ✅ Recorded |
+---
+
+## iOS simulator recordings
+
+| Video | Content | Status |
+|-------|---------|--------|
+| [ios/app-flow-demo-short.mp4](./ios/app-flow-demo-short.mp4) | App flow (<60s reviewer cut) | ✅ Recorded |
+| [ios/ml-features-demo-short.mp4](./ios/ml-features-demo-short.mp4) | ML demo (<60s reviewer cut) | ✅ Recorded |
+| [ios/app-flow-demo.mp4](./ios/app-flow-demo.mp4) | Full raw capture | ✅ Recorded |
+| [ios/ml-features-demo.mp4](./ios/ml-features-demo.mp4) | Full raw capture | ✅ Recorded |
+
+Re-record iOS: `npm run record:demo:ios` · Android: `npm run record:demo:android`
 
 Screenshot fallbacks: [docs/e2e/](../e2e/)
 
-These MP4s are **committed for repo consumers** but **not packaged** into Android/iOS release builds or future cloud images (see [DEPLOYMENT.md](../DEPLOYMENT.md#demo-assets-repo-only--not-in-app-builds)).
-
-Re-record on **either** Android emulator or iOS simulator — both scripts write the same two filenames.
+These MP4s are **committed for repo consumers** but **not packaged** into Android/iOS release builds (see [DEPLOYMENT.md](../DEPLOYMENT.md#demo-assets-repo-only--not-in-app-builds)).
 
 ---
 
@@ -39,8 +43,6 @@ Scripts **never** contain API keys. Each developer creates a local gitignored fi
 OPENAI_API_KEY=sk-...
 OPENROUTER_API_KEY=sk-or-...
 ```
-
-Output is written to this directory. If the raw simulator capture runs long, create a short reviewer cut and keep both files.
 
 | Script | Purpose |
 |--------|---------|
@@ -94,3 +96,4 @@ Builds both MP4s from e2e screenshots (slideshow, not interactive). Prefer live 
 
 - [DEMO_PRESENTATION.md](../DEMO_PRESENTATION.md)
 - [ML_SEARCH.md](../ML_SEARCH.md)
+- [README — Watch it](../../README.md#watch-it)

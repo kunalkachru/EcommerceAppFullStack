@@ -1,6 +1,6 @@
 # Setup Guide
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-07-05
 
 Local development setup for the React Native client + Node/Express API + CLIP search backend.
 

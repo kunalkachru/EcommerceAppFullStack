@@ -1,8 +1,8 @@
 # Deployment Guide
 
-**Last updated:** 2026-07-03
+**Last updated:** 2026-07-05
 
-> **Cloud deployment: Railway (live).** The Express API runs on Railway with commerce + CLIP search. See [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md). Self-hosted OCI: [OCI_DEPLOY.md](./OCI_DEPLOY.md). Local dev remains the default workflow below.
+> **Cloud deployment: Railway (live).** The Express API runs on Railway with commerce + CLIP search. Mobile demo APK auto-deploys to **Appetize** on push to `main`. See [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) · [CI_CD_QUICKSTART.md](../scripts/lib/CI_CD_QUICKSTART.md). Self-hosted OCI: [OCI_DEPLOY.md](./OCI_DEPLOY.md). Local dev workflow is below.
 
 How the full-stack application is deployed and run **today**.
 
@@ -10,30 +10,31 @@ How the full-stack application is deployed and run **today**.
 
 ## Current deployment model
 
-This project is deployed as a **local development full-stack demo**, not a production cloud deployment.
+| Surface | Host | Status |
+|---------|------|--------|
+| **Cloud API** | [Railway](https://cooperative-presence-production-f5d9.up.railway.app) | ✅ Live — `config/cloud-api.json` |
+| **Browser demo** | [Appetize](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4) | ✅ CI upload on push to `main` |
+| **Local dev** | Developer machine | Metro + emulator/simulator |
+| **App Store / Play Store** | — | ❌ Not configured (demo APK only) |
 
 ```
-┌─────────────────────┐     HTTP :5001      ┌──────────────────────────────┐
-│  React Native App   │ ◄──────────────────►│  Express API (baseline :5001)│
-│  (Metro bundler)    │                     │  - Auth, cart, orders        │
-│  Android / iOS      │                     │  - Catalog merge             │
-└─────────────────────┘                     │  - CLIP visual + voice search│
+┌─────────────────────┐     HTTPS           ┌──────────────────────────────┐
+│  Appetize browser   │ ◄──────────────────►│  Railway Express API         │
+│  (release APK)      │                     │  Auth, cart, orders, search  │
+└─────────────────────┘                     │  CLIP index + catalog merge  │
         ▲                                   └──────────────────────────────┘
-        │                                              │
-        │ JS bundle                                    │ Fetches catalog from
-        │                                              │ public APIs + indexes
-┌───────┴────────┐                                     ▼
-│ Metro :8081    │                          DummyJSON, FakeStore, EscuelaJS
-└────────────────┘                          + demoCoverageProducts (6 items)
+        │ GitHub Actions build/upload
+┌───────┴────────┐
+│ appetize-demo  │
+│ workflow       │
+└────────────────┘
 
-                                          ┌──────────────────────────────┐
-                                          │  Express API (hybrid :5002)  │
-                                          │  - Lexical + semantic rerank │
-                                          │  - Same legacy response shape│
-                                          └──────────────────────────────┘
+Local dev (optional):
+┌─────────────────────┐     HTTP :5001      ┌──────────────────────────────┐
+│  React Native App   │ ◄──────────────────►│  Express API (local :5001)   │
+│  (Metro bundler)    │                     │  + hybrid runtime :5002      │
+└─────────────────────┘                     └──────────────────────────────┘
 ```
-
-There is **no** current CI/CD pipeline, Docker compose, or cloud host (Heroku, AWS, etc.) checked into this repo.
 
 ---
 
@@ -305,19 +306,21 @@ Evaluate porting `.maestro/demo-ml-features.yaml` with `appId: com.ecommerceappf
 
 ---
 
-## Production deployment (not implemented)
+## Production hardening (partial — demo scope)
 
-To deploy beyond local demo, you would need:
+**Already live for public demo:**
 
-1. **API host** — Node server on VPS/container (Render, Railway, AWS ECS, etc.)
-2. **HTTPS + domain** — reverse proxy (nginx) with TLS
-3. **Database** — PostgreSQL/MongoDB for users, carts, orders
-4. **Persistent catalog** — snapshot DB or scheduled `snapshot-catalog` job
-5. **CLIP model cache** — warm index on deploy or object storage for vectors
-6. **Mobile release builds** — `npm run build:demo:apk` / `build:demo:ios-sim` (see [APPETIZE_BROWSERSTACK.md](./APPETIZE_BROWSERSTACK.md))
-7. **Secrets** — JWT_SECRET, LLM keys via platform secret manager (not `.env` in repo)
+1. ✅ **API host** — Railway (`server/` deploy from GitHub)
+2. ✅ **HTTPS** — Railway-provided TLS
+3. ✅ **Mobile demo builds** — `npm run build:demo:apk` + Appetize CI ([APPETIZE_BROWSERSTACK.md](./APPETIZE_BROWSERSTACK.md))
+4. ✅ **Secrets** — GitHub Actions secrets for Appetize; Railway env for `JWT_SECRET`
 
-Store/CI automation (TestFlight, Play internal track) is not configured yet.
+**Not implemented (beyond hobby demo):**
+
+1. ❌ **Durable database** — users/carts/orders still use in-memory JSON on Railway (resets on redeploy)
+2. ❌ **Persistent CLIP cache** — index rebuilds on cold start
+3. ❌ **Store distribution** — TestFlight / Play internal track not configured
+4. ❌ **Real payment gateway** — checkout uses `mocked_paid`
 
 ### Demo assets (repo only — not in app builds)
 

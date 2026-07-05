@@ -1,16 +1,40 @@
 # Architecture
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-07-05
 
 System design and data flows for the ShopEase full-stack e-commerce demo.
 
-> **Navigation:** [README](../README.md) · [ML Search](./ML_SEARCH.md) · [Demo Presentation](./DEMO_PRESENTATION.md) · [Setup](./SETUP.md)
+> **Navigation:** [README](../README.md) · [Docs index](./README.md) · [ML Search](./ML_SEARCH.md) · [Demo Presentation](./DEMO_PRESENTATION.md) · [Setup](./SETUP.md)
+
+**Try live:** [Appetize demo](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4) · Login `test@example.com` / `secret123`
 
 ---
 
 ## System context
 
-The app runs as a **local full-stack demo**: React Native client, Metro bundler, and Express API on the developer machine. Cloud deployment is not configured yet — see [DEPLOYMENT.md](./DEPLOYMENT.md).
+ShopEase runs in **two modes**:
+
+| Mode | API | Mobile client |
+|------|-----|---------------|
+| **Cloud demo (primary)** | Express on **Railway** (`config/cloud-api.json`) | Release APK on **Appetize** (CI on push to `main`) |
+| **Local dev** | Express on developer machine (`:5001` baseline, `:5002` hybrid) | Metro + Android/iOS simulator |
+
+See [DEPLOYMENT.md](./DEPLOYMENT.md) · [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) · [APPETIZE_BROWSERSTACK.md](./APPETIZE_BROWSERSTACK.md)
+
+### Cloud demo (production path for reviewers)
+
+```mermaid
+flowchart LR
+  Browser[Browser Appetize] --> APK[Release APK cloud API embedded]
+  APK -->|HTTPS| Railway[Railway Express API]
+  Railway --> Catalog[Product catalog]
+  Railway --> CLIP[CLIP index]
+  Railway -->|optional per request| LLM[LLM intent API]
+  GH[GitHub Actions] -->|build upload| Appetize[Appetize]
+  Appetize --> Browser
+```
+
+### Local development
 
 ```mermaid
 flowchart LR

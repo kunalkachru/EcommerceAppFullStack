@@ -1,6 +1,6 @@
 # ML Search Architecture
 
-**Last updated:** 2026-07-01
+**Last updated:** 2026-07-05
 
 Voice, text, and photo search pipelines — design and data flow.
 
