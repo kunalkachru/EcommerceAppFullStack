@@ -22,12 +22,10 @@ appId: ${APP_ID}
     visible:
       id: "photo-results-section"
     timeout: 120000
-    optional: true
 - extendedWaitUntil:
     visible:
       id: "photo-closest-match"
     timeout: 120000
-    optional: true
 - scrollUntilVisible:
     element:
       id: "photo-match-card-.*"
@@ -36,7 +34,6 @@ appId: ${APP_ID}
     optional: true
 - tapOn:
     id: "photo-closest-match"
-    optional: true
 - runFlow:
     when:
       notVisible:

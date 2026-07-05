@@ -70,6 +70,7 @@ server/.env
 /coverage
 docs/test-photos/*.jpg
 docs/test-photos/*.png
+docs/e2e/.adb-clipboard*
 docs/demo/videos/.build/
 
 # Yarn

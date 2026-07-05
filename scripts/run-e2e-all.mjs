@@ -54,6 +54,10 @@ function fail(id, note) {
   results.push({ id, status: "FAIL", note });
   console.log(`✗ ${id}: ${note}`);
 }
+function warn(id, note) {
+  results.push({ id, status: "WARN", note });
+  console.log(`⚠ ${id}: ${note}`);
+}
 
 function hasAndroid() {
   try {
@@ -168,8 +172,9 @@ async function main() {
 
   console.log("\n=== SUMMARY ===");
   const passCount = results.filter((r) => r.status === "PASS").length;
+  const warnCount = results.filter((r) => r.status === "WARN").length;
   const failCount = results.filter((r) => r.status === "FAIL").length;
-  console.log(`PASS: ${passCount}  FAIL: ${failCount}`);
+  console.log(`PASS: ${passCount}  WARN: ${warnCount}  FAIL: ${failCount}`);
   results.forEach((r) => console.log(`  [${r.status}] ${r.id}: ${r.note}`));
   process.exit(failCount > 0 ? 1 : 0);
 }

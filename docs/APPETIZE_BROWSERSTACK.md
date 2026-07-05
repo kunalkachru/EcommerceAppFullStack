@@ -55,7 +55,7 @@ git clone → cp src/.env.example src/.env → npm run build:demo:apk → npm ru
 | **Appetize** | GitHub Actions on push / manual | Upload via secrets; stable public URL |
 | **GitHub repo** | Source code only | Scripts + config; no Appetize token in git |
 
-Changing code on GitHub does **not** update the Appetize demo until someone **rebuilds the APK/IPA and re-uploads** manually (or you add CI later with tokens in GitHub Secrets — not implemented).
+Changing code on **`main`** triggers [`.github/workflows/appetize-demo.yml`](../.github/workflows/appetize-demo.yml): Railway deploy gate → build APK → **automatic Appetize upload** (GitHub Secrets only; no manual upload needed). See **[scripts/lib/CI_CD_QUICKSTART.md](../scripts/lib/CI_CD_QUICKSTART.md)**.
 
 ### LLM keys — same rule on Appetize
 

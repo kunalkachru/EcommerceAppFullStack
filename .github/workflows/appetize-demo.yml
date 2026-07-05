@@ -73,6 +73,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Secrets policy
+        run: npm run verify:secrets-policy
+
       - name: Skip preflight on PR (artifact preview only)
         if: github.event_name == 'pull_request'
         run: echo "PR builds skip Railway gate — download APK artifact for UI review."
@@ -99,6 +102,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Secrets policy
+        run: npm run verify:secrets-policy
 
       - name: Assert cloud API target
         run: node scripts/assert-cloud-api-target.mjs
