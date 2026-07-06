@@ -1,16 +1,15 @@
 /**
  * Read gitignored client secrets for local scripts ONLY.
- *
- * Policy:
- * - Reads from src/.env and/or process.env — never from repo-tracked files.
- * - Never writes, copies, or logs key material.
- * - Scripts must use loadClientEnv() / resolveDemoLlmKey(); do not hardcode keys.
- *
- * Setup: cp src/.env.example src/.env  then add your keys locally.
  */
 import { readFileSync, existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  hasClientLlmKey as hasClientLlmKeyFromEnv,
+  resolveLlmConfig as resolveLlmConfigFromEnv,
+  maestroLlmEnvFromEnv,
+  listConfiguredLlmProviders,
+} from "./lib/llm-env-config.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const CLIENT_ENV_PATH = join(__dirname, "..", "src", ".env");
@@ -18,6 +17,8 @@ export const CLIENT_ENV_PATH = join(__dirname, "..", "src", ".env");
 const SECRET_KEYS = [
   "OPENAI_API_KEY",
   "OPENROUTER_API_KEY",
+  "GROQ_API_KEY",
+  "GEMINI_API_KEY",
   "JWT_SECRET",
   "APPETIZE_API_TOKEN",
   "BROWSERSTACK_ACCESS_KEY",
@@ -44,24 +45,39 @@ export function loadEnvFile(path) {
   return out;
 }
 
-/** Keys from src/.env and/or process env — values never logged by helpers here. */
-export function loadClientEnv() {
+function mergeClientEnv() {
   const fromFile = loadEnvFile(CLIENT_ENV_PATH);
   return {
     OPENAI_API_KEY: process.env.OPENAI_API_KEY || fromFile.OPENAI_API_KEY || "",
     OPENROUTER_API_KEY:
       process.env.OPENROUTER_API_KEY || fromFile.OPENROUTER_API_KEY || "",
+    GROQ_API_KEY: process.env.GROQ_API_KEY || fromFile.GROQ_API_KEY || "",
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY || fromFile.GEMINI_API_KEY || "",
+    DEMO_LLM_PROVIDER:
+      process.env.DEMO_LLM_PROVIDER || fromFile.DEMO_LLM_PROVIDER || "",
+    LLM_BASE_URL: process.env.LLM_BASE_URL || fromFile.LLM_BASE_URL || "",
+    LLM_MODEL: process.env.LLM_MODEL || fromFile.LLM_MODEL || "",
   };
 }
 
-/** True if any supported LLM key is configured locally. */
+/** Keys from src/.env and/or process env — values never logged by helpers here. */
+export function loadClientEnv() {
+  return mergeClientEnv();
+}
+
 export function hasClientLlmKey(env = loadClientEnv()) {
-  return Boolean(env.OPENAI_API_KEY?.trim() || env.OPENROUTER_API_KEY?.trim());
+  return hasClientLlmKeyFromEnv(env);
+}
+
+export { listConfiguredLlmProviders };
+
+export function resolveLlmConfig(env = loadClientEnv()) {
+  return resolveLlmConfigFromEnv(env);
 }
 
 /** Prefer OpenRouter for demo LLM UI; fall back to OpenAI. */
 export function resolveDemoLlmKey(env = loadClientEnv()) {
-  return env.OPENROUTER_API_KEY?.trim() || env.OPENAI_API_KEY?.trim() || "";
+  return resolveLlmConfigFromEnv(env)?.apiKey || "";
 }
 
 export function requireDemoLlmKey(env = loadClientEnv()) {
@@ -76,15 +92,9 @@ export function requireDemoLlmKey(env = loadClientEnv()) {
 
 /** Maestro -e vars for ML flows; key passed in memory only for the subprocess. */
 export function maestroLlmEnv(env = loadClientEnv()) {
-  const key = resolveDemoLlmKey(env);
-  if (!key) {
-    return { DEMO_LLM_API_KEY: "", DEMO_LLM_PROVIDER: "OpenAI" };
-  }
-  const provider = key.startsWith("sk-or-") ? "OpenRouter" : "OpenAI";
-  return { DEMO_LLM_API_KEY: key, DEMO_LLM_PROVIDER: provider };
+  return maestroLlmEnvFromEnv(env);
 }
 
-/** Appetize upload credentials — CI uses GitHub Secrets (process.env only); local uses src/.env. */
 export function loadAppetizeEnv() {
   const inCi = process.env.GITHUB_ACTIONS === "true";
   const fromFile = inCi ? {} : loadEnvFile(CLIENT_ENV_PATH);
@@ -104,25 +114,15 @@ export function loadAppetizeEnv() {
   };
 }
 
-/** True when local Appetize upload can run without extra env exports. */
 export function hasAppetizeCredentials(env = loadAppetizeEnv()) {
   return Boolean(env.APPETIZE_API_TOKEN?.trim());
 }
 
 /** Per-request header for /api/search/voice live LLM tests. */
 export function llmRequestOptions(env = loadClientEnv(), { provider = "openai" } = {}) {
-  const openai = env.OPENAI_API_KEY?.trim();
-  const openrouter = env.OPENROUTER_API_KEY?.trim();
-  if (provider === "openrouter" && openrouter) {
-    return { apiKey: openrouter, provider: "openrouter" };
-  }
-  if (openai) {
-    return { apiKey: openai, provider: "openai" };
-  }
-  if (openrouter) {
-    return { apiKey: openrouter, provider: "openrouter" };
-  }
-  return null;
+  const cfg = resolveLlmConfigFromEnv(env, { preferredProvider: provider });
+  if (!cfg) return null;
+  return { apiKey: cfg.apiKey, provider: cfg.provider, baseUrl: cfg.baseUrl, model: cfg.model };
 }
 
 export { SECRET_KEYS };

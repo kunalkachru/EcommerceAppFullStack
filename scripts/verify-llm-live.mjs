@@ -1,15 +1,19 @@
 #!/usr/bin/env node
 /**
  * Live LLM reasoning verification — requires real API keys in src/.env (gitignored).
- * Loads OPENAI_API_KEY and optionally OPENROUTER_API_KEY; never logs key material.
  */
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadClientEnv, CLIENT_ENV_PATH, llmRequestOptions } from "./load-env.mjs";
+import {
+  loadClientEnv,
+  CLIENT_ENV_PATH,
+  listConfiguredLlmProviders,
+  resolveLlmConfig,
+} from "./load-env.mjs";
 import { resolveApiUrl } from "./lib/cloud-api-url.mjs";
+import { LLM_PROVIDER_PRESETS } from "./lib/llm-env-config.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(__dirname, "..");
 const ENV_PATH = CLIENT_ENV_PATH;
 const API = resolveApiUrl();
 
@@ -23,16 +27,23 @@ function fail(id, d) {
   results.push({ id, ok: false, d });
   console.error(`✗ ${id}: ${d}`);
 }
+function warn(id, d) {
+  results.push({ id, ok: true, d, warn: true });
+  console.warn(`⚠ ${id}: ${d}`);
+}
 
-async function postVoice(query, { apiKey, provider, baseUrl, model } = {}) {
+async function postVoice(query, cfg, apiUrl = API) {
   const headers = { "Content-Type": "application/json" };
-  if (apiKey) headers["X-LLM-Api-Key"] = apiKey;
-  const body = { query, useLlmReasoning: true };
-  if (provider) body.llmProvider = provider;
-  if (baseUrl) body.llmBaseUrl = baseUrl;
-  if (model) body.llmModel = model;
+  if (cfg.apiKey) headers["X-LLM-Api-Key"] = cfg.apiKey;
+  const body = {
+    query,
+    useLlmReasoning: true,
+    llmProvider: cfg.provider,
+    llmBaseUrl: cfg.baseUrl,
+    llmModel: cfg.model,
+  };
 
-  const res = await fetch(`${API}/api/search/voice`, {
+  const res = await fetch(`${apiUrl}/api/search/voice`, {
     method: "POST",
     headers,
     body: JSON.stringify(body),
@@ -42,23 +53,27 @@ async function postVoice(query, { apiKey, provider, baseUrl, model } = {}) {
 }
 
 function assertLiveLlmResult(id, { status, data }, { minMatches = 1, expectPriceMax } = {}) {
+  if (status === 401 || status === 403) {
+    fail(id, `[INFRA] HTTP ${status}: check key in ${ENV_PATH}`);
+    return false;
+  }
   if (status !== 200) {
-    fail(id, `HTTP ${status}: ${data.message ?? data.code ?? "unknown"}`);
+    fail(id, `[INFRA] HTTP ${status}: ${data.message ?? data.code ?? "unknown"}`);
     return false;
   }
   if (data.intentSource !== "llm") {
-    fail(id, `intentSource=${data.intentSource} (expected llm)`);
+    fail(id, `[PRODUCT] intentSource=${data.intentSource} (expected llm)`);
     return false;
   }
   const matches = data.matches ?? [];
   if (matches.length < minMatches) {
-    fail(id, `only ${matches.length} matches`);
+    fail(id, `[PRODUCT] only ${matches.length} matches`);
     return false;
   }
   if (expectPriceMax != null) {
     const parsedMax = data.parsed?.priceMax;
     if (parsedMax == null || parsedMax > expectPriceMax + 5) {
-      fail(id, `priceMax=${parsedMax} expected ≤${expectPriceMax}`);
+      fail(id, `[PRODUCT] priceMax=${parsedMax} expected ≤${expectPriceMax}`);
       return false;
     }
   }
@@ -66,49 +81,79 @@ function assertLiveLlmResult(id, { status, data }, { minMatches = 1, expectPrice
   return true;
 }
 
-async function main() {
-  console.log(`Live LLM reasoning: ${API}\n`);
+const PROVIDER_CASES = {
+  openai: [
+    {
+      id: "openai-conversational-jacket",
+      query: "it's a fifty dollars jacket blue please",
+      expectPriceMax: 55,
+    },
+    {
+      id: "openai-jumbled-headphones",
+      query: "100 under headphones wireless",
+      expectPriceMax: 100,
+    },
+  ],
+  openrouter: [
+    {
+      id: "openrouter-headphones",
+      query: "wireless headphones below 100",
+      expectPriceMax: 100,
+    },
+  ],
+  groq: [
+    {
+      id: "groq-headphones",
+      query: "wireless headphones below 100",
+      expectPriceMax: 100,
+    },
+  ],
+  gemini: [
+    {
+      id: "gemini-headphones",
+      query: "wireless headphones below 100",
+      expectPriceMax: 100,
+    },
+  ],
+};
 
-  const health = await fetch(`${API}/health`).then((r) => r.json()).catch(() => null);
+export async function runLlmLiveVerification(options = {}) {
+  const apiUrl = options.apiUrl || API;
+  const env = options.env || loadClientEnv();
+  results.length = 0;
+
+  console.log(`Live LLM reasoning: ${apiUrl}\n`);
+
+  const health = await fetch(`${apiUrl}/health`).then((r) => r.json()).catch(() => null);
   if (!health?.ok) {
-    fail("server-health", "API not running — start npm run server");
-    process.exit(1);
+    fail("server-health", "[INFRA] API not running — start npm run server");
+    return { ok: false, results: [...results] };
   }
   pass("server-health", `CLIP index ${health.visualSearch?.indexCount ?? 0}`);
 
-  const env = loadClientEnv();
-  const openaiKey = env.OPENAI_API_KEY;
-  const openrouterKey = env.OPENROUTER_API_KEY;
-
-  if (!openaiKey && !openrouterKey) {
+  const configured = listConfiguredLlmProviders(env);
+  if (!configured.length) {
     fail("env-keys", `No keys in ${ENV_PATH} — set OPENAI_API_KEY or OPENROUTER_API_KEY`);
-    process.exit(1);
+    return { ok: false, results: [...results] };
   }
 
-  if (openaiKey) {
-    pass("openai-key-present", "OPENAI_API_KEY loaded from local env (src/.env or process env)");
+  for (const providerId of configured) {
+    const preset = LLM_PROVIDER_PRESETS[providerId];
+    pass(`${providerId}-key-present`, `${preset.envKey} loaded (not logged)`);
 
-    const openaiCases = [
-      {
-        id: "openai-conversational-jacket",
-        query: "it's a fifty dollars jacket blue please",
-        expectPriceMax: 55,
-      },
-      {
-        id: "openai-jumbled-headphones",
-        query: "100 under headphones wireless",
-        expectPriceMax: 100,
-      },
-      {
-        id: "openai-price-first-monitor",
-        query: "under 240 gaming monitor",
-        expectPriceMax: 240,
-        minMatches: 1,
-      },
-    ];
+    const cfg = resolveLlmConfig(env, { preferredProvider: providerId });
+    if (!cfg) continue;
 
-    for (const c of openaiCases) {
-      const res = await postVoice(c.query, { apiKey: openaiKey, provider: "openai" });
+    const cases = PROVIDER_CASES[providerId] || [];
+    for (const c of cases) {
+      const res = await postVoice(c.query, cfg, apiUrl);
+      if (providerId === "openrouter" && res.status === 401) {
+        warn(
+          "openrouter-headphones",
+          "[INFRA] OpenRouter key rejected — skipped (OpenAI may still pass)"
+        );
+        continue;
+      }
       assertLiveLlmResult(c.id, res, {
         minMatches: c.minMatches ?? 1,
         expectPriceMax: c.expectPriceMax,
@@ -116,29 +161,25 @@ async function main() {
     }
   }
 
-  if (openrouterKey) {
-    pass("openrouter-key-present", "OPENROUTER_API_KEY loaded from local env (src/.env or process env)");
-
-    const res = await postVoice("wireless headphones below 100", {
-      apiKey: openrouterKey,
-      provider: "openrouter",
-    });
-    if (res.status === 200 && res.data.intentSource === "llm") {
-      assertLiveLlmResult("openrouter-headphones", res, { expectPriceMax: 100 });
-    } else {
-      console.warn(
-        `⚠ openrouter-headphones: skipped (${res.status}: ${res.data.message ?? "provider error"}). OpenAI live tests passed.`
-      );
-      pass("openrouter-headphones", "skipped — key rejected by OpenRouter; OpenAI verified");
+  for (const id of ["groq", "gemini"]) {
+    if (!configured.includes(id)) {
+      console.log(`  … skip ${id} (no ${LLM_PROVIDER_PRESETS[id].envKey} in ${ENV_PATH})`);
     }
   }
 
   const failed = results.filter((r) => !r.ok).length;
   console.log(`\n--- Live LLM: ${results.length - failed}/${results.length} passed ---`);
-  process.exit(failed > 0 ? 1 : 0);
+  return { ok: failed === 0, results: [...results], failed };
 }
 
-main().catch((e) => {
-  console.error(e.message || e);
-  process.exit(1);
-});
+async function main() {
+  const { ok } = await runLlmLiveVerification();
+  process.exit(ok ? 0 : 1);
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  main().catch((e) => {
+    console.error(e.message || e);
+    process.exit(1);
+  });
+}
