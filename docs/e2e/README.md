@@ -42,7 +42,8 @@ README hero uses [photo-search-results.png](./photo-search-results.png) as ML vi
 
 | Path | Notes |
 |------|-------|
+| [validation-2026-07-06.md](./validation-2026-07-06.md) | F18 LLM PASS iOS + Android |
 | [validation-2026-07-05.md](./validation-2026-07-05.md) | Manual validation log |
 | [manual-2026-07-03/](./manual-2026-07-03/) | Platform-specific ML captures |
 
-Full matrix: [E2E_TEST_MATRIX.md](../E2E_TEST_MATRIX.md)
+Run locally: [LOCAL_RUN.md](../LOCAL_RUN.md) · Full matrix: [E2E_TEST_MATRIX.md](../E2E_TEST_MATRIX.md)

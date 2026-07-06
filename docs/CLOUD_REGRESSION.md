@@ -1,10 +1,12 @@
 # Cloud regression & verification scripts
 
-**Last updated:** 2026-07-03
+**Last updated:** 2026-07-06
 
-How to run automated checks against the **Railway cloud API** and on **Android emulator / iOS simulator** with the mobile app pointed at cloud (`src/config/apiTarget.js` → `API_TARGET_MODE = "cloud"`).
+How to run automated checks against the **Railway cloud API** and on **Android emulator / iOS simulator** with the mobile app pointed at cloud (`USE_CLOUD_API=1` or `API_TARGET_MODE = "cloud"`).
 
-Related: [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) (hosting) · [DEPLOYMENT.md](./DEPLOYMENT.md) (architecture)
+**Start here for local deploy + full E2E:** [LOCAL_RUN.md](./LOCAL_RUN.md)
+
+Related: [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) (hosting) · [DEPLOYMENT.md](./DEPLOYMENT.md) (architecture) · [E2E_TEST_MATRIX.md](./E2E_TEST_MATRIX.md) (F01–F20)
 
 ---
 
@@ -95,6 +97,17 @@ IOS_FRESH_SIM=1 npm run verify:e2e-ios:cloud
 npm run verify:e2e-ios:cloud
 ```
 
+### Full Maestro matrix (both platforms)
+
+```bash
+npm run build:demo:apk                         # Android embedded bundle
+USE_CLOUD_API=1 npm run verify:e2e-all         # iOS + Android if both booted
+USE_CLOUD_API=1 npm run verify:e2e-all:ios
+USE_CLOUD_API=1 npm run verify:e2e-all:android
+```
+
+Includes Maestro flows `01`–`05`, live LLM API gate, and **F18** `06-llm-reasoning.yaml` when `src/.env` has LLM keys. Details: [LOCAL_RUN.md](./LOCAL_RUN.md).
+
 ---
 
 ## Script inventory
@@ -145,12 +158,18 @@ Cart API checks use **polling** (up to 20s) so cloud HTTPS latency does not fals
 | `verify:e2e-ios` | `run-e2e-ios.mjs` | API pre-checks + Maestro flows + CLIP status |
 | `verify:e2e-ios:cloud` | same + `USE_CLOUD_API=1` | Against Railway |
 
-Maestro flows (`.maestro/`):
+Maestro flows (`.maestro/flows/`):
 
 | Flow | Coverage |
 |------|----------|
-| `demo-app-flow.yaml` | Login → product → cart → checkout → orders |
-| `demo-ml-features.yaml` | Gallery search, text search, optional LLM voice |
+| `01-auth.yaml` | Login, signup, logout |
+| `02-catalog.yaml` | Browse, search, PDP |
+| `03-cart-checkout.yaml` | Cart, checkout, orders |
+| `04-photo-search.yaml` | Photo → results → PDP (F14) |
+| `05-voice-llm.yaml` | Voice typed search (rules) |
+| `06-llm-reasoning.yaml` | **F18** live LLM + sticky search bar |
+
+Legacy demos: `demo-app-flow.yaml`, `demo-ml-features.yaml`
 
 ### iOS simulator recovery (SpringBoard crashes)
 

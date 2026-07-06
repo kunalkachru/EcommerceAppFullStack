@@ -4,7 +4,7 @@
 **Branch target:** `main`  
 **Purpose:** Handoff document for external review agents (Codex, Claude, etc.)
 
-> **Navigation:** Start from the [README](../README.md) for the full documentation index (setup, configuration, deployment, testing).
+> **Navigation:** Start from the [README](../README.md) for the full documentation index. **Local deploy + E2E:** [LOCAL_RUN.md](./LOCAL_RUN.md)
 
 ---
 
@@ -27,7 +27,8 @@ This branch completes a demo-ready e-commerce app with:
 | Baseline vs hybrid comparison | `npm run verify:search:hybrid` | Hybrid passed all hybrid fixtures; baseline gap retained for `900 and 500 laptop between` |
 | Live local-Ollama LLM smoke | `npm run verify:llm-local` | **3 passed, 2 warnings, 0 hard failures** on the current local model; query-quality misses are warnings unless `STRICT_LOCAL_LLM=1` |
 | iOS simulator launch (isolated worktree) | `npm start -- --port 8088` + `npm run ios -- --port 8088 --no-packager --udid 7EABE577-D15B-4B90-848F-EDAC9BF2FC7A` | **App built and launched successfully** on iPhone 17 Pro Max (iOS 26.5) |
-| Live paid-provider LLM reasoning | `API_URL=http://127.0.0.1:5002 node scripts/verify-llm-live.mjs` | **7/7 passed** on 2026-07-02 with user-supplied OpenAI/OpenRouter keys |
+| Live paid-provider LLM reasoning | `npm run verify:llm-live` | **6/6 passed** (OpenAI + OpenRouter; 2026-07-06) |
+| Maestro F18 live LLM UI | `USE_CLOUD_API=1 npm run verify:e2e-all` | **PASS** iOS + Android (2026-07-06); API gate authoritative |
 | Android emulator ML smoke | `npm run verify:emulator` | **7/7 passed × 3 consecutive runs** on Pixel 7 Pro (2026-07-02) |
 | Android commerce E2E | `npm run verify:e2e-android` | Login → browse → cart → checkout → profile (requires emulator + API) |
 | Android nav/session | `npm run verify:android-nav` | Browse CTA, stack reset, cart persist, logout (requires emulator + API) |

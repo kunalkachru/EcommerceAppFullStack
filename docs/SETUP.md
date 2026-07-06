@@ -1,6 +1,6 @@
 # Setup Guide
 
-**Last updated:** 2026-07-05
+**Last updated:** 2026-07-06
 
 Local development setup for the React Native client + Node/Express API + CLIP search backend.
 
@@ -206,6 +206,23 @@ npm run verify:llm-live    # requires OPENAI_API_KEY in src/.env
 
 Expected: **85/85** Jest tests, **20/20** search checks, **13/13** ML checks, optional local LLM smoke returns no hard failures, live paid-provider LLM passes with valid keys.  
 Details: [TESTING_STATUS.md](./TESTING_STATUS.md)
+
+---
+
+## 7. Local E2E & full verification
+
+For the complete **verification ladder** (unit → API → live LLM → Maestro on emulator/simulator), see:
+
+**[LOCAL_RUN.md](./LOCAL_RUN.md)** — primary guide for manual runs, F18 LLM flow, and what CI does *not* cover.
+
+Quick E2E (cloud API, both platforms if booted):
+
+```bash
+npm run build:demo:apk                    # Android demo APK (after JS changes)
+USE_CLOUD_API=1 npm run verify:e2e-all
+```
+
+Scenario matrix: [E2E_TEST_MATRIX.md](./E2E_TEST_MATRIX.md)
 
 ---
 

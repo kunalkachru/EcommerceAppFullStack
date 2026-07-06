@@ -1,6 +1,6 @@
 # CI/CD quick reference — ShopEase mobile demo
 
-Primary entry point for **GitHub Actions → Appetize** and local preflight. Full guide: [docs/APPETIZE_BROWSERSTACK.md](../../docs/APPETIZE_BROWSERSTACK.md).
+Primary entry point for **GitHub Actions → Appetize** and local preflight. Full guide: [docs/APPETIZE_BROWSERSTACK.md](../../docs/APPETIZE_BROWSERSTACK.md). **Local run + Maestro E2E:** [docs/LOCAL_RUN.md](../../docs/LOCAL_RUN.md).
 
 ## Live demo (stable URL)
 

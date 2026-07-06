@@ -45,6 +45,7 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 
 | Doc | Purpose |
 |-----|---------|
+| **[LOCAL_RUN.md](./LOCAL_RUN.md)** | **Run app locally + full verification ladder + Maestro E2E** |
 | [SETUP.md](./SETUP.md) | Install, 3-terminal startup |
 | [CONFIGURATION.md](./CONFIGURATION.md) | Env vars, API host, LLM keys |
 | [DEPLOYMENT.md](./DEPLOYMENT.md) | Local + Railway + Appetize model |
@@ -69,6 +70,7 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 
 | Document | Description |
 |----------|-------------|
+| **[LOCAL_RUN.md](./LOCAL_RUN.md)** | **Local run, verification ladder, Maestro E2E** |
 | [AGENTIC_DEVELOPMENT.md](./AGENTIC_DEVELOPMENT.md) | Agent-assisted workflow |
 | [SETUP.md](./SETUP.md) | Prerequisites, install, verification |
 | [CONFIGURATION.md](./CONFIGURATION.md) | Env vars and runtime config |
@@ -77,7 +79,8 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 | [ML_SEARCH.md](./ML_SEARCH.md) | Multimodal search design |
 | [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) | Railway hosting |
 | [CLOUD_REGRESSION.md](./CLOUD_REGRESSION.md) | Cloud verify & E2E |
-| [E2E_TEST_MATRIX.md](./E2E_TEST_MATRIX.md) | Maestro flows |
+| [E2E_TEST_MATRIX.md](./E2E_TEST_MATRIX.md) | Maestro scenario matrix |
+| **[LOCAL_RUN.md](./LOCAL_RUN.md)** | **Local deploy + verify + E2E (emulator/simulator)** |
 | [TESTING_STATUS.md](./TESTING_STATUS.md) | Test status & review checklist |
 | [DEMO_PRESENTATION.md](./DEMO_PRESENTATION.md) | Demo script |
 | [HYBRID_SEARCH_TEST_STEPS.md](./HYBRID_SEARCH_TEST_STEPS.md) | Manual ML validation |

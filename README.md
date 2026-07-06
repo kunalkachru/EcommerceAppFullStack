@@ -23,6 +23,7 @@ Everything a reviewer needs from one page:
 | **Architecture & ML** | [ARCHITECTURE.md](./docs/ARCHITECTURE.md) · [ML_SEARCH.md](./docs/ML_SEARCH.md) |
 | **CI/CD pipeline** | [GitHub Actions](https://github.com/kunalkachru/EcommerceAppFullStack/actions) · [CI quickstart](./scripts/lib/CI_CD_QUICKSTART.md) |
 | **Full doc index** | [docs/README.md](./docs/README.md) |
+| **Run locally (emulator / simulator)** | **[docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md)** |
 | **Test gates** | [TESTING_STATUS.md](./docs/TESTING_STATUS.md) — **85/85** Jest tests |
 
 ---
@@ -160,7 +161,7 @@ npm run android                      # Terminal 3 — Android (see below for iOS
 | **Android emulator** | [SETUP § Android](./docs/SETUP.md#android-emulator-deployment) · [DEPLOYMENT § Android](./docs/DEPLOYMENT.md#android-emulator) |
 | **iOS simulator** | [SETUP § iOS](./docs/SETUP.md#ios-simulator-deployment) · [DEPLOYMENT § iOS](./docs/DEPLOYMENT.md#ios-simulator) |
 
-Full instructions: **[docs/SETUP.md](./docs/SETUP.md)** · Local runtime: **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)**
+Full instructions: **[docs/SETUP.md](./docs/SETUP.md)** · Local runtime: **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** · **Full verify + E2E:** **[docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md)**
 
 ### Cloud demo & CI/CD
 
@@ -177,7 +178,7 @@ The API runs on **Railway**; the mobile demo APK auto-deploys to **Appetize** on
 |-------|----------|
 | **CI/CD — how to run & trigger workflows** | **[scripts/lib/CI_CD_QUICKSTART.md](./scripts/lib/CI_CD_QUICKSTART.md)** |
 | **Deploy Railway, RAM settings** | **[docs/RAILWAY_DEPLOY.md](./docs/RAILWAY_DEPLOY.md)** |
-| **Run verify / E2E scripts (Android + iOS)** | **[docs/CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md)** |
+| **Run verify / E2E scripts (Android + iOS)** | **[docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md)** · [docs/CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md) |
 | **Appetize / BrowserStack APK & upload** | **[docs/APPETIZE_BROWSERSTACK.md](./docs/APPETIZE_BROWSERSTACK.md)** |
 | **Self-hosted OCI (optional)** | **[docs/OCI_DEPLOY.md](./docs/OCI_DEPLOY.md)** |
 
@@ -192,7 +193,7 @@ npm run upload:appetize -- --platform android
 # Trigger CI manually: GitHub → Actions → "Appetize demo deploy" → Run workflow
 ```
 
-Quick cloud smoke: `npm run verify:cloud` · Full API gate: `npm run verify:cloud:all` · Deploy gate: `npm run verify:cloud:deploy-gate` · Live LLM: `npm run verify:cloud:llm` (needs local `src/.env`) · Android E2E: `npm run verify:e2e-android:cloud` · iOS: `IOS_FRESH_SIM=1 npm run verify:e2e-ios:cloud`
+Quick cloud smoke: `npm run verify:cloud` · Full API gate: `npm run verify:cloud:all` · Deploy gate: `npm run verify:cloud:deploy-gate` · Live LLM: `npm run verify:cloud:llm` (needs local `src/.env`) · **Full local E2E:** `USE_CLOUD_API=1 npm run verify:e2e-all` — see **[docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md)**
 
 ### Documentation index
 
@@ -200,6 +201,7 @@ Quick cloud smoke: `npm run verify:cloud` · Full API gate: `npm run verify:clou
 |----------|-------------|
 | **[docs/README.md](./docs/README.md)** | **Documentation hub** — by audience (portfolio, reviewers, developers) |
 | **[docs/AGENTIC_DEVELOPMENT.md](./docs/AGENTIC_DEVELOPMENT.md)** | Agent-assisted workflow, subagents, spec-driven development |
+| **[docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md)** | **Local deploy, verification ladder, Maestro E2E** |
 | **[docs/SETUP.md](./docs/SETUP.md)** | Prerequisites, install, 3-terminal startup, verification |
 | **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)** | Env vars, API host, LLM keys, catalog, auth, permissions |
 | **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** | How the full stack runs today (local + Railway), architecture diagram |

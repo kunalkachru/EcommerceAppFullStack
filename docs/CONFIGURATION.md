@@ -1,6 +1,6 @@
 # Configuration Guide
 
-**Last updated:** 2026-07-05
+**Last updated:** 2026-07-06
 
 All configuration points for the ShopEase full-stack demo app.
 
@@ -42,11 +42,14 @@ Optional file for local development and verify scripts (gitignored):
 ```env
 OPENAI_API_KEY=sk-...
 OPENROUTER_API_KEY=sk-or-...
+GROQ_API_KEY=              # optional — automation skips if unset
+GEMINI_API_KEY=            # optional
+# DEMO_LLM_PROVIDER=openrouter   # force provider for F18 / verify:llm-live
 ```
 
 When **AI reasoning** is enabled in the Voice Search card, the app sends the key per request via `X-LLM-Api-Key`. Keys are session-only on the client and not stored on the server.
 
-Provider presets: `src/config/llmProviders.js`
+Provider presets: `src/config/llmProviders.js` · Loader: `scripts/lib/llm-env-config.mjs`
 
 Supported providers in UI:
 - OpenAI
@@ -57,7 +60,7 @@ Supported providers in UI:
 
 OpenRouter keys use `sk-or-…` from [openrouter.ai/keys](https://openrouter.ai/keys). If you get HTTP 401, regenerate the key on OpenRouter's site.
 
-**Scripts that read `src/.env`:** `verify:llm-live`, `verify:cloud:llm`, `record:demo:ios`, `record:demo:android`, iOS Maestro E2E (ML flow), optional `upload:appetize` / `upload:browserstack`. Keys are sent per request in `X-LLM-Api-Key` only — never written to the repo. Run `npm run verify:secrets-policy` before commits.
+**Scripts that read `src/.env`:** `verify:llm-live`, `verify:cloud:llm`, `verify:e2e-all` (F18 Maestro), `record:demo:ios`, `record:demo:android`, optional upload scripts. Keys are sent per request in `X-LLM-Api-Key` only — never written to the repo. Run `npm run verify:secrets-policy` before commits. See [LOCAL_RUN.md](./LOCAL_RUN.md) for the verification ladder.
 
 ### LLM key policy (non‑negotiable)
 
