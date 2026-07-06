@@ -1,6 +1,8 @@
 # Appetize & BrowserStack — demo builds
 
-**Last updated:** 2026-07-03
+**Last updated:** 2026-07-06
+
+**TL;DR:** Push to `main` → GitHub Actions builds Android APK → uploads to [Appetize live demo](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4). Secrets: `APPETIZE_API_TOKEN` + `APPETIZE_PUBLIC_KEY_ANDROID` in GitHub Actions only. **Start here:** [CI_CD_QUICKSTART.md](../scripts/lib/CI_CD_QUICKSTART.md).
 
 Ship a **standalone mobile build** (JS embedded, no Metro) that talks to the **Railway cloud API**. Upload to [Appetize](https://appetize.io) for a browser-shareable demo or [BrowserStack App Live](https://www.browserstack.com/app-live) for real-device QA.
 

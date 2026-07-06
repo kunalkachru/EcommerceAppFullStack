@@ -1,6 +1,6 @@
 # ShopEase documentation
 
-**Last updated:** 2026-07-05
+**Last updated:** 2026-07-06
 
 Central index for reviewers, recruiters, and developers. **Start on the [README](../README.md)** for product overview, live demo, and videos.
 
@@ -14,6 +14,7 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 | **Demo login** | `test@example.com` / `secret123` |
 | **App flow video** | [app-flow-demo.mp4](./demo/videos/app-flow-demo.mp4) |
 | **ML search video** | [ml-features-demo.mp4](./demo/videos/ml-features-demo.mp4) |
+| **GitHub Actions** | [Workflow runs](https://github.com/kunalkachru/EcommerceAppFullStack/actions) |
 
 ---
 
@@ -24,9 +25,10 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 | Doc | Purpose |
 |-----|---------|
 | [README](../README.md) | Product story, architecture diagram, live links |
+| [AGENTIC_DEVELOPMENT.md](./AGENTIC_DEVELOPMENT.md) | Agent-assisted dev workflow (Cursor, Claude, Codex) |
 | [DEMO_PRESENTATION.md](./DEMO_PRESENTATION.md) | 5-minute demo script + talking points |
 | [demo/videos/README.md](./demo/videos/README.md) | Screen recordings |
-| [e2e/](./e2e/) | Screenshot gallery |
+| [e2e/README.md](./e2e/README.md) | Screenshot gallery |
 
 ### Technical reviewers
 
@@ -36,6 +38,7 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 | [ML_SEARCH.md](./ML_SEARCH.md) | Text, voice, photo search pipelines |
 | [TESTING_STATUS.md](./TESTING_STATUS.md) | Gates, coverage, review checklist |
 | [CLOUD_REGRESSION.md](./CLOUD_REGRESSION.md) | Verify & E2E scripts |
+| [E2E_TEST_MATRIX.md](./E2E_TEST_MATRIX.md) | Maestro scenario matrix |
 
 ### Developers
 
@@ -47,6 +50,17 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 | [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) | Railway ops |
 | [CI_CD_QUICKSTART.md](../scripts/lib/CI_CD_QUICKSTART.md) | GitHub Actions → Appetize |
 | [APPETIZE_BROWSERSTACK.md](./APPETIZE_BROWSERSTACK.md) | Mobile demo upload |
+| [AGENTS.md](../AGENTS.md) | Cursor subagent index |
+| [superpowers/README.md](./superpowers/README.md) | Design spec history |
+
+### Automation and CI/CD
+
+| Resource | Purpose |
+|----------|---------|
+| [`.github/workflows/`](../.github/workflows/) | api-regression, appetize-demo |
+| [CI_CD_QUICKSTART.md](../scripts/lib/CI_CD_QUICKSTART.md) | Triggers, secrets, deploy gate |
+| [E2E_TEST_MATRIX.md](./E2E_TEST_MATRIX.md) | Local emulator/simulator tests |
+| [`.cursor/agents/`](../.cursor/agents/) | Specialized Cursor subagents |
 
 ---
 
@@ -54,6 +68,7 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 
 | Document | Description |
 |----------|-------------|
+| [AGENTIC_DEVELOPMENT.md](./AGENTIC_DEVELOPMENT.md) | Agent-assisted workflow |
 | [SETUP.md](./SETUP.md) | Prerequisites, install, verification |
 | [CONFIGURATION.md](./CONFIGURATION.md) | Env vars and runtime config |
 | [DEPLOYMENT.md](./DEPLOYMENT.md) | Deployment model (local, Railway, Appetize) |
@@ -61,10 +76,11 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 | [ML_SEARCH.md](./ML_SEARCH.md) | Multimodal search design |
 | [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) | Railway hosting |
 | [CLOUD_REGRESSION.md](./CLOUD_REGRESSION.md) | Cloud verify & E2E |
+| [E2E_TEST_MATRIX.md](./E2E_TEST_MATRIX.md) | Maestro flows |
 | [TESTING_STATUS.md](./TESTING_STATUS.md) | Test status & review checklist |
 | [DEMO_PRESENTATION.md](./DEMO_PRESENTATION.md) | Demo script |
 | [HYBRID_SEARCH_TEST_STEPS.md](./HYBRID_SEARCH_TEST_STEPS.md) | Manual ML validation |
 | [APPETIZE_BROWSERSTACK.md](./APPETIZE_BROWSERSTACK.md) | Appetize / BrowserStack |
 | [OCI_DEPLOY.md](./OCI_DEPLOY.md) | Optional self-hosted API |
-| [UI_REVAMP_PLAN.md](./UI_REVAMP_PLAN.md) | UI planning notes |
-| [adr/0001-client-data-unistyles-rtk.md](./adr/0001-client-data-unistyles-rtk.md) | ADR: RTK + Unistyles |
+| [SECURITY.md](../SECURITY.md) | Secrets policy |
+| [CONTRIBUTING.md](../CONTRIBUTING.md) | How to contribute |

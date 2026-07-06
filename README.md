@@ -4,7 +4,7 @@ A full-stack **React Native** shopping app: browse a live catalog, manage cart &
 
 **Stack:** React Native 0.85 · React 19 · Redux Toolkit · Express · CLIP · Railway (cloud API)
 
-**Branch:** `main` · **Last updated:** 2026-07-05
+**Branch:** `main` · **Last updated:** 2026-07-06
 
 ---
 
@@ -48,7 +48,7 @@ End-to-end **e-commerce** on mobile — not just search.
 
 | Journey | What works today |
 |---------|------------------|
-| **Discover** | Home, categories, product list & detail (289+ products from merged public catalogs + demo coverage) |
+| **Discover** | Home, categories, product list & detail (280+ products on live Railway API; merged local catalog up to ~389) |
 | **Shop** | Add to cart from list or PDP, update quantities, remove items |
 | **Checkout** | Shipping form, place order, order confirmation screen |
 | **Account** | JWT login/signup, profile, persisted session |
@@ -105,6 +105,20 @@ Deep dives: **[docs/README.md](./docs/README.md)** · **[docs/ARCHITECTURE.md](.
 
 ---
 
+## Built with agent-assisted development
+
+This project was built by **Kunal Kachru** using LLM-assisted development (Cursor agents, Claude, Codex-style review) under human direction — specs, prompts, verification gates, and CI/CD integration.
+
+| Layer | How agents helped |
+|-------|-------------------|
+| **Design** | Specs in [`docs/superpowers/`](./docs/superpowers/) → implementation plans |
+| **Quality** | [`.cursor/agents/`](./.cursor/agents/) — E2E, Appetize CI, Railway, doc polish |
+| **Proof** | 85 Jest tests, verify scripts, Maestro on emulator/simulator, GitHub Actions → Appetize |
+
+Full guide: **[docs/AGENTIC_DEVELOPMENT.md](./docs/AGENTIC_DEVELOPMENT.md)** · Cursor index: **[AGENTS.md](./AGENTS.md)**
+
+---
+
 ## For developers
 
 Everything below is the technical reference: local setup, verification gates, CI/CD, and doc index.
@@ -130,6 +144,13 @@ Full instructions: **[docs/SETUP.md](./docs/SETUP.md)** · Local runtime: **[doc
 ### Cloud demo & CI/CD
 
 The API runs on **Railway**; the mobile demo APK auto-deploys to **Appetize** on push to `main`.
+
+| Workflow | Trigger | Runner | Purpose |
+|----------|---------|--------|---------|
+| [API regression](.github/workflows/api-regression.yml) | push / PR | Ubuntu | Railway smoke + secrets policy |
+| [Appetize demo deploy](.github/workflows/appetize-demo.yml) | push `main` | Ubuntu | Build APK → live browser demo |
+
+[View GitHub Actions runs →](https://github.com/kunalkachru/EcommerceAppFullStack/actions)
 
 | Topic | Document |
 |-------|----------|
@@ -157,6 +178,7 @@ Quick cloud smoke: `npm run verify:cloud` · Full API gate: `npm run verify:clou
 | Document | Description |
 |----------|-------------|
 | **[docs/README.md](./docs/README.md)** | **Documentation hub** — by audience (portfolio, reviewers, developers) |
+| **[docs/AGENTIC_DEVELOPMENT.md](./docs/AGENTIC_DEVELOPMENT.md)** | Agent-assisted workflow, subagents, spec-driven development |
 | **[docs/SETUP.md](./docs/SETUP.md)** | Prerequisites, install, 3-terminal startup, verification |
 | **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)** | Env vars, API host, LLM keys, catalog, auth, permissions |
 | **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** | How the full stack runs today (local + Railway), architecture diagram |
@@ -168,10 +190,9 @@ Quick cloud smoke: `npm run verify:cloud` · Full API gate: `npm run verify:clou
 | **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** | System architecture (client, API, data flow) |
 | **[docs/ML_SEARCH.md](./docs/ML_SEARCH.md)** | Multimodal search pipelines (text, voice, CLIP) |
 | [docs/demo/videos/README.md](./docs/demo/videos/README.md) | Demo screen recordings (app flow + ML) |
-| [docs/UI_REVAMP_PLAN.md](./docs/UI_REVAMP_PLAN.md) | UI revamp planning notes |
-| [docs/adr/0001-client-data-unistyles-rtk.md](./docs/adr/0001-client-data-unistyles-rtk.md) | ADR: client data layer (Unistyles + RTK) |
+| [docs/E2E_TEST_MATRIX.md](./docs/E2E_TEST_MATRIX.md) | Maestro E2E scenario matrix |
 | [docs/test-photos/README.md](./docs/test-photos/README.md) | Visual-search test photo guide |
-| [docs/e2e/](./docs/e2e/) | Manual E2E screenshots (login, cart, checkout, search) |
+| [docs/e2e/README.md](./docs/e2e/README.md) | Screenshot gallery index |
 
 ### Project status (summary)
 
@@ -193,7 +214,7 @@ Run with API server up (`npm run server`) after CLIP index finishes, **or** agai
 
 | Command | Expected result |
 |---------|-----------------|
-| `npm test -- --watchman=false --runInBand --forceExit` | **83/83** tests (25 suites) |
+| `npm test -- --watchman=false --runInBand --forceExit` | **85/85** tests (27 suites) |
 | `npm run verify:search` | **20/20** search flow checks |
 | `npm run verify:ml` | **13/13** ML + catalog checks |
 | `npm run verify:cloud:all` | Cloud API + CLIP + ML + search (Railway) |
@@ -209,7 +230,7 @@ Run with API server up (`npm run server`) after CLIP index finishes, **or** agai
 | `npm run verify:llm-local` | Optional local Ollama smoke test for the LLM path (no paid credits; model quality may vary) |
 | `npm run verify:llm-live` | Live OpenAI/OpenRouter intent extraction (keys in `src/.env`; run with `API_URL=http://127.0.0.1:5002` for hybrid) |
 
-Catalog: **>=200 products required** · current local health on 2026-07-02 reported **289 products / 285 indexed** on the baseline runtime · Demo coverage products: **6**
+Catalog: **>=200 products required** · live Railway API: **280+** (varies with upstream APIs) · merged local catalog up to **~389** · Demo coverage products: **6**
 
 ### Repository layout
 
@@ -287,4 +308,6 @@ Full reference: **[docs/CONFIGURATION.md](./docs/CONFIGURATION.md)**
 
 ## License
 
-Private project — see repository owner for usage terms.
+Licensed under the [MIT License](LICENSE).
+
+Copyright © 2026 Kunal Kachru. Built with agent-assisted development — see [docs/AGENTIC_DEVELOPMENT.md](./docs/AGENTIC_DEVELOPMENT.md).

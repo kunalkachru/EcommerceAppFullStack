@@ -1,6 +1,6 @@
 # Demo Presentation Guide
 
-**Last updated:** 2026-07-05
+**Last updated:** 2026-07-06
 
 Live demo script, talking points, and video references for stakeholders and code reviewers.
 
@@ -57,7 +57,7 @@ Fallback screenshots: [docs/e2e/](./e2e/)
 | Step | Time | Action | What to say |
 |------|------|--------|-------------|
 | 1 | 0:00 | Login | "JWT auth gates cart and orders." |
-| 2 | 0:30 | Home → Products | "389-product merged catalog from public APIs plus demo coverage." |
+| 2 | 0:30 | Home → Products | "280+ products on Railway; merged local catalog up to ~389." |
 | 3 | 1:00 | Text search: `wireless headphones below 100` | "Intent parser handles price + product type; jumbled word order works too." |
 | 4 | 1:45 | Voice Search card → enable AI reasoning → paste key → speak query | "LLM extracts structured intent; rules fallback if LLM off." |
 | 5 | 2:30 | Products → camera icon → pick jacket photo | "CLIP compares photo embedding to catalog image+text vectors." |
@@ -110,7 +110,7 @@ Fallback screenshots: [docs/e2e/](./e2e/)
 | Payment is `mocked_paid` | Explain gateway is future work |
 | LLM requires API key | Paste in Voice Search card or use rules-only text search |
 | First CLIP load ~1–2 min | Start API early |
-| Cloud deploy N/A | Local demo only — [DEPLOYMENT.md](./DEPLOYMENT.md) |
+| Cloud deploy | Railway API + Appetize CI on push to `main` — [DEPLOYMENT.md](./DEPLOYMENT.md) · [live demo](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4) |
 
 ---
 

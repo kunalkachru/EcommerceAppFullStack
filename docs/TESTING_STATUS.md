@@ -1,7 +1,7 @@
 # Testing & Implementation Status
 
-**Last updated:** 2026-07-02  
-**Branch target:** `codex/hybrid-search-v1` (isolated worktree branch for hybrid search redesign)  
+**Last updated:** 2026-07-06  
+**Branch target:** `main`  
 **Purpose:** Handoff document for external review agents (Codex, Claude, etc.)
 
 > **Navigation:** Start from the [README](../README.md) for the full documentation index (setup, configuration, deployment, testing).
@@ -17,11 +17,11 @@ This branch completes a demo-ready e-commerce app with:
 3. **Lightweight orders lifecycle** (`mocked_paid` checkout → Orders tab → order detail)
 4. **Catalog coverage products** for common demo price/type gaps (laptops $500–900, gaming monitors under $240)
 
-**Current automated gate status (verified on 2026-07-02):**
+**Current automated gate status (verified on 2026-07-06):**
 
 | Gate | Command | Result |
 |------|---------|--------|
-| Unit/integration (Jest) | `npm test -- --watchman=false --runInBand --forceExit` | **83/83 passed** (25 suites) |
+| Unit/integration (Jest) | `npm test -- --watchman=false --runInBand --forceExit` | **85/85 passed** (27 suites) |
 | Hybrid search flows | `API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs` | **20/20 passed** |
 | Hybrid ML + catalog | `API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs` | **13/13 passed** |
 | Baseline vs hybrid comparison | `npm run verify:search:hybrid` | Hybrid passed all hybrid fixtures; baseline gap retained for `900 and 500 laptop between` |
@@ -139,7 +139,7 @@ Offline client fallback updated: `src/data/catalog-fallback.json` (389 products 
 #### Hybrid ML verification (`API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs`)
 
 - Server health
-- Catalog size ≥200 (current local baseline health on 2026-07-02: **289**)
+- Catalog size ≥200 (live Railway API: **280+**; merged local up to **~389**)
 - Catalog API + categories
 - **Catalog coverage:** laptops $500–900 (≥2), gaming monitors under $240 (≥1)
 - CLIP index ≥200 (current local baseline health on 2026-07-02: **285** indexed)
@@ -290,7 +290,7 @@ Detailed design and 3-day execution board: `.cursor/plans/robust_hybrid_search_a
 
 ## Review Checklist for External Agents
 
-- [ ] Run `npm test -- --watchman=false --runInBand --forceExit` — expect 83/83
+- [ ] Run `npm test -- --watchman=false --runInBand --forceExit` — expect 85/85
 - [ ] Run `API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs` — expect 20/20
 - [ ] Run `API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs` — expect 13/13
 - [ ] Run `npm run verify:search:hybrid` — expect hybrid pass, baseline comparison note allowed

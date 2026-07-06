@@ -3,7 +3,7 @@
 | Runtime | Purpose | Server Port | Env |
 |---------|---------|-------------|-----|
 | `baseline` | Current production-like semantic-first search | `5001` | `server/.env` |
-| `hybrid` | Redesign branch with lexical + semantic rerank | `5002` | `server/.env.hybrid.example` |
+| `hybrid` | Lexical + semantic rerank (available on `main`, port 5002) | `5002` | `server/.env.hybrid.example` |
 
 ## Notes
 

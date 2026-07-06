@@ -50,7 +50,7 @@ npm run verify:search:hybrid
 
 Expected:
 
-- Jest: `83/83` tests pass
+- Jest: **85/85** tests pass
 - Hybrid search regression: `20/20`
 - Hybrid ML regression: `13/13`
 - A/B comparison: hybrid passes all hybrid fixtures; baseline-only comparison notes are acceptable

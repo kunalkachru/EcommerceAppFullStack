@@ -125,7 +125,7 @@ API_URL=http://127.0.0.1:5001 npm run verify:search
 | Client offline | `src/data/catalog-fallback.json` | Regenerated via `npm run snapshot-catalog` |
 | Server snapshot | `server/data/catalog-snapshot.json` | Gitignored; used when live fetch fails |
 
-Current catalog size: **~389 products**, CLIP indexed **~385**.
+Current catalog size: **280+ on live Railway API**; merged local catalog up to **~389** when all upstream APIs respond; CLIP indexed count tracks catalog at startup.
 
 ---
 
