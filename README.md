@@ -8,6 +8,25 @@ A full-stack **React Native** shopping app: browse a live catalog, manage cart &
 
 ---
 
+## Quick assessment
+
+Everything a reviewer needs from one page:
+
+| | Resource |
+|--|----------|
+| **Try live (browser)** | [Appetize phone demo](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4?device=pixel7&osVersion=13.0&toolbar=true&scale=100) · Login `test@example.com` / `secret123` |
+| **Watch — Android** | [App flow MP4](./docs/demo/videos/app-flow-demo.mp4) · [ML search MP4](./docs/demo/videos/ml-features-demo.mp4) |
+| **Watch — iOS simulator** | [App flow (short)](./docs/demo/videos/ios/app-flow-demo-short.mp4) · [ML search (short)](./docs/demo/videos/ios/ml-features-demo-short.mp4) |
+| **Screenshots** | [E2E gallery](./docs/e2e/README.md) |
+| **5-minute demo script** | [DEMO_PRESENTATION.md](./docs/DEMO_PRESENTATION.md) |
+| **Agentic development** | [AGENTIC_DEVELOPMENT.md](./docs/AGENTIC_DEVELOPMENT.md) · [Cursor agents](./AGENTS.md) |
+| **Architecture & ML** | [ARCHITECTURE.md](./docs/ARCHITECTURE.md) · [ML_SEARCH.md](./docs/ML_SEARCH.md) |
+| **CI/CD pipeline** | [GitHub Actions](https://github.com/kunalkachru/EcommerceAppFullStack/actions) · [CI quickstart](./scripts/lib/CI_CD_QUICKSTART.md) |
+| **Full doc index** | [docs/README.md](./docs/README.md) |
+| **Test gates** | [TESTING_STATUS.md](./docs/TESTING_STATUS.md) — **85/85** Jest tests |
+
+---
+
 ## Try the app (browser — no install)
 
 The latest Android build deploys automatically from `main` to **Appetize**. Open it in your browser:
@@ -28,7 +47,9 @@ Screen recordings from the app (each under 60 seconds). Click a screenshot to pl
 | Commerce flow | Multimodal search |
 |---------------|-------------------|
 | [![Login → browse → cart → checkout → orders](./docs/e2e/08-order-summary.png)](./docs/demo/videos/app-flow-demo.mp4) | [![Text, voice & photo search](./docs/e2e/photo-search-results.png)](./docs/demo/videos/ml-features-demo.mp4) |
-| **[▶ App flow demo](./docs/demo/videos/app-flow-demo.mp4)** | **[▶ ML features demo](./docs/demo/videos/ml-features-demo.mp4)** |
+| **[▶ App flow demo](./docs/demo/videos/app-flow-demo.mp4)** (Android) | **[▶ ML features demo](./docs/demo/videos/ml-features-demo.mp4)** (Android) |
+
+**Also on iOS simulator** (short cuts): [app flow](./docs/demo/videos/ios/app-flow-demo-short.mp4) · [ML search](./docs/demo/videos/ios/ml-features-demo-short.mp4)
 
 <details>
 <summary>Inline playback (may load slowly on GitHub)</summary>
@@ -38,7 +59,7 @@ Screen recordings from the app (each under 60 seconds). Click a screenshot to pl
 
 </details>
 
-More recordings (iOS simulator cuts): [docs/demo/videos/README.md](./docs/demo/videos/README.md) · Live demo script: [docs/DEMO_PRESENTATION.md](./docs/DEMO_PRESENTATION.md)
+More: [demo/videos/README.md](./docs/demo/videos/README.md) · [DEMO_PRESENTATION.md](./docs/DEMO_PRESENTATION.md)
 
 ---
 

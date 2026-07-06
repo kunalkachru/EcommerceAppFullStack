@@ -2,7 +2,9 @@
 
 Two short screen recordings (<60s each) for presentation and reviewer onboarding.
 
-**Last updated:** 2026-07-05
+**Last updated:** 2026-07-06
+
+**Quick links from [README](../../README.md):** [Android app flow](./app-flow-demo.mp4) · [Android ML](./ml-features-demo.mp4) · [iOS app flow (short)](./ios/app-flow-demo-short.mp4) · [iOS ML (short)](./ios/ml-features-demo-short.mp4)
 
 ---
 
@@ -17,14 +19,14 @@ Embedded on the [README](../../README.md#watch-it) with screenshot posters.
 
 ---
 
-## iOS simulator recordings
+## iOS simulator recordings (short cuts only)
 
-| Video | Content | Status |
-|-------|---------|--------|
-| [ios/app-flow-demo-short.mp4](./ios/app-flow-demo-short.mp4) | App flow (<60s reviewer cut) | ✅ Recorded |
-| [ios/ml-features-demo-short.mp4](./ios/ml-features-demo-short.mp4) | ML demo (<60s reviewer cut) | ✅ Recorded |
-| [ios/app-flow-demo.mp4](./ios/app-flow-demo.mp4) | Full raw capture | ✅ Recorded |
-| [ios/ml-features-demo.mp4](./ios/ml-features-demo.mp4) | Full raw capture | ✅ Recorded |
+Full-length iOS duplicates were removed to keep clone size small. Short reviewer cuts remain:
+
+| Video | Content | Size |
+|-------|---------|------|
+| [ios/app-flow-demo-short.mp4](./ios/app-flow-demo-short.mp4) | App flow (<60s) | ~1.5 MB |
+| [ios/ml-features-demo-short.mp4](./ios/ml-features-demo-short.mp4) | ML demo (<60s) | ~4.7 MB |
 
 Re-record iOS: `npm run record:demo:ios` · Android: `npm run record:demo:android`
 

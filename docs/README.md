@@ -12,8 +12,9 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 |--|------|
 | **Live app (Appetize)** | [Open demo →](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4?device=pixel7&osVersion=13.0&toolbar=true&scale=100) |
 | **Demo login** | `test@example.com` / `secret123` |
-| **App flow video** | [app-flow-demo.mp4](./demo/videos/app-flow-demo.mp4) |
-| **ML search video** | [ml-features-demo.mp4](./demo/videos/ml-features-demo.mp4) |
+| **App flow video** | [app-flow-demo.mp4](./demo/videos/app-flow-demo.mp4) (Android) |
+| **ML search video** | [ml-features-demo.mp4](./demo/videos/ml-features-demo.mp4) (Android) |
+| **iOS simulator (short)** | [app-flow](./demo/videos/ios/app-flow-demo-short.mp4) · [ML](./demo/videos/ios/ml-features-demo-short.mp4) |
 | **GitHub Actions** | [Workflow runs](https://github.com/kunalkachru/EcommerceAppFullStack/actions) |
 
 ---

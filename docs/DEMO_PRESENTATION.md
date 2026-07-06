@@ -37,12 +37,11 @@ Live demo script, talking points, and video references for stakeholders and code
 | [app-flow-demo.mp4](./demo/videos/app-flow-demo.mp4) | Login → browse → cart → checkout → orders |
 | [ml-features-demo.mp4](./demo/videos/ml-features-demo.mp4) | Text search → LLM reasoning + key → voice/photo search |
 
-Platform-specific assets (iOS simulator):
+Platform-specific assets (iOS simulator — short cuts):
 
 | Platform | App flow | ML features |
 |----------|----------|-------------|
 | iOS (short) | [ios/app-flow-demo-short.mp4](./demo/videos/ios/app-flow-demo-short.mp4) | [ios/ml-features-demo-short.mp4](./demo/videos/ios/ml-features-demo-short.mp4) |
-| iOS (full) | [ios/app-flow-demo.mp4](./demo/videos/ios/app-flow-demo.mp4) | [ios/ml-features-demo.mp4](./demo/videos/ios/ml-features-demo.mp4) |
 
 Primary Android recordings: [app-flow-demo.mp4](./demo/videos/app-flow-demo.mp4) · [ml-features-demo.mp4](./demo/videos/ml-features-demo.mp4)
 
