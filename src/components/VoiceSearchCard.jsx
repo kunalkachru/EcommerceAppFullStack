@@ -520,6 +520,38 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
         </View>
       ) : null}
 
+      {useLlmReasoning ? (
+        <View style={styles.stickySearchBar} testID="voice-llm-sticky-search">
+          <TextInput
+            testID="voice-typed-query-sticky"
+            style={styles.stickyQueryInput}
+            placeholder="Type search query (sticky bar)"
+            placeholderTextColor="#9aa3af"
+            value={typedQuery}
+            onChangeText={setTypedQuery}
+            onSubmitEditing={submitTyped}
+            returnKeyType="search"
+            editable={!searching}
+          />
+          <TouchableOpacity
+            testID="voice-search-button-sticky"
+            style={[
+              styles.stickySearchBtn,
+              (searching || (!typedQuery.trim() && !transcript.trim())) &&
+                styles.searchBtnDisabled,
+            ]}
+            onPress={submitTyped}
+            disabled={searching}
+            accessibilityRole="button"
+            accessibilityLabel="Find products"
+          >
+            <Text style={styles.stickySearchBtnText}>
+              {searching ? "Searching…" : "Find products"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
+
       <View style={styles.micRow}>
         <TouchableOpacity
           testID="voice-mic-button"
@@ -653,6 +685,39 @@ const styles = StyleSheet.create({
   },
   keySection: {
     marginBottom: 12,
+  },
+  stickySearchBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    backgroundColor: "#ede9fe",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#c4b5fd",
+  },
+  stickyQueryInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#c4b5fd",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 15,
+    backgroundColor: "#fff",
+  },
+  stickySearchBtn: {
+    backgroundColor: "#6b46c1",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  stickySearchBtnText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 14,
   },
   keyHint: {
     fontSize: 12,

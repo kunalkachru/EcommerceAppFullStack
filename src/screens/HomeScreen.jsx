@@ -132,13 +132,13 @@ const HomeScreen = () => {
 
   return (
     <ScrollView
-      testID="screen-home"
       style={styles.container}
       contentContainerStyle={styles.content}
       nestedScrollEnabled
       keyboardShouldPersistTaps="handled"
     >
-      <View style={styles.hero}>
+      <View testID="home-scroll" collapsable={false}>
+      <View style={styles.hero} testID="screen-home">
         <View style={styles.heroBadge}>
           <Text style={styles.heroBadgeText}>ShopEase</Text>
         </View>
@@ -357,6 +357,7 @@ const HomeScreen = () => {
             </Text>
           </View>
         ))}
+      </View>
       </View>
     </ScrollView>
   );
