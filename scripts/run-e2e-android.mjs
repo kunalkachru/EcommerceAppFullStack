@@ -37,6 +37,9 @@ import {
   DEFAULT_EMAIL,
   DEFAULT_PASSWORD,
 } from "./e2e-api-helpers.mjs";
+import { warmClipIfCloud, preflightE2E } from "./lib/e2e-infra.mjs";
+import { runLlmLiveVerification } from "./verify-llm-live.mjs";
+import { hasClientLlmKey, CLIENT_ENV_PATH } from "./load-env.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -74,6 +77,13 @@ function dismissAlertIfPresent() {
 async function main() {
   console.log(`=== E2E on ${DEVICE} (API: ${API}) ===`);
 
+  try {
+    preflightE2E({ android: true, maestroBin: null });
+  } catch (e) {
+    console.error(e.message);
+    process.exit(1);
+  }
+
   console.log("=== E2E: API health ===");
   try {
     const health = await api("GET", "/health");
@@ -98,6 +108,25 @@ async function main() {
   if (token) {
     await api("DELETE", "/api/cart/clear", null, token);
     pass("api-cart-clear", "Cart cleared before UI test");
+  }
+
+  console.log("\n=== CLIP warmup (cloud) ===");
+  try {
+    const clip = await warmClipIfCloud(API, { strict: true });
+    if (clip) pass("clip-warm", `CLIP index ready (${clip.indexCount})`);
+    else pass("clip-warm", "skipped (local API)");
+  } catch (e) {
+    fail("clip-warm", e.message);
+    process.exit(1);
+  }
+
+  console.log("\n=== Live LLM reasoning (API) ===");
+  if (hasClientLlmKey()) {
+    const llm = await runLlmLiveVerification({ apiUrl: API });
+    if (llm.ok) pass("llm-live", "verify:llm-live passed");
+    else fail("llm-live", "verify:llm-live failed");
+  } else {
+    warn("llm-live", `skipped — no LLM keys in ${CLIENT_ENV_PATH}`);
   }
 
   console.log("\n=== E2E: UI Login ===");

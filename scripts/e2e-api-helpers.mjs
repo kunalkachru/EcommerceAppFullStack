@@ -26,7 +26,15 @@ export function createApiClient(baseUrl = resolveApiUrl()) {
   }
 
   async function login(email = DEFAULT_EMAIL, password = DEFAULT_PASSWORD) {
-    const body = await api("POST", "/api/users/login", { email, password });
+    let body = await api("POST", "/api/users/login", { email, password });
+    if (!body.token && body.message?.includes("Invalid")) {
+      await api("POST", "/api/users/register", {
+        name: "Test User",
+        email,
+        password,
+      });
+      body = await api("POST", "/api/users/login", { email, password });
+    }
     return body.token || null;
   }
 

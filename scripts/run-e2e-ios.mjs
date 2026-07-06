@@ -22,6 +22,7 @@ import {
   launchApp,
 } from "./ios-sim-recovery.mjs";
 import { loadClientEnv, maestroLlmEnv, hasClientLlmKey, CLIENT_ENV_PATH } from "./load-env.mjs";
+import { execSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,6 +33,12 @@ import {
   DEFAULT_EMAIL,
   DEFAULT_PASSWORD,
 } from "./e2e-api-helpers.mjs";
+import {
+  warmClipIfCloud,
+  formatMaestroFailureNote,
+  preflightE2E,
+} from "./lib/e2e-infra.mjs";
+import { runLlmLiveVerification } from "./verify-llm-live.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -77,6 +84,13 @@ async function main() {
   }
   dismissSimulatorCrashDialogs();
 
+  try {
+    preflightE2E({ maestroBin: MAESTRO, ios: true });
+  } catch (e) {
+    console.error(e.message);
+    process.exit(1);
+  }
+
   const udid = getBootedSimulatorUdid();
   console.log(`=== iOS E2E on ${udid} (API: ${API}) ===\n`);
 
@@ -101,12 +115,31 @@ async function main() {
     process.exit(1);
   }
 
+  console.log("\n=== CLIP warmup (cloud) ===");
+  try {
+    const clip = await warmClipIfCloud(API, { strict: true });
+    if (clip) pass("clip-warm", `CLIP index ready (${clip.indexCount})`);
+    else pass("clip-warm", "skipped (local API)");
+  } catch (e) {
+    fail("clip-warm", e.message);
+    process.exit(1);
+  }
+
+  console.log("\n=== Live LLM reasoning (API) ===");
+  if (hasClientLlmKey()) {
+    const llm = await runLlmLiveVerification({ apiUrl: API });
+    if (llm.ok) pass("llm-live", "verify:llm-live passed");
+    else fail("llm-live", "verify:llm-live failed");
+  } else {
+    warn("llm-live", `skipped — no LLM keys in ${CLIENT_ENV_PATH}`);
+  }
+
   console.log("\n=== Maestro: commerce flow (login → cart → checkout) ===");
   const commerce = runMaestro("demo-app-flow.yaml", udid);
   if (commerce.ok) {
     pass("maestro-commerce", "demo-app-flow.yaml completed");
   } else {
-    fail("maestro-commerce", `Maestro exit ${commerce.status}`);
+    fail("maestro-commerce", formatMaestroFailureNote("demo-app-flow.yaml", commerce));
     console.log(commerce.output.slice(-2000));
   }
 
@@ -120,6 +153,14 @@ async function main() {
 
   const maestroLlm = maestroLlmEnv(loadClientEnv());
 
+  console.log("\n=== iOS photo seed (ML demo gallery) ===");
+  try {
+    execSync("node scripts/seed-ios-sim-photos.mjs", { cwd: ROOT, stdio: "inherit" });
+    pass("ios-photo-seed", "Gallery seeded for ML demo");
+  } catch (e) {
+    warn("ios-photo-seed", `[INFRA] seed failed: ${e.message}`);
+  }
+
   console.log("\n=== Maestro: ML smoke (catalog, photo, text search) ===");
   if (!hasClientLlmKey()) {
     warn("maestro-llm-key", `No LLM key in ${CLIENT_ENV_PATH} — LLM Maestro steps may be skipped`);
@@ -130,7 +171,10 @@ async function main() {
   if (ml.ok) {
     pass("maestro-ml-smoke", "demo-ml-features.yaml completed");
   } else {
-    warn("maestro-ml-smoke", `Maestro ML flow exit ${ml.status} (LLM steps optional without DEMO_LLM_API_KEY)`);
+    warn(
+      "maestro-ml-smoke",
+      `${formatMaestroFailureNote("demo-ml-features.yaml", ml)} (LLM steps optional without DEMO_LLM_API_KEY)`
+    );
     if (!ml.ok) console.log(ml.output.slice(-1500));
   }
 

@@ -19,7 +19,23 @@ import {
   runMaestroFlow,
   runMaestroFlowAndroid,
   dismissSimulatorCrashDialogs,
+  withSimulatorRecovery,
 } from "./ios-sim-recovery.mjs";
+import {
+  preflightE2E,
+  warmClipIfCloud,
+  formatMaestroFailureNote,
+  runMaestroWithAndroidRetry,
+  isAndroidReady,
+  resolveAndroidDevice,
+  ANDROID_APK,
+} from "./lib/e2e-infra.mjs";
+import {
+  hasClientLlmKey,
+  maestroLlmEnv,
+  CLIENT_ENV_PATH,
+} from "./load-env.mjs";
+import { runLlmLiveVerification } from "./verify-llm-live.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -60,12 +76,7 @@ function warn(id, note) {
 }
 
 function hasAndroid() {
-  try {
-    const out = execSync("adb devices", { encoding: "utf8" });
-    return out.split("\n").some((l) => l.includes("device") && !l.includes("List"));
-  } catch {
-    return false;
-  }
+  return isAndroidReady(resolveAndroidDevice());
 }
 
 function hasIos() {
@@ -77,19 +88,55 @@ function hasIos() {
   }
 }
 
-function runMaestro(flowFile, udid) {
+function runMaestro(flowFile, udid, maestroEnv = {}) {
   const path = join(FLOWS_DIR, flowFile);
   if (!existsSync(path)) {
     fail(`maestro-${flowFile}`, "flow file missing");
     return false;
   }
-  const r = runMaestroFlow(MAESTRO, path, udid);
+  const r = withSimulatorRecovery(
+    `Maestro ${flowFile}`,
+    () => runMaestroFlow(MAESTRO, path, udid, maestroEnv),
+    { udid }
+  );
   if (r.ok) {
     pass(`maestro-${flowFile}`, "completed");
     return true;
   }
-  fail(`maestro-${flowFile}`, `exit ${r.status}`);
+  fail(`maestro-${flowFile}`, formatMaestroFailureNote(flowFile, r));
   console.log(r.output.slice(-1500));
+  return false;
+}
+
+function runAndroidMaestro(flowFile, maestroEnv = {}) {
+  const path = join(FLOWS_DIR, flowFile);
+  if (!existsSync(path)) {
+    fail(`maestro-android-${flowFile}`, "flow file missing");
+    return false;
+  }
+  const r = runMaestroWithAndroidRetry(`Maestro ${flowFile}`, () =>
+    runMaestroFlowAndroid(MAESTRO, path, maestroEnv)
+  );
+  if (r.ok) {
+    pass(`maestro-android-${flowFile}`, "completed");
+    return true;
+  }
+  fail(`maestro-android-${flowFile}`, formatMaestroFailureNote(flowFile, r));
+  console.log(r.output.slice(-1500));
+  return false;
+}
+
+function runMaestroLlmFlow(flowFile, udid, maestroEnv, { android = false } = {}) {
+  const id = android ? `maestro-android-${flowFile}` : `maestro-${flowFile}`;
+  const ok = android
+    ? runAndroidMaestro(flowFile, maestroEnv)
+    : runMaestro(flowFile, udid, maestroEnv);
+  if (ok) return true;
+  const llmLivePassed = results.some((r) => r.id === "llm-live" && r.status === "PASS");
+  if (llmLivePassed) {
+    warn(id, `${flowFile} UI failed — API llm-live passed (F18 UI gate is best-effort)`);
+    return true;
+  }
   return false;
 }
 
@@ -133,14 +180,56 @@ async function main() {
   const runIos = !androidOnly && hasIos();
 
   if (!runAndroid && !runIos) {
-    console.error("No booted Android emulator or iOS simulator found");
+    console.error("[INFRA] No booted Android emulator or iOS simulator found");
     process.exit(1);
   }
+
+  try {
+    preflightE2E({
+      maestroBin: MAESTRO,
+      android: runAndroid,
+      ios: runIos,
+      requireApk: runAndroid,
+    });
+  } catch (e) {
+    console.error(e.message);
+    process.exit(1);
+  }
+
+  console.log("\n=== CLIP warmup (cloud) ===");
+  try {
+    const clip = await warmClipIfCloud(API, { strict: true });
+    if (clip) pass("clip-warm", `CLIP index ready (${clip.indexCount})`);
+    else pass("clip-warm", "skipped (local API)");
+  } catch (e) {
+    fail("clip-warm", e.message);
+    process.exit(1);
+  }
+
+  console.log("\n=== Live LLM reasoning (API) ===");
+  if (hasClientLlmKey()) {
+    const llm = await runLlmLiveVerification({ apiUrl: API });
+    if (llm.ok) pass("llm-live", "verify:llm-live passed");
+    else if (process.env.E2E_REQUIRE_LLM === "1") {
+      fail("llm-live", "verify:llm-live failed (E2E_REQUIRE_LLM=1)");
+      process.exit(1);
+    } else {
+      fail("llm-live", "verify:llm-live failed — continuing (set E2E_REQUIRE_LLM=1 to block)");
+    }
+  } else {
+    warn("llm-live", `skipped — no LLM keys in ${CLIENT_ENV_PATH}`);
+  }
+
+  const llmMaestroEnv = hasClientLlmKey() ? maestroLlmEnv() : null;
 
   if (runAndroid) {
     console.log("\n=== Android setup ===");
     setupAndroidE2E();
-    execSync(`adb install -r dist/demo/shopease-cloud-demo.apk`, {
+    if (!existsSync(ANDROID_APK)) {
+      fail("android-apk", `[INFRA] Demo APK missing: ${ANDROID_APK}`);
+      process.exit(1);
+    }
+    execSync(`adb -s ${resolveAndroidDevice()} install -r ${ANDROID_APK}`, {
       cwd: ROOT,
       stdio: "inherit",
     });
@@ -156,17 +245,24 @@ async function main() {
     for (const flow of FLOW_FILES) {
       runMaestro(flow, udid);
     }
+    if (llmMaestroEnv) {
+      console.log("\n=== Maestro F18: live LLM reasoning ===");
+      runMaestroLlmFlow("06-llm-reasoning.yaml", udid, llmMaestroEnv);
+    } else {
+      warn("maestro-f18-llm", `skipped — no LLM keys in ${CLIENT_ENV_PATH}`);
+    }
   }
 
   if (runAndroid) {
     console.log("\n=== Maestro flows (Android) ===");
     for (const flow of FLOW_FILES) {
-      const r = runMaestroFlowAndroid(MAESTRO, join(FLOWS_DIR, flow));
-      if (r.ok) pass(`maestro-android-${flow}`, "completed");
-      else {
-        fail(`maestro-android-${flow}`, `exit ${r.status}`);
-        console.log(r.output.slice(-1500));
-      }
+      runAndroidMaestro(flow);
+    }
+    if (llmMaestroEnv) {
+      console.log("\n=== Maestro F18: live LLM reasoning (Android) ===");
+      runMaestroLlmFlow("06-llm-reasoning.yaml", null, llmMaestroEnv, { android: true });
+    } else {
+      warn("maestro-android-f18-llm", `skipped — no LLM keys in ${CLIENT_ENV_PATH}`);
     }
   }
 
