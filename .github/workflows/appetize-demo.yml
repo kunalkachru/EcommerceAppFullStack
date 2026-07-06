@@ -18,18 +18,25 @@ name: Appetize demo deploy
 on:
   push:
     branches: [main]
+    # Rebuild APK/IPA only when mobile bundle inputs change — not docs, E2E scripts, or verify-only tooling.
     paths:
       - "src/**"
       - "android/**"
       - "ios/**"
       - "config/**"
+      - "App.jsx"
+      - "index.js"
+      - "app.json"
+      - "babel.config.js"
+      - "metro.config.js"
+      - "react-native.config.js"
       - "package.json"
       - "package-lock.json"
       - "scripts/build-demo-*.mjs"
-      - "scripts/upload-appetize.mjs"
-      - "scripts/verify-cloud*.mjs"
       - "scripts/assert-cloud-api-target.mjs"
-      - "scripts/lib/**"
+      - "scripts/patch-voice-gradle.mjs"
+      - "scripts/lib/demo-build-paths.mjs"
+      - "scripts/lib/read-cloud-api.mjs"
       - ".github/workflows/appetize-demo.yml"
   workflow_dispatch:
     inputs:
@@ -44,13 +51,19 @@ on:
       - "android/**"
       - "ios/**"
       - "config/**"
+      - "App.jsx"
+      - "index.js"
+      - "app.json"
+      - "babel.config.js"
+      - "metro.config.js"
+      - "react-native.config.js"
       - "package.json"
       - "package-lock.json"
       - "scripts/build-demo-*.mjs"
-      - "scripts/upload-appetize.mjs"
-      - "scripts/verify-cloud*.mjs"
       - "scripts/assert-cloud-api-target.mjs"
-      - "scripts/lib/**"
+      - "scripts/patch-voice-gradle.mjs"
+      - "scripts/lib/demo-build-paths.mjs"
+      - "scripts/lib/read-cloud-api.mjs"
       - ".github/workflows/appetize-demo.yml"
 
 concurrency:

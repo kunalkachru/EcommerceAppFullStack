@@ -57,7 +57,7 @@ git clone → cp src/.env.example src/.env → npm run build:demo:apk → npm ru
 | **Appetize** | GitHub Actions on push / manual | Upload via secrets; stable public URL |
 | **GitHub repo** | Source code only | Scripts + config; no Appetize token in git |
 
-Changing code on **`main`** triggers [`.github/workflows/appetize-demo.yml`](../.github/workflows/appetize-demo.yml): Railway deploy gate → build APK → **automatic Appetize upload** (GitHub Secrets only; no manual upload needed). See **[scripts/lib/CI_CD_QUICKSTART.md](../scripts/lib/CI_CD_QUICKSTART.md)**.
+Changes to **mobile bundle inputs** on **`main`** (`src/`, `android/`, `ios/`, `config/`, RN config — not docs or E2E-only scripts) trigger [`.github/workflows/appetize-demo.yml`](../.github/workflows/appetize-demo.yml): Railway deploy gate → build APK → **automatic Appetize upload**. Path list: **[CI_CD_QUICKSTART.md](../scripts/lib/CI_CD_QUICKSTART.md)** § Path filters.
 
 ### LLM keys — same rule on Appetize
 

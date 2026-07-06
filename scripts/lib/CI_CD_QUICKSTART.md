@@ -25,10 +25,24 @@ No rebuild needed — change `device` in the URL to test layout on phone vs tabl
 
 | When | What happens | Cost |
 |------|----------------|------|
-| **Push to `main`** (paths: `src/`, `android/`, etc.) | Preflight → build APK → update Appetize | Ubuntu only (free tier) |
+| **Push to `main`** (mobile bundle paths only — see below) | Preflight → build APK → update Appetize | Ubuntu only (free tier) |
 | **Manual:** Actions → *Appetize demo deploy* → *Run workflow* | Same as push | Ubuntu only |
 | **Manual + `include_ios: true`** | Above + iOS sim zip → Appetize | **macOS minutes** (opt-in) |
-| **Pull request** | Android APK artifact only (14 days) | Ubuntu only |
+| **Pull request** (same mobile bundle paths) | Android APK artifact only (14 days) | Ubuntu only |
+
+### Path filters (APK / iOS sim rebuild)
+
+Push and PR **only** trigger a demo rebuild when files that affect the embedded JS bundle or native shell change:
+
+| Triggers rebuild | Does **not** trigger rebuild |
+|------------------|------------------------------|
+| `src/**`, `android/**`, `ios/**`, `config/**` | `docs/**`, `README.md`, `__tests__/**` |
+| `App.jsx`, `index.js`, `app.json`, Metro/Babel/RN config | `scripts/run-e2e-*.mjs`, `scripts/verify-*.mjs` |
+| `package.json`, `package-lock.json` | `scripts/lib/e2e-infra.mjs`, `scripts/lib/llm-env-config.mjs` |
+| `scripts/build-demo-*.mjs`, `scripts/assert-cloud-api-target.mjs` | `.maestro/**`, `server/**` (API regression is separate) |
+| `scripts/patch-voice-gradle.mjs`, `scripts/lib/demo-build-paths.mjs`, `scripts/lib/read-cloud-api.mjs` | |
+
+**Manual dispatch** always runs (optional iOS). Docs-only commits to `main` skip this workflow entirely.
 
 ## Credential model
 
