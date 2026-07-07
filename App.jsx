@@ -20,10 +20,21 @@ const SessionBootstrap = ({ children }) => {
 
   useEffect(() => {
     let cancelled = false;
+    let timeoutHandle;
 
     async function bootstrap() {
       if (user && token) {
-        await dispatch(restoreSession());
+        // Restore session with 5s timeout - don't block UI rendering if it hangs
+        try {
+          const restorePromise = dispatch(restoreSession());
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("restore_timeout")), 5000)
+          );
+          await Promise.race([restorePromise, timeoutPromise]);
+        } catch (error) {
+          // Silent fail - timeout or error on restore doesn't block app start
+          console.log("Session restore failed or timed out, proceeding with app start");
+        }
       }
       if (!cancelled) {
         setReady(true);
@@ -33,6 +44,7 @@ const SessionBootstrap = ({ children }) => {
     bootstrap();
     return () => {
       cancelled = true;
+      if (timeoutHandle) clearTimeout(timeoutHandle);
     };
   }, [dispatch, token, user]);
 
