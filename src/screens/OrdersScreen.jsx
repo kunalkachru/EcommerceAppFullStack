@@ -10,6 +10,15 @@ import {
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { fetchOrders } from "../services/ordersService";
+import { colors, radius, shadows, spacing, typography } from "../theme/tokens";
+import { navigateToProductList } from "../navigation/productNavigation";
+import {
+  LuxuryBodyText,
+  LuxuryDisplayTitle,
+  LuxuryEyebrow,
+  LuxuryMetricCard,
+  LuxurySectionCard,
+} from "../components/LuxuryPrimitives";
 
 const OrdersScreen = ({ navigation }) => {
   const [orders, setOrders] = useState([]);
@@ -27,7 +36,6 @@ const OrdersScreen = ({ navigation }) => {
         const data = await fetchOrders();
         setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
-        // eslint-disable-next-line no-console
         console.error("Fetch Orders Error:", err?.response?.data || err?.message || err);
         const message =
           err?.response?.data?.message ||
@@ -75,6 +83,7 @@ const OrdersScreen = ({ navigation }) => {
     return (
       <TouchableOpacity
         style={styles.card}
+        testID={`order-card-${item.id}`}
         onPress={() => navigation.navigate("OrderSummary", { order: item })}
       >
         <View style={styles.cardHeader}>
@@ -104,21 +113,62 @@ const OrdersScreen = ({ navigation }) => {
     );
   }
 
+  const totalOrders = orders.length;
+  const totalSpend = orders.reduce((sum, order) => {
+    const grandTotal =
+      typeof order?.totals?.grandTotal === "number"
+        ? order.totals.grandTotal
+        : (order.items || []).reduce(
+            (lineSum, line) => lineSum + Number(line.price || 0) * Number(line.quantity || 0),
+            0
+          );
+    return sum + grandTotal;
+  }, 0);
+  const latestOrder = orders[0];
+
   return (
     <View style={styles.container} testID="screen-orders">
-      <Text style={styles.header}>Your Orders</Text>
+      <LuxurySectionCard style={styles.heroCard}>
+        <LuxuryEyebrow>Orders</LuxuryEyebrow>
+        <LuxuryDisplayTitle>Your after-purchase story, kept simple.</LuxuryDisplayTitle>
+        <LuxuryBodyText style={styles.subheader}>
+          Review placed orders, revisit shipping details, and keep the post-purchase flow as
+          polished as discovery.
+        </LuxuryBodyText>
+        <View style={styles.metricsRow}>
+          <LuxuryMetricCard label="Total orders" value={String(totalOrders)} muted />
+          <LuxuryMetricCard label="Lifetime spend" value={`$${totalSpend.toFixed(2)}`} muted />
+        </View>
+        {latestOrder ? (
+          <View style={styles.latestCard}>
+            <Text style={styles.latestLabel}>Latest order</Text>
+            <Text style={styles.latestValue}>
+              #{String(latestOrder.id || "").slice(0, 8)} · {latestOrder.items?.length || 0} item
+              {(latestOrder.items?.length || 0) === 1 ? "" : "s"}
+            </Text>
+          </View>
+        ) : null}
+      </LuxurySectionCard>
       {error && (
         <View style={styles.errorBox}>
           <Text style={styles.errorText}>{error}</Text>
         </View>
       )}
       {orders.length === 0 && !loading && !error ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyTitle}>No orders yet</Text>
-          <Text style={styles.emptySubtitle}>
-            Your orders will appear here after you place your first order.
-          </Text>
-        </View>
+        <LuxurySectionCard style={styles.emptyState}>
+          <LuxuryEyebrow style={styles.emptyEyebrow}>No order history yet</LuxuryEyebrow>
+          <LuxuryDisplayTitle style={styles.emptyTitle}>Your first order will appear here.</LuxuryDisplayTitle>
+          <LuxuryBodyText style={styles.emptySubtitle}>
+            Place something from the catalog and come back for a cleaner order recap and
+            shipping summary.
+          </LuxuryBodyText>
+          <TouchableOpacity
+            style={styles.emptyButton}
+            onPress={() => navigateToProductList(navigation)}
+          >
+            <Text style={styles.emptyButtonText}>Browse products</Text>
+          </TouchableOpacity>
+        </LuxurySectionCard>
       ) : (
         <FlatList
           data={orders}
@@ -126,7 +176,7 @@ const OrdersScreen = ({ navigation }) => {
           renderItem={renderOrder}
           contentContainerStyle={styles.listContent}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#28A745" />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accentStrong} />
           }
         />
       )}
@@ -139,22 +189,54 @@ export default OrdersScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: "#fff",
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    backgroundColor: colors.background,
   },
-  header: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 12,
+  heroCard: {
+    borderRadius: radius.xl,
+    marginBottom: spacing.md,
+    ...shadows.floating,
+  },
+  subheader: {
+    marginTop: spacing.xs,
+    lineHeight: 22,
+  },
+  metricsRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  latestCard: {
+    marginTop: spacing.md,
+    padding: spacing.md,
+    borderRadius: radius.lg,
+    backgroundColor: colors.accentSoft,
+  },
+  latestLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: typography.eyebrowSpacing,
+    textTransform: "uppercase",
+    color: colors.accentStrong,
+    marginBottom: 6,
+  },
+  latestValue: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: colors.text,
   },
   listContent: {
-    paddingVertical: 4,
+    paddingBottom: 120,
   },
   card: {
-    backgroundColor: "#f9f9f9",
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.line,
+    ...shadows.card,
   },
   cardHeader: {
     flexDirection: "row",
@@ -164,62 +246,80 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "700",
+    color: colors.text,
   },
   cardAmount: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "#28A745",
+    fontWeight: "700",
+    color: colors.accentStrong,
   },
   cardMeta: {
     fontSize: 14,
-    color: "#777",
+    color: colors.textMuted,
     marginBottom: 4,
   },
   cardStatus: {
     fontSize: 14,
-    color: "#333",
+    color: colors.text,
     marginBottom: 4,
   },
   cardItems: {
     fontSize: 14,
-    color: "#555",
+    color: colors.textMuted,
   },
   emptyState: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 24,
+    borderRadius: radius.xl,
+    paddingVertical: spacing.xxl,
+    ...shadows.card,
   },
   emptyTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
+    lineHeight: 35,
     marginBottom: 8,
+    textAlign: "center",
   },
   emptySubtitle: {
-    fontSize: 15,
-    color: "#666",
     textAlign: "center",
+    lineHeight: 22,
+  },
+  emptyButton: {
+    marginTop: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 14,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceInverse,
+  },
+  emptyButtonText: {
+    color: colors.white,
+    fontSize: 15,
+    fontWeight: "700",
   },
   center: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: colors.background,
   },
   loadingText: {
     marginTop: 8,
     fontSize: 14,
-    color: "#555",
+    color: colors.textMuted,
   },
   errorBox: {
-    backgroundColor: "#ffecec",
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 8,
+    backgroundColor: colors.errorSoft,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: "#edc7c3",
   },
   errorText: {
-    color: "#cc0000",
+    color: colors.error,
     fontSize: 14,
+    lineHeight: 20,
   },
 });
-

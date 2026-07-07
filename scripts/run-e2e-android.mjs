@@ -138,7 +138,7 @@ async function main() {
   try {
     await loginIfNeeded({ email: EMAIL, password: PASSWORD });
     screenshot("02-after-login");
-    waitForText("What are you shopping for today?");
+    waitForText("Start with how you think");
     pass("ui-login", "Landed on Home after login");
     token = (await login(EMAIL, PASSWORD)) || token;
   } catch (e) {

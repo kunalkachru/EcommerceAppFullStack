@@ -3,8 +3,14 @@
  * Cloud host: config/cloud-api.json (shared with verify/build scripts).
  */
 import cloudApiConfig from "../../config/cloud-api.json";
+import appTargetConfig from "../../config/app-target.json";
 
-export const API_TARGET_MODE = "cloud";
+export function normalizeApiTargetMode(value) {
+  return String(value || "").trim().toLowerCase() === "cloud" ? "cloud" : "local";
+}
+
+export const API_TARGET_MODE = normalizeApiTargetMode(appTargetConfig.mode);
+export const LOCAL_API_PORT = 5001;
 
 export const CLOUD_API = {
   host: cloudApiConfig.host,
@@ -12,7 +18,11 @@ export const CLOUD_API = {
 };
 
 export function applyApiTarget() {
-  if (API_TARGET_MODE !== "cloud") {
+  if (API_TARGET_MODE === "local") {
+    delete global.__API_HOST__;
+    delete global.__API_USE_HTTPS__;
+    global.__API_PORT__ = LOCAL_API_PORT;
+    global.__SEARCH_RUNTIME__ = "baseline";
     return "local";
   }
   global.__API_HOST__ = CLOUD_API.host;

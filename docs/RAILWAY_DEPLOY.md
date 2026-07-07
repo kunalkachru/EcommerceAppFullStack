@@ -29,7 +29,7 @@ Oracle Cloud (OCI) is optional for self-hosted VMs with adequate RAM — see [OC
 
 Do **not** set `SKIP_CLIP_WARMUP` unless you intentionally want commerce-only (no CLIP).
 
-5. Deploy. First boot downloads ~150MB CLIP weights and indexes ~280 products (2–5 minutes).
+5. Deploy. First boot downloads ~150MB CLIP weights and indexes the currently available catalog (expect at least 200 products; the local premium baseline is higher at 394 merged products once snapshot seeding and enrichment are aligned).
 
 ---
 
@@ -75,13 +75,7 @@ Expect `modelLoaded: true` and `indexCount` ≥ 200 after warm-up.
 
 ## Mobile app → cloud API
 
-In `src/config/apiTarget.js`:
-
-```js
-export const API_TARGET_MODE = "cloud";
-```
-
-Reload Metro (`npm start` → `r` in terminal). Android emulator and iOS simulator use HTTPS to the Railway host (no port).
+Preferred path: keep `config/app-target.json` on `{"mode":"local"}` in the repo and use the cloud wrappers (`USE_CLOUD_API=1 npm run verify:e2e-android:cloud`, `npm run build:demo:apk`, etc.), which switch the target temporarily and restore it afterward. If you need a manually cloud-pointed local app build, change `config/app-target.json` to `{"mode":"cloud"}` before rebuilding, then restore it.
 
 Emulator regression (API checks use cloud when `USE_CLOUD_API=1`):
 

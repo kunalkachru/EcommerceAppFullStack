@@ -36,11 +36,16 @@ import {
   CLIENT_ENV_PATH,
 } from "./load-env.mjs";
 import { runLlmLiveVerification } from "./verify-llm-live.mjs";
+import {
+  shouldUseCloudApiTarget,
+  withTemporaryApiTargetMode,
+} from "./lib/api-target-config.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const FLOWS_DIR = join(ROOT, ".maestro", "flows");
 const API = resolveApiUrl();
+const USE_CLOUD_APP_TARGET = shouldUseCloudApiTarget();
 
 const MAESTRO =
   process.env.MAESTRO_PATH ||
@@ -189,7 +194,7 @@ async function main() {
       maestroBin: MAESTRO,
       android: runAndroid,
       ios: runIos,
-      requireApk: runAndroid,
+      requireApk: runAndroid && USE_CLOUD_APP_TARGET,
     });
   } catch (e) {
     console.error(e.message);
@@ -225,14 +230,27 @@ async function main() {
   if (runAndroid) {
     console.log("\n=== Android setup ===");
     setupAndroidE2E();
-    if (!existsSync(ANDROID_APK)) {
-      fail("android-apk", `[INFRA] Demo APK missing: ${ANDROID_APK}`);
-      process.exit(1);
+    if (USE_CLOUD_APP_TARGET) {
+      console.log("\n=== Android cloud demo build ===");
+      execSync("npm run build:demo:apk", {
+        cwd: ROOT,
+        stdio: "inherit",
+      });
+      if (!existsSync(ANDROID_APK)) {
+        fail("android-apk", `[INFRA] Demo APK missing: ${ANDROID_APK}`);
+        process.exit(1);
+      }
+      execSync(`adb -s ${resolveAndroidDevice()} install -r ${ANDROID_APK}`, {
+        cwd: ROOT,
+        stdio: "inherit",
+      });
+    } else {
+      console.log("  … using installed debug app + Metro for local Android Maestro");
+      execSync(`adb -s ${resolveAndroidDevice()} reverse tcp:8081 tcp:8081`, {
+        cwd: ROOT,
+        stdio: "inherit",
+      });
     }
-    execSync(`adb -s ${resolveAndroidDevice()} install -r ${ANDROID_APK}`, {
-      cwd: ROOT,
-      stdio: "inherit",
-    });
     runAndroidPhotoGate();
   }
 
@@ -275,7 +293,17 @@ async function main() {
   process.exit(failCount > 0 ? 1 : 0);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+const runner = () =>
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+
+if (USE_CLOUD_APP_TARGET) {
+  withTemporaryApiTargetMode("cloud", runner).catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+} else {
+  runner();
+}

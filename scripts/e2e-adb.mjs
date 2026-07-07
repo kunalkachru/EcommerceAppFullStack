@@ -6,6 +6,10 @@ import { execSync, spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  isAuthenticatedShell,
+  isLoginScreen,
+} from "./lib/android-e2e-ui-helpers.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -32,8 +36,23 @@ export function screenshot(name) {
 }
 
 export function dumpUi() {
-  adb("shell uiautomator dump /sdcard/window_dump.xml");
-  return adb("shell cat /sdcard/window_dump.xml");
+  let lastError;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      adb("shell uiautomator dump /sdcard/window_dump.xml");
+      return adb("shell cat /sdcard/window_dump.xml");
+    } catch (error) {
+      lastError = error;
+      sleep(0.75 * 1000);
+      try {
+        ensureAppForeground();
+      } catch {
+        /* ignore foreground recovery errors during retries */
+      }
+      sleep(0.5 * 1000);
+    }
+  }
+  throw lastError;
 }
 
 function parseBounds(bounds) {
@@ -191,7 +210,11 @@ export function selectAllInField() {
   sleep(100);
 }
 
-export function fillTestId(testId, value, { timeoutMs = 8000 } = {}) {
+export function fillTestId(
+  testId,
+  value,
+  { timeoutMs = 8000, hideKeyboardAfter = false } = {}
+) {
   tapTestId(testId, { timeoutMs });
   sleep(400);
   selectAllInField();
@@ -199,8 +222,10 @@ export function fillTestId(testId, value, { timeoutMs = 8000 } = {}) {
   sleep(150);
   inputText(String(value));
   sleep(300);
-  hideKeyboard();
-  sleep(400);
+  if (hideKeyboardAfter) {
+    hideKeyboard();
+    sleep(400);
+  }
 }
 
 export function readFieldTextByTestId(xml, testId) {
@@ -266,11 +291,7 @@ export function ensureAppForeground() {
 export function recoverToApp({ maxBackPresses = 6 } = {}) {
   for (let i = 0; i < maxBackPresses; i++) {
     const xml = dumpUi();
-    if (
-      findByTestId(xml, "tab-home") ||
-      xml.includes("What are you shopping for today?") ||
-      findByTestId(xml, "voice-search-card")
-    ) {
+    if (isAuthenticatedShell(xml)) {
       return true;
     }
     const homeTab = findNodes(xml).find(
@@ -328,10 +349,19 @@ export function tapBrowseProducts() {
       tap(byText[0].center.x, byText[0].center.y);
       return;
     }
+    const byNewText = findNodes(xml, { text: "Browse the full catalog" });
+    if (byNewText[0]) {
+      tap(byNewText[0].center.x, byNewText[0].center.y);
+      return;
+    }
     swipe(720, 1600, 720, 400, 350);
     sleep(700);
   }
-  tapText("Browse all products");
+  try {
+    tapText("Browse the full catalog");
+  } catch {
+    tapText("Browse all products");
+  }
 }
 
 export function uiIncludes(...needles) {
@@ -382,12 +412,7 @@ export async function loginIfNeeded({
   password = "secret123",
 } = {}) {
   let xml = dumpUi();
-  if (
-    findByTestId(xml, "browse-all-products") ||
-    findByTestId(xml, "voice-search-card") ||
-    findByTestId(xml, "tab-home") ||
-    xml.includes("What are you shopping for today?")
-  ) {
+  if (isAuthenticatedShell(xml)) {
     return false;
   }
 
@@ -400,11 +425,7 @@ export async function loginIfNeeded({
     xml = dumpUi();
   }
 
-  const onLoginScreen =
-    findByTestId(xml, "login-email") ||
-    findByTestId(xml, "login-submit") ||
-    xml.includes("Sign in ↓") ||
-    (xml.includes("Sign in") && xml.includes("Password"));
+  const onLoginScreen = isLoginScreen(xml);
 
   if (!onLoginScreen) {
     return false;
@@ -415,7 +436,7 @@ export async function loginIfNeeded({
   sleep(1200);
 
   fillTestId("login-email", email);
-  fillTestId("login-password", password);
+  fillTestId("login-password", password, { hideKeyboardAfter: true });
 
   const beforeSubmit = dumpUi();
   const emailVal = readFieldTextByTestId(beforeSubmit, "login-email");
@@ -447,10 +468,7 @@ export async function loginIfNeeded({
   }
   sleep(4000);
   const after = dumpUi();
-  if (
-    !findByTestId(after, "tab-home") &&
-    !after.includes("What are you shopping for today?")
-  ) {
+  if (!isAuthenticatedShell(after)) {
     throw new Error("Login did not reach home screen");
   }
   return true;

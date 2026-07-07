@@ -204,7 +204,7 @@ npm run verify:llm-local   # optional no-cost Ollama smoke
 npm run verify:llm-live    # requires OPENAI_API_KEY in src/.env
 ```
 
-Expected: **85/85** Jest tests, **20/20** search checks, **13/13** ML checks, optional local LLM smoke returns no hard failures, live paid-provider LLM passes with valid keys.  
+Expected: **112/112** Jest tests, **27/27** search checks, **16/16** ML checks, optional local LLM smoke returns no hard failures, and live paid-provider LLM passes with valid keys.  
 Details: [TESTING_STATUS.md](./TESTING_STATUS.md)
 
 ---

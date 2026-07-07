@@ -1,6 +1,6 @@
 # E2E Test Matrix
 
-**Last updated:** 2026-07-06
+**Last updated:** 2026-07-07
 
 Local-only E2E (Android emulator + iOS simulator). Primary run guide: **[LOCAL_RUN.md](./LOCAL_RUN.md)**.
 
@@ -54,6 +54,7 @@ USE_CLOUD_API=1 npm run verify:e2e-all:ios
 | F18 | **Live LLM reasoning** | `llm-reasoning-switch` + sticky bar + results |
 | F19 | Products tab photo | same as F14 |
 | F20 | Off-catalog photo | outcome banner + tappable matches |
+| F21 | Product-list search continuity | no-match search clears stale list, clear restores browse, typed query returns curated result |
 
 ### F18 detail (Option A + B)
 
@@ -74,6 +75,7 @@ USE_CLOUD_API=1 npm run verify:e2e-all:ios
 | `.maestro/flows/04-photo-search.yaml` | F13–F15 |
 | `.maestro/flows/05-voice-llm.yaml` | F17 (rules-only, no live LLM key) |
 | `.maestro/flows/06-llm-reasoning.yaml` | **F18** (live LLM + sticky search bar) |
+| `.maestro/flows/07-catalog-search-continuity.yaml` | F05, F21 |
 
 Legacy / demo recordings: `demo-app-flow.yaml`, `demo-ml-features.yaml`
 
@@ -89,6 +91,7 @@ Legacy / demo recordings: `demo-app-flow.yaml`, `demo-ml-features.yaml`
 
 | Date | Doc |
 |------|-----|
+| 2026-07-07 | [e2e/validation-2026-07-07.md](./e2e/validation-2026-07-07.md) — Home visual refine + PDP similar rail fixes verified locally |
 | 2026-07-06 | [e2e/validation-2026-07-06.md](./e2e/validation-2026-07-06.md) — F18 PASS iOS + Android |
 | 2026-07-05 | [e2e/validation-2026-07-05.md](./e2e/validation-2026-07-05.md) |
 

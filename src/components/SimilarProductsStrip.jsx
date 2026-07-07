@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
+import { colors, radius, shadows, spacing, typography } from "../theme/tokens";
 
 const SimilarProductsStrip = ({
   matches = [],
@@ -19,8 +20,9 @@ const SimilarProductsStrip = ({
   if (loading) {
     return (
       <View style={styles.wrap}>
+        <Text style={styles.eyebrow}>Related finds</Text>
         <Text style={styles.heading}>{title}</Text>
-        <ActivityIndicator color="#007BFF" style={styles.loader} />
+        <ActivityIndicator color={colors.accent} style={styles.loader} />
       </View>
     );
   }
@@ -31,6 +33,7 @@ const SimilarProductsStrip = ({
 
   return (
     <View style={styles.wrap} testID="pdp-similar-section">
+      <Text style={styles.eyebrow}>Related finds</Text>
       <Text style={styles.heading}>{title}</Text>
       <ScrollView
         horizontal
@@ -40,8 +43,13 @@ const SimilarProductsStrip = ({
         {matches.map((item) => (
           <TouchableOpacity
             key={String(item.id)}
+            testID={`pdp-similar-card-${item.id}`}
             style={styles.card}
             onPress={() => onPressProduct?.(item)}
+            accessibilityRole="button"
+            accessibilityLabel={`Open similar item: ${item.title}`}
+            activeOpacity={0.88}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
             <Image source={{ uri: item.image }} style={styles.image} resizeMode="contain" />
             <Text style={styles.percent}>{item.matchPercent ?? Math.round((item.matchScore ?? 0) * 100)}% match</Text>
@@ -58,51 +66,62 @@ const SimilarProductsStrip = ({
 
 const styles = StyleSheet.create({
   wrap: {
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: spacing.lg,
+    marginBottom: spacing.xs,
+  },
+  eyebrow: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: typography.eyebrowSpacing,
+    textTransform: "uppercase",
+    color: colors.accentWarm,
+    marginBottom: 6,
   },
   heading: {
-    fontSize: 17,
+    fontSize: 22,
     fontWeight: "700",
-    color: "#1a1a2e",
-    marginBottom: 10,
+    color: colors.text,
+    fontFamily: typography.displayFamily,
+    marginBottom: spacing.sm,
   },
   loader: {
-    marginVertical: 12,
+    marginVertical: spacing.sm,
   },
   row: {
-    gap: 10,
-    paddingRight: 8,
+    gap: spacing.sm,
+    paddingRight: spacing.xs,
   },
   card: {
-    width: 130,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 8,
+    width: 148,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.xs,
     borderWidth: 1,
-    borderColor: "#e8ecf1",
+    borderColor: colors.line,
+    ...shadows.card,
   },
   image: {
     width: "100%",
-    height: 90,
-    marginBottom: 4,
-    backgroundColor: "#f0f4f8",
+    height: 104,
+    marginBottom: 6,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.md,
   },
   percent: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#007BFF",
+    color: colors.accent,
     marginBottom: 2,
   },
   title: {
-    fontSize: 11,
-    color: "#1a1a2e",
-    lineHeight: 14,
+    fontSize: 12,
+    color: colors.text,
+    lineHeight: 16,
   },
   price: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#007BFF",
+    color: colors.accentStrong,
     marginTop: 4,
   },
 });

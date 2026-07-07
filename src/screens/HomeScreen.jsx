@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,7 +14,6 @@ import { useCatalogProducts, getTopCategories } from "../redux/api/catalogApi";
 import { analyzeImageForProducts } from "../services/visualSearchService";
 import {
   navigateToProductList,
-  navigateToProductListWithSearch,
   navigateToProductListWithCategory,
   navigateToProductListWithVoiceResults,
   navigateToProductListWithMatchResults,
@@ -28,6 +27,11 @@ import {
   buildVisualSearchOutcome,
   buildVisualSearchErrorMessage,
 } from "../utils/visualSearchMessages";
+import {
+  buildVisualCueHeading,
+  buildVisualMatchesHeading,
+} from "../utils/ambientAiNarratives";
+import { colors, radius, shadows, spacing, typography } from "../theme/tokens";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
@@ -44,6 +48,7 @@ const HomeScreen = () => {
   const [searchError, setSearchError] = useState(null);
   const [searchCategory, setSearchCategory] = useState("all");
   const [topMatch, setTopMatch] = useState(null);
+  const [selectedVisualAsset, setSelectedVisualAsset] = useState(null);
 
   const runVisualSearch = useCallback(
     async (asset) => {
@@ -60,7 +65,7 @@ const HomeScreen = () => {
       try {
         const result = await analyzeImageForProducts(
           asset.uri,
-          products,
+          null,
           asset.base64,
           { categoryFilter: searchCategory === "all" ? null : searchCategory }
         );
@@ -78,17 +83,25 @@ const HomeScreen = () => {
         setAnalyzing(false);
       }
     },
-    [products, searchCategory]
+    [searchCategory]
   );
 
   const pickImage = async (source) => {
     const asset = await pickPhotoAsset(source);
     if (asset) {
-      runVisualSearch(asset);
+      setSelectedVisualAsset(asset);
     }
   };
 
+  useEffect(() => {
+    if (!selectedVisualAsset) {
+      return;
+    }
+    runVisualSearch(selectedVisualAsset);
+  }, [selectedVisualAsset, searchCategory, runVisualSearch]);
+
   const clearSearch = () => {
+    setSelectedVisualAsset(null);
     setPreviewUri(null);
     setLabels([]);
     setAttributes([]);
@@ -137,48 +150,70 @@ const HomeScreen = () => {
       nestedScrollEnabled
       keyboardShouldPersistTaps="handled"
     >
-      <View testID="home-scroll" collapsable={false}>
-      <View style={styles.hero} testID="screen-home">
-        <View style={styles.heroBadge}>
-          <Text style={styles.heroBadgeText}>ShopEase</Text>
+      <View style={styles.pageShell} testID="home-scroll" collapsable={false}>
+        <View style={styles.hero} testID="screen-home">
+          <View style={styles.heroGlowOne} />
+          <View style={styles.heroGlowTwo} />
+          <View style={styles.heroBadge}>
+            <Text style={styles.heroBadgeText}>Luxury ease. Ambient AI.</Text>
+          </View>
+          <Text style={styles.greeting}>Welcome back, {displayName}</Text>
+          <Text style={styles.subtitle}>
+            Shopping that understands your intent before you explain it twice.
+          </Text>
+          <Text style={styles.heroTagline}>
+            Browse, speak, or snap a reference photo across {catalogTotal || "300+"} live
+            catalog items and let ShopEase narrow the right options for you.
+          </Text>
+          <View style={styles.heroStatsRow}>
+            <View style={styles.heroStatCard}>
+              <Text style={styles.heroStatLabel}>Discovery</Text>
+              <Text style={styles.heroStatValue}>Text + voice + photo</Text>
+            </View>
+            <View style={styles.heroStatCard}>
+              <Text style={styles.heroStatLabel}>Search style</Text>
+              <Text style={styles.heroStatValue}>Ambient AI guidance</Text>
+            </View>
+          </View>
         </View>
-        <Text style={styles.greeting}>Hi, {displayName}</Text>
-        <Text style={styles.subtitle}>What are you shopping for today?</Text>
-        <Text style={styles.heroTagline}>
-          Voice, AI reasoning, and photo search — one tap away.
-        </Text>
-      </View>
 
-      {shopCategories.length > 0 ? (
-        <View style={styles.categorySection}>
-          <Text style={styles.dealsHeading}>Shop by category</Text>
-          <CategoryFilterBar
-            categories={shopCategories}
-            selectedCategory={null}
-            onSelect={(category) =>
-              navigateToProductListWithCategory(navigation, category)
+        {shopCategories.length > 0 ? (
+          <View style={styles.categorySection}>
+            <Text style={styles.sectionEyebrow}>Curated entry points</Text>
+            <Text style={styles.sectionTitleLarge}>Start with how you think.</Text>
+            <Text style={styles.sectionDescription}>
+              Browse by department first, then shift into voice reasoning or visual matching
+              only when you need more help.
+            </Text>
+            <CategoryFilterBar
+              categories={shopCategories}
+              selectedCategory={null}
+              onSelect={(category) =>
+                navigateToProductListWithCategory(navigation, category)
+              }
+            />
+          </View>
+        ) : null}
+
+        <VoiceSearchCard
+          onResults={(result) => {
+            if (result.matches?.length) {
+              navigateToProductListWithVoiceResults(navigation, {
+                query: result.query,
+                matches: result.matches,
+              });
             }
-          />
-        </View>
-      ) : null}
+          }}
+        />
 
-      <VoiceSearchCard
-        onResults={(result) => {
-          if (result.matches?.length) {
-            navigateToProductListWithVoiceResults(navigation, {
-              query: result.query,
-              matches: result.matches,
-            });
-          }
-        }}
-      />
-
-      <View style={styles.visualCard} testID="photo-search-section">
-        <Text style={styles.sectionTitle}>Search by photo</Text>
-        <Text style={styles.sectionHint}>
-          Snap one product — AI matches it across {catalogTotal || "300+"} catalog items.
-          {"\n"}Tip: Gallery → Pictures → ShopEaseTest (npm run seed:emulator-photos).
-        </Text>
+        <View style={styles.visualCard} testID="photo-search-section">
+          <Text style={styles.sectionEyebrow}>Visual discovery</Text>
+          <Text style={styles.sectionTitle}>Match the look from one reference image.</Text>
+          <Text style={styles.sectionHint}>
+            Bring a single product photo and ShopEase will match material, silhouette, and
+            closest catalog items. Tip: Gallery - Pictures - ShopEaseTest (`npm run
+            seed:emulator-photos`).
+          </Text>
 
         <VisualSearchCategoryPrompt
           value={searchCategory}
@@ -192,7 +227,7 @@ const HomeScreen = () => {
             onPress={() => pickImage("camera")}
             disabled={analyzing}
           >
-            <Text style={styles.pickerBtnText}>Camera</Text>
+            <Text style={styles.pickerBtnText}>Use camera</Text>
           </TouchableOpacity>
           <TouchableOpacity
             testID="photo-gallery-button"
@@ -201,7 +236,7 @@ const HomeScreen = () => {
             disabled={analyzing}
           >
             <Text style={[styles.pickerBtnText, styles.pickerBtnTextSecondary]}>
-              Gallery
+              Open gallery
             </Text>
           </TouchableOpacity>
         </View>
@@ -260,9 +295,7 @@ const HomeScreen = () => {
 
         {!analyzing && labels.length > 0 ? (
           <View style={styles.labelsWrap}>
-            <Text style={styles.labelsHeading}>
-              {matches.length > 0 ? "Matched catalog items:" : "AI identified as:"}
-            </Text>
+            <Text style={styles.labelsHeading}>{buildVisualCueHeading(matches.length > 0)}</Text>
             <View style={styles.labelChips}>
               {labels.slice(0, 5).map((label) => (
                 <View
@@ -295,7 +328,7 @@ const HomeScreen = () => {
 
         {!analyzing && matches.length > 0 ? (
           <View testID="photo-results-section">
-            <Text style={styles.matchesHeading}>Best matches (tap to open)</Text>
+            <Text style={styles.matchesHeading}>{buildVisualMatchesHeading()} (tap to open)</Text>
             <View style={styles.matchesRow}>
               {matches.map((item) => renderMatch(item))}
             </View>
@@ -335,29 +368,32 @@ const HomeScreen = () => {
         ) : null}
       </View>
 
-      <TouchableOpacity
-        testID="browse-all-products"
-        style={styles.browseBtn}
-        onPress={() => navigateToProductList(navigation)}
-      >
-        <Text style={styles.browseBtnText}>Browse all products</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          testID="browse-all-products"
+          style={styles.browseBtn}
+          onPress={() => navigateToProductList(navigation)}
+        >
+          <Text style={styles.browseBtnText}>Browse the full catalog</Text>
+        </TouchableOpacity>
 
-      <Text style={styles.dealsHeading}>Quick deals</Text>
-      <View style={styles.dealsRow}>
-        {storePromos.slice(0, 2).map((promo) => (
-          <View
-            key={promo.id}
-            style={[styles.dealCard, { borderTopColor: promo.accent }]}
-          >
-            <Text style={styles.dealBadge}>{promo.badge}</Text>
-            <Text style={styles.dealTitle}>{promo.title}</Text>
-            <Text style={styles.dealSub} numberOfLines={2}>
-              {promo.subtitle}
-            </Text>
+        <View style={styles.dealsSection}>
+          <Text style={styles.sectionEyebrow}>Quick inspiration</Text>
+          <Text style={styles.dealsHeading}>Curated promos that feel editorial, not noisy.</Text>
+          <View style={styles.dealsRow}>
+            {storePromos.slice(0, 2).map((promo) => (
+              <View
+                key={promo.id}
+                style={[styles.dealCard, { borderTopColor: promo.accent }]}
+              >
+                <Text style={styles.dealBadge}>{promo.badge}</Text>
+                <Text style={styles.dealTitle}>{promo.title}</Text>
+                <Text style={styles.dealSub} numberOfLines={3}>
+                  {promo.subtitle}
+                </Text>
+              </View>
+            ))}
           </View>
-        ))}
-      </View>
+        </View>
       </View>
     </ScrollView>
   );
@@ -366,107 +402,192 @@ const HomeScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f4f8",
+    backgroundColor: colors.background,
   },
   content: {
-    padding: 20,
-    paddingBottom: 32,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: 120,
+  },
+  pageShell: {
+    gap: spacing.md,
   },
   hero: {
-    backgroundColor: "#1a1a2e",
-    borderRadius: 20,
-    padding: 22,
-    marginBottom: 18,
+    backgroundColor: colors.surfaceInverse,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+    overflow: "hidden",
+    ...shadows.floating,
+  },
+  heroGlowOne: {
+    position: "absolute",
+    top: -40,
+    right: -30,
+    width: 140,
+    height: 140,
+    borderRadius: 70,
+    backgroundColor: "rgba(183,146,103,0.28)",
+  },
+  heroGlowTwo: {
+    position: "absolute",
+    bottom: -50,
+    left: -25,
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    backgroundColor: "rgba(83,123,154,0.18)",
   },
   heroBadge: {
     alignSelf: "flex-start",
-    backgroundColor: "rgba(0,123,255,0.2)",
-    borderRadius: 999,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    marginBottom: 10,
+    backgroundColor: "rgba(255,250,244,0.14)",
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: "rgba(255,250,244,0.18)",
   },
   heroBadgeText: {
-    color: "#7ec8ff",
-    fontWeight: "800",
-    fontSize: 12,
-    letterSpacing: 1,
+    color: colors.backgroundAccent,
+    fontWeight: "700",
+    fontSize: 11,
+    letterSpacing: typography.eyebrowSpacing,
+    textTransform: "uppercase",
   },
   greeting: {
-    fontSize: 28,
-    fontWeight: "800",
-    color: "#ffffff",
+    fontSize: 31,
+    fontWeight: "700",
+    color: colors.white,
+    fontFamily: typography.displayFamily,
+    lineHeight: 38,
   },
   subtitle: {
     fontSize: 16,
-    color: "#c8d0dc",
-    marginTop: 4,
+    color: "#e7ddd2",
+    marginTop: spacing.xs,
+    lineHeight: 24,
   },
   heroTagline: {
     fontSize: 14,
-    color: "#9aa3af",
-    marginTop: 10,
+    color: "#cbbfb1",
+    marginTop: spacing.sm,
+    lineHeight: 21,
+  },
+  heroStatsRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginTop: spacing.lg,
+  },
+  heroStatCard: {
+    flex: 1,
+    padding: spacing.sm,
+    borderRadius: radius.md,
+    backgroundColor: "rgba(255,250,244,0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(255,250,244,0.12)",
+  },
+  heroStatLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 0.6,
+    textTransform: "uppercase",
+    color: "#cbbfb1",
+    marginBottom: 6,
+  },
+  heroStatValue: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: colors.white,
     lineHeight: 20,
   },
   categorySection: {
-    marginBottom: 16,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
+    ...shadows.card,
+  },
+  sectionEyebrow: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: typography.eyebrowSpacing,
+    textTransform: "uppercase",
+    color: colors.accentWarm,
+    marginBottom: 6,
+  },
+  sectionTitleLarge: {
+    fontSize: 26,
+    fontWeight: "700",
+    color: colors.text,
+    fontFamily: typography.displayFamily,
+    marginBottom: spacing.xs,
+    lineHeight: 33,
+  },
+  sectionDescription: {
+    fontSize: 14,
+    color: colors.textMuted,
+    lineHeight: 21,
+    marginBottom: spacing.sm,
   },
   visualCard: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
+    ...shadows.card,
   },
   sectionTitle: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "700",
-    color: "#1a1a2e",
+    color: colors.text,
+    fontFamily: typography.displayFamily,
+    lineHeight: 31,
   },
   sectionHint: {
     fontSize: 14,
-    color: "#5c6370",
-    marginTop: 6,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
     lineHeight: 20,
-    marginBottom: 14,
+    marginBottom: spacing.md,
   },
   pickerRow: {
     flexDirection: "row",
-    gap: 10,
-    marginBottom: 14,
+    gap: spacing.sm,
+    marginBottom: spacing.md,
   },
   pickerBtn: {
     flex: 1,
-    backgroundColor: "#007BFF",
-    paddingVertical: 12,
-    borderRadius: 10,
+    backgroundColor: colors.surfaceInverse,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
     alignItems: "center",
+    ...shadows.soft,
   },
   pickerBtnSecondary: {
-    backgroundColor: "#e8f4fd",
+    backgroundColor: colors.accentSoft,
   },
   pickerBtnText: {
-    color: "#fff",
+    color: colors.white,
     fontWeight: "700",
     fontSize: 15,
   },
   pickerBtnTextSecondary: {
-    color: "#007BFF",
+    color: colors.accentStrong,
   },
   previewWrap: {
-    borderRadius: 12,
+    borderRadius: radius.md,
     overflow: "hidden",
-    marginBottom: 12,
+    marginBottom: spacing.sm,
     position: "relative",
+    borderWidth: 1,
+    borderColor: colors.line,
   },
   preview: {
     width: "100%",
-    height: 180,
-    backgroundColor: "#e8ecf1",
+    height: 220,
+    backgroundColor: colors.surfaceMuted,
   },
   analyzingOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -476,16 +597,16 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   analyzingText: {
-    color: "#fff",
+    color: colors.white,
     fontWeight: "600",
   },
   labelsWrap: {
-    marginBottom: 12,
+    marginBottom: spacing.sm,
   },
   labelsHeading: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#5c6370",
+    color: colors.textMuted,
     marginBottom: 6,
   },
   labelChips: {
@@ -494,28 +615,31 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   chip: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
+    borderRadius: radius.pill,
   },
   chipAi: {
-    backgroundColor: "#fff3e6",
+    backgroundColor: colors.accentWarmSoft,
   },
   chipCatalog: {
-    backgroundColor: "#e8f4fd",
+    backgroundColor: colors.accentSoft,
   },
   chipAttr: {
-    backgroundColor: "#f3e8ff",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 20,
+    backgroundColor: colors.surfaceMuted,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 5,
+    borderRadius: radius.pill,
   },
   compareRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 10,
-    marginBottom: 12,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
+    padding: spacing.sm,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceMuted,
   },
   compareCol: {
     alignItems: "center",
@@ -524,87 +648,87 @@ const styles = StyleSheet.create({
   compareLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: "#5c6370",
+    color: colors.textMuted,
     marginBottom: 6,
   },
   compareThumb: {
     width: "100%",
-    height: 88,
-    borderRadius: 8,
-    backgroundColor: "#e8ecf1",
+    height: 96,
+    borderRadius: radius.sm,
+    backgroundColor: colors.surface,
   },
   compareArrow: {
     fontSize: 20,
-    color: "#007BFF",
+    color: colors.accent,
     fontWeight: "700",
   },
   chipText: {
     fontSize: 12,
-    color: "#2c5282",
+    color: colors.accentStrong,
     fontWeight: "600",
   },
   resultBanner: {
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 12,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    marginBottom: spacing.sm,
     borderWidth: 1,
   },
   resultBannerSuccess: {
-    backgroundColor: "#ecfdf3",
-    borderColor: "#a7f3d0",
+    backgroundColor: colors.successSoft,
+    borderColor: "#bfd6c8",
   },
   resultBannerInfo: {
-    backgroundColor: "#eff6ff",
-    borderColor: "#bfdbfe",
+    backgroundColor: colors.infoSoft,
+    borderColor: "#c8d5de",
   },
   resultBannerWarning: {
-    backgroundColor: "#fffbeb",
-    borderColor: "#fde68a",
+    backgroundColor: colors.warningSoft,
+    borderColor: "#e9d0b6",
   },
   resultBannerError: {
-    backgroundColor: "#fef2f2",
-    borderColor: "#fecaca",
-    marginBottom: 12,
+    backgroundColor: colors.errorSoft,
+    borderColor: "#edc7c3",
+    marginBottom: spacing.sm,
   },
   resultTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#1a1a2e",
+    color: colors.text,
     marginBottom: 6,
   },
   resultMessage: {
     fontSize: 14,
-    color: "#4b5563",
+    color: colors.textMuted,
     lineHeight: 21,
   },
   browseInlineBtn: {
     alignSelf: "flex-start",
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
   browseInlineText: {
-    color: "#007BFF",
+    color: colors.accent,
     fontWeight: "600",
     fontSize: 14,
   },
   matchesHeading: {
     fontSize: 15,
     fontWeight: "700",
-    marginBottom: 8,
-    color: "#1a1a2e",
+    marginBottom: spacing.xs,
+    color: colors.text,
   },
   matchesRow: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
-    paddingBottom: 8,
+    gap: spacing.sm,
+    paddingBottom: spacing.xs,
   },
   matchCard: {
     width: 130,
-    backgroundColor: "#f8f9fc",
-    borderRadius: 10,
-    padding: 8,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.md,
+    padding: spacing.xs,
     borderWidth: 1,
-    borderColor: "#e8ecf1",
+    borderColor: colors.line,
   },
   matchImage: {
     width: "100%",
@@ -614,79 +738,88 @@ const styles = StyleSheet.create({
   matchPercent: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#007BFF",
+    color: colors.accent,
     marginBottom: 2,
   },
   matchTitle: {
     fontSize: 11,
-    color: "#1a1a2e",
+    color: colors.text,
     lineHeight: 14,
   },
   matchPrice: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#007BFF",
+    color: colors.accentStrong,
     marginTop: 4,
   },
   seeAllBtn: {
     marginTop: 4,
-    marginBottom: 8,
+    marginBottom: spacing.xs,
   },
   seeAllText: {
-    color: "#007BFF",
+    color: colors.accent,
     fontWeight: "600",
     fontSize: 14,
   },
   clearText: {
-    color: "#9aa3af",
+    color: colors.textSoft,
     fontSize: 13,
     textAlign: "center",
   },
   browseBtn: {
-    backgroundColor: "#1a1a2e",
-    paddingVertical: 14,
-    borderRadius: 12,
+    backgroundColor: colors.surfaceInverse,
+    paddingVertical: spacing.md,
+    borderRadius: radius.lg,
     alignItems: "center",
-    marginBottom: 24,
+    ...shadows.soft,
   },
   browseBtnText: {
-    color: "#fff",
+    color: colors.white,
     fontWeight: "700",
     fontSize: 16,
   },
+  dealsSection: {
+    gap: spacing.sm,
+  },
   dealsHeading: {
-    fontSize: 17,
+    fontSize: 24,
     fontWeight: "700",
-    color: "#1a1a2e",
-    marginBottom: 10,
+    color: colors.text,
+    fontFamily: typography.displayFamily,
+    lineHeight: 30,
   },
   dealsRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: spacing.sm,
   },
   dealCard: {
     flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 14,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.md,
     borderTopWidth: 4,
+    borderWidth: 1,
+    borderColor: colors.line,
+    ...shadows.card,
   },
   dealBadge: {
     fontSize: 11,
-    fontWeight: "800",
-    color: "#007BFF",
+    fontWeight: "700",
+    color: colors.accent,
     marginBottom: 4,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
   },
   dealTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#1a1a2e",
+    color: colors.text,
   },
   dealSub: {
-    fontSize: 12,
-    color: "#5c6370",
+    fontSize: 13,
+    color: colors.textMuted,
     marginTop: 4,
-    lineHeight: 16,
+    lineHeight: 18,
   },
 });
 

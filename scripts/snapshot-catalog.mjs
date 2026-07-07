@@ -18,6 +18,7 @@ async function main() {
   const products = await fetchCatalog({ force: true });
   const meta = getCatalogMeta();
   const outDir = join(ROOT, "server/data");
+  const serverTrackedOut = join(ROOT, "server", "catalog-snapshot.json");
   const clientOut = join(ROOT, "src/data/catalog-fallback.json");
 
   mkdirSync(outDir, { recursive: true });
@@ -30,9 +31,11 @@ async function main() {
   };
 
   writeFileSync(join(outDir, "catalog-snapshot.json"), JSON.stringify(payload, null, 2));
+  writeFileSync(serverTrackedOut, JSON.stringify(payload, null, 2));
   writeFileSync(clientOut, JSON.stringify(payload, null, 2));
 
   console.log(`Snapshot: ${products.length} products`);
+  console.log(`  server/catalog-snapshot.json`);
   console.log(`  server/data/catalog-snapshot.json`);
   console.log(`  src/data/catalog-fallback.json`);
 }

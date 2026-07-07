@@ -107,7 +107,7 @@ jobs:
         run: npm run verify:secrets-policy
 
       - name: Assert cloud API target
-        run: node scripts/assert-cloud-api-target.mjs
+        run: node scripts/with-api-target.mjs cloud node scripts/assert-cloud-api-target.mjs
 
       - uses: actions/setup-java@v4
         with:
@@ -165,7 +165,7 @@ jobs:
         run: npm ci
 
       - name: Assert cloud API target
-        run: node scripts/assert-cloud-api-target.mjs
+        run: node scripts/with-api-target.mjs cloud node scripts/assert-cloud-api-target.mjs
 
       - name: CocoaPods
         run: npx pod-install

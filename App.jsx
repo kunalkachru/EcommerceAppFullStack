@@ -8,6 +8,10 @@ import { PersistGate } from "redux-persist/integration/react";
 import store, { persistor } from "./src/redux/store";
 import { forceLogoutUser, restoreSession } from "./src/redux/authSlice";
 import { setAuthFailureHandler } from "./src/services/apiClient";
+import { colors } from "./src/theme/tokens";
+import { applyApiTarget } from "./src/config/apiTarget";
+
+applyApiTarget();
 
 const SessionBootstrap = ({ children }) => {
   const dispatch = useDispatch();
@@ -46,7 +50,7 @@ const SessionBootstrap = ({ children }) => {
   if (!ready) {
     return (
       <View style={styles.bootstrap}>
-        <ActivityIndicator size="large" color="#007BFF" />
+        <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
   }
@@ -75,7 +79,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f0f4f8",
+    backgroundColor: colors.background,
   },
 });
 

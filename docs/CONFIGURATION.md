@@ -86,10 +86,10 @@ Cloud toggle: `src/config/apiTarget.js`
 
 | Mode | Config | URL |
 |------|--------|-----|
-| Local (default dev) | `API_TARGET_MODE = 'local'` | `http://10.0.2.2:5001` (Android) / `http://127.0.0.1:5001` (iOS) |
-| Railway cloud | `API_TARGET_MODE = 'cloud'` | `https://…` from **`config/cloud-api.json`** |
+| Local (default dev) | `config/app-target.json` → `{"mode":"local"}` | `http://10.0.2.2:5001` (Android) / `http://127.0.0.1:5001` (iOS) |
+| Railway cloud | `config/app-target.json` → `{"mode":"cloud"}` or wrapper scripts | `https://…` from **`config/cloud-api.json`** |
 
-Set `API_TARGET_MODE` in `src/config/apiTarget.js` before rebuilding the app. Cloud host is **`config/cloud-api.json`** (shared with verify/build scripts). `index.js` calls `applyApiTarget()` at startup.
+Preferred workflow: keep `config/app-target.json` on `local` in the repo and let scripts such as `USE_CLOUD_API=1 npm run verify:e2e-all`, `npm run build:demo:apk`, and `npm run build:demo:ios-sim` temporarily switch the mode for that command. Cloud host is **`config/cloud-api.json`** (shared with verify/build scripts).
 
 Verify cloud API from Mac:
 
@@ -124,11 +124,12 @@ API_URL=http://127.0.0.1:5001 npm run verify:search
 | Source | Location | Notes |
 |--------|----------|-------|
 | Live merge | `server/src/catalogService.js` | DummyJSON + FakeStore + EscuelaJS + demo coverage |
-| Demo gap-fill | `server/src/demoCoverageProducts.js` | 6 curated products for common search demos |
+| Demo gap-fill | `server/src/demoCoverageProducts.js` | 20 curated products for common search demos |
 | Client offline | `src/data/catalog-fallback.json` | Regenerated via `npm run snapshot-catalog` |
-| Server snapshot | `server/data/catalog-snapshot.json` | Gitignored; used when live fetch fails |
+| Server snapshot | `server/catalog-snapshot.json` | Tracked Railway-visible snapshot used before local-only artifacts |
+| Local server snapshot cache | `server/data/catalog-snapshot.json` | Gitignored local cache copy written by `npm run snapshot-catalog` |
 
-Current catalog size: **280+ on live Railway API**; merged local catalog up to **~389** when all upstream APIs respond; CLIP indexed count tracks catalog at startup.
+Current catalog size: local baseline **394 merged products** from a **384**-product snapshot seed plus live merges; bundled fallback now includes `images[]` on all products and multi-image galleries on **193** items. Railway may lag this until cloud parity is restored.
 
 ---
 

@@ -3,25 +3,27 @@
  * Single source for REST API + CLIP visual search indexing.
  */
 const { getDemoCoverageProducts } = require("./demoCoverageProducts");
+const { normalizeCatalogProducts } = require("./catalogMetadata");
+const path = require("path");
+const fs = require("fs");
 
 const CATALOG_TTL_MS = 60 * 60 * 1000;
 const MIN_TARGET = 200;
+const SNAPSHOT_CANDIDATE_PATHS = [
+  path.join(__dirname, "..", "catalog-snapshot.json"),
+  path.join(__dirname, "..", "data", "catalog-snapshot.json"),
+  path.join(__dirname, "..", "..", "src", "data", "catalog-fallback.json"),
+];
 
 let catalog = [];
 let catalogLoadedAt = 0;
 let catalogMeta = { sources: [], total: 0 };
 
-function normalizeTitle(title) {
-  return String(title || "")
-    .toLowerCase()
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 function mapDummyJson(item) {
+  const images = Array.isArray(item.images) ? item.images.map(String).filter(Boolean) : [];
   const image =
     item.thumbnail ||
-    (Array.isArray(item.images) && item.images[0]) ||
+    images[0] ||
     "";
   return {
     id: `dj-${item.id}`,
@@ -35,19 +37,22 @@ function mapDummyJson(item) {
         ? item.rating
         : item.rating?.rate ?? null,
     brand: item.brand ? String(item.brand) : null,
+    images,
     tags: Array.isArray(item.tags) ? item.tags.map(String) : [],
     source: "dummyjson",
   };
 }
 
 function mapFakeStore(item) {
+  const image = String(item.image || "");
   return {
     id: `fs-${item.id}`,
     title: String(item.title || "").trim(),
     description: String(item.description || "").slice(0, 500),
     category: String(item.category || "general").toLowerCase(),
     price: Number(item.price) || 0,
-    image: String(item.image || ""),
+    image,
+    images: image ? [image] : [],
     rating: item.rating?.rate ?? null,
     brand: null,
     tags: [],
@@ -60,8 +65,9 @@ function mapEscuela(item) {
     typeof item.category === "object"
       ? item.category?.name
       : item.category;
+  const images = Array.isArray(item.images) ? item.images.map(String).filter(Boolean) : [];
   const image =
-    (Array.isArray(item.images) && item.images[0]) ||
+    images[0] ||
     (typeof item.category === "object" ? item.category?.image : "") ||
     "";
   return {
@@ -71,6 +77,7 @@ function mapEscuela(item) {
     category: String(category || "general").toLowerCase(),
     price: Number(item.price) || 0,
     image,
+    images,
     rating: null,
     brand: null,
     tags: [],
@@ -88,43 +95,21 @@ async function fetchJson(url) {
   return res.json();
 }
 
-function isUsableProductImage(url) {
-  const u = String(url || "").toLowerCase();
-  if (!u.startsWith("http")) return false;
-  if (u.includes("faces/twitter") || u.includes("uifaces")) return false;
-  return true;
-}
-
 function mergeProducts(lists) {
-  const seen = new Set();
-  const merged = [];
-
-  for (const list of lists) {
-    for (const product of list) {
-      if (!product.title || !isUsableProductImage(product.image) || product.price <= 0) {
-        continue;
-      }
-      const key = normalizeTitle(product.title);
-      if (!key || seen.has(key)) {
-        continue;
-      }
-      seen.add(key);
-      merged.push(product);
-    }
-  }
-
-  return merged;
+  return normalizeCatalogProducts(lists.flat());
 }
 
 async function loadSnapshot() {
   try {
-    const path = require("path");
-    const fs = require("fs");
-    const snapshotPath = path.join(__dirname, "..", "data", "catalog-snapshot.json");
-    const raw = fs.readFileSync(snapshotPath, "utf8");
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed?.products) && parsed.products.length >= MIN_TARGET) {
-      return parsed.products;
+    for (const snapshotPath of SNAPSHOT_CANDIDATE_PATHS) {
+      if (!fs.existsSync(snapshotPath)) {
+        continue;
+      }
+      const raw = fs.readFileSync(snapshotPath, "utf8");
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed?.products) && parsed.products.length >= MIN_TARGET) {
+        return parsed.products;
+      }
     }
   } catch {
     /* no snapshot */
@@ -140,8 +125,12 @@ async function fetchCatalog({ force = false } = {}) {
 
   const sourceStats = [];
   let merged = [];
+  let snapshotCount = 0;
+  let snapshotSeeded = false;
+  let usedSnapshotFallback = false;
 
   try {
+    const snapshot = await loadSnapshot();
     const sources = await Promise.all([
       fetchJson("https://dummyjson.com/products?limit=0")
         .then((body) => ({
@@ -176,10 +165,25 @@ async function fetchCatalog({ force = false } = {}) {
       sourceStats.push({ name: source.name, count: source.products.length });
     }
 
-    merged = mergeProducts([
-      ...sources.map((s) => s.products),
-      getDemoCoverageProducts(),
-    ]);
+    const liveSourceProductCount = sourceStats.reduce((sum, source) => sum + source.count, 0);
+    const mergeInputs = [...sources.map((s) => s.products), getDemoCoverageProducts()];
+
+    if (snapshot?.length >= MIN_TARGET) {
+      mergeInputs.push(snapshot);
+      snapshotCount = snapshot.length;
+      snapshotSeeded = true;
+    }
+
+    merged = mergeProducts(mergeInputs);
+
+    if (liveSourceProductCount === 0 || merged.length < MIN_TARGET) {
+      if (snapshot?.length >= MIN_TARGET) {
+        merged = mergeProducts([getDemoCoverageProducts(), snapshot]);
+        snapshotCount = snapshot.length;
+        snapshotSeeded = true;
+        usedSnapshotFallback = true;
+      }
+    }
 
     if (!merged.length) {
       throw new Error("All live catalog sources failed");
@@ -188,9 +192,9 @@ async function fetchCatalog({ force = false } = {}) {
     console.warn("[catalog] Live fetch failed:", err.message);
     const snapshot = await loadSnapshot();
     if (snapshot?.length) {
-      catalog = snapshot;
+      catalog = mergeProducts([getDemoCoverageProducts(), snapshot]);
       catalogLoadedAt = now;
-      catalogMeta = { sources: ["snapshot"], total: snapshot.length, offline: true };
+      catalogMeta = { sources: ["snapshot"], total: catalog.length, offline: true };
       return catalog;
     }
     throw err;
@@ -203,9 +207,13 @@ async function fetchCatalog({ force = false } = {}) {
   catalog = merged;
   catalogLoadedAt = now;
   catalogMeta = {
-    sources: sourceStats,
+    sources: usedSnapshotFallback
+      ? ["snapshot"]
+      : snapshotSeeded
+        ? [{ name: "snapshot-seed", count: snapshotCount }, ...sourceStats]
+        : sourceStats,
     total: merged.length,
-    offline: false,
+    offline: usedSnapshotFallback,
   };
 
   const demoCount = getDemoCoverageProducts().length;
@@ -229,4 +237,5 @@ module.exports = {
   getCatalogMeta,
   getProductById,
   MIN_TARGET,
+  SNAPSHOT_CANDIDATE_PATHS,
 };

@@ -43,16 +43,18 @@ Run from repo root before manual exploration.
 
 ```bash
 npm test -- --watchman=false --runInBand --forceExit
-API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs
-API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs
+npm run test:scripts
+npm run verify:search
+npm run verify:ml
 npm run verify:search:hybrid
 ```
 
 Expected:
 
-- Jest: **85/85** tests pass
-- Hybrid search regression: `20/20`
-- Hybrid ML regression: `13/13`
+- Jest: **112/112** tests pass
+- Script-unit tests: **21/21**
+- Local search regression: `27/27`
+- Local ML regression: `16/16`
 - A/B comparison: hybrid passes all hybrid fixtures; baseline-only comparison notes are acceptable
 
 Optional no-cost smoke:

@@ -4,7 +4,7 @@ A full-stack **React Native** shopping app: browse a live catalog, manage cart &
 
 **Stack:** React Native 0.85 · React 19 · Redux Toolkit · Express · CLIP · Railway (cloud API)
 
-**Branch:** `main` · **Last updated:** 2026-07-06
+**Branch:** `main` · **Last updated:** 2026-07-07
 
 ---
 
@@ -24,7 +24,7 @@ Everything a reviewer needs from one page:
 | **CI/CD pipeline** | [GitHub Actions](https://github.com/kunalkachru/EcommerceAppFullStack/actions) · [CI quickstart](./scripts/lib/CI_CD_QUICKSTART.md) |
 | **Full doc index** | [docs/README.md](./docs/README.md) |
 | **Run locally (emulator / simulator)** | **[docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md)** |
-| **Test gates** | [TESTING_STATUS.md](./docs/TESTING_STATUS.md) — **85/85** Jest tests |
+| **Test gates** | [TESTING_STATUS.md](./docs/TESTING_STATUS.md) — **112/112** Jest tests · **21/21** script tests |
 
 ---
 
@@ -70,7 +70,7 @@ End-to-end **e-commerce** on mobile — not just search.
 
 | Journey | What works today |
 |---------|------------------|
-| **Discover** | Home, categories, product list & detail (280+ products on live Railway API; merged local catalog up to ~389) |
+| **Discover** | Home, categories, product list & detail (current local baseline verified at **394 merged products**; cloud catalog may vary with upstream sources) |
 | **Shop** | Add to cart from list or PDP, update quantities, remove items |
 | **Checkout** | Shipping form, place order, order confirmation screen |
 | **Account** | JWT login/signup, profile, persisted session |
@@ -135,7 +135,7 @@ This project was built by **Kunal Kachru** using LLM-assisted development (Curso
 |-------|-------------------|
 | **Design** | Specs in [`docs/superpowers/`](./docs/superpowers/) → implementation plans |
 | **Quality** | [`.cursor/agents/`](./.cursor/agents/) — E2E, Appetize CI, Railway, doc polish |
-| **Proof** | 85 Jest tests, verify scripts, Maestro on emulator/simulator, GitHub Actions → Appetize |
+| **Proof** | 103 Jest tests, 21 script tests, local Android E2E + ML gates, GitHub Actions → Appetize |
 
 Full guide: **[docs/AGENTIC_DEVELOPMENT.md](./docs/AGENTIC_DEVELOPMENT.md)** · Cursor index: **[AGENTS.md](./AGENTS.md)**
 
@@ -193,7 +193,7 @@ npm run upload:appetize -- --platform android
 # Trigger CI manually: GitHub → Actions → "Appetize demo deploy" → Run workflow
 ```
 
-Quick cloud smoke: `npm run verify:cloud` · Full API gate: `npm run verify:cloud:all` · Deploy gate: `npm run verify:cloud:deploy-gate` · Live LLM: `npm run verify:cloud:llm` (needs local `src/.env`) · **Full local E2E:** `USE_CLOUD_API=1 npm run verify:e2e-all` — see **[docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md)**
+Quick cloud smoke: `npm run verify:cloud` · Full API gate: `npm run verify:cloud:all` · Deploy gate: `npm run verify:cloud:deploy-gate` · Live LLM: `npm run verify:cloud:llm` (needs local `src/.env`) · **Full local E2E:** `USE_CLOUD_API=1 npm run verify:e2e-all` — see **[docs/LOCAL_RUN.md](./docs/LOCAL_RUN.md)**. Current repo truth: Railway smoke/search/CLIP pass, but full cloud parity still fails on catalog size + enriched metadata.
 
 ### Documentation index
 
@@ -227,7 +227,7 @@ Quick cloud smoke: `npm run verify:cloud` · Full API gate: `npm run verify:clou
 | Orders | ✅ Lightweight (`mocked_paid`, Orders tab) |
 | Payment gateway | ❌ Not integrated |
 | Cloud production deploy | ✅ Railway (Hobby) — see [RAILWAY_DEPLOY.md](./docs/RAILWAY_DEPLOY.md) |
-| Cloud regression scripts | ✅ [CLOUD_REGRESSION.md](./docs/CLOUD_REGRESSION.md) |
+| Cloud regression scripts | ⚠️ Available, but full parity gate currently fails on Railway catalog size/enrichment drift |
 
 **Full detail:** [docs/TESTING_STATUS.md](./docs/TESTING_STATUS.md)
 
@@ -237,10 +237,13 @@ Run with API server up (`npm run server`) after CLIP index finishes, **or** agai
 
 | Command | Expected result |
 |---------|-----------------|
-| `npm test -- --watchman=false --runInBand --forceExit` | **85/85** tests (27 suites) |
-| `npm run verify:search` | **20/20** search flow checks |
-| `npm run verify:ml` | **13/13** ML + catalog checks |
-| `npm run verify:cloud:all` | Cloud API + CLIP + ML + search (Railway) |
+| `npm test -- --watchman=false --runInBand --forceExit` | **112/112** tests (39 suites) |
+| `npm run test:scripts` | **21/21** script-unit checks |
+| `npm run verify:search` | **27/27** search flow checks |
+| `npm run verify:ml` | **16/16** ML + catalog checks |
+| `npm run verify:emulator` | Android ML smoke **7/7** |
+| `npm run verify:e2e-android` | Android commerce E2E **19/19** |
+| `npm run verify:cloud:all` | Cloud API + CLIP + ML + search (Railway) — currently fails fast on catalog parity (`252` products, `0` enriched) |
 | `npm run verify:cloud:llm` | Live LLM reasoning vs Railway (`src/.env` keys, not in repo) |
 | `npm run verify:secrets-policy` | Scan git-tracked files for accidental API key commits |
 | `npm run build:demo:apk` | Release APK for Appetize / BrowserStack (cloud API embedded) |
@@ -253,7 +256,7 @@ Run with API server up (`npm run server`) after CLIP index finishes, **or** agai
 | `npm run verify:llm-local` | Optional local Ollama smoke test for the LLM path (no paid credits; model quality may vary) |
 | `npm run verify:llm-live` | Live OpenAI/OpenRouter intent extraction (keys in `src/.env`; run with `API_URL=http://127.0.0.1:5002` for hybrid) |
 
-Catalog: **>=200 products required** · live Railway API: **280+** (varies with upstream APIs) · merged local catalog up to **~389** · Demo coverage products: **6**
+Catalog: **>=200 products required** · current refreshed local baseline: **394 merged products** (`384` snapshot seed + live merges) · Demo coverage products: **20** · bundled fallback now includes `images[]` for all products and multi-image galleries on **193** items
 
 ### Repository layout
 
@@ -296,8 +299,8 @@ Catalog: **>=200 products required** · live Railway API: **280+** (varies with 
 | `npm run server` | Start API on port 5001 |
 | `npm run server:hybrid` | Start hybrid search API on port 5002 |
 | `npm test` | Jest test suite |
-| `npm run verify:search` | Search flow verification (20 checks) |
-| `npm run verify:ml` | ML + catalog verification (13 checks) |
+| `npm run verify:search` | Search flow verification (27 checks) |
+| `npm run verify:ml` | ML + catalog verification (16 checks) |
 | `npm run verify:search:hybrid` | Side-by-side baseline vs hybrid verification |
 | `npm run verify:llm-local` | Optional local-Ollama LLM smoke verification |
 | `npm run verify:llm-live` | **Live LLM reasoning** (requires keys in `src/.env`) |

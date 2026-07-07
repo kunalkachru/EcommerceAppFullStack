@@ -22,10 +22,15 @@ import {
   ADB,
 } from "./e2e-adb.mjs";
 import { resolveApiUrl } from "./lib/cloud-api-url.mjs";
+import {
+  shouldUseCloudApiTarget,
+  withTemporaryApiTargetMode,
+} from "./lib/api-target-config.mjs";
 
 const EMAIL = "test@example.com";
 const PASSWORD = "secret123";
 const API = resolveApiUrl();
+const USE_CLOUD_APP_TARGET = shouldUseCloudApiTarget();
 
 const results = [];
 const pass = (id, note) => {
@@ -230,7 +235,17 @@ async function main() {
   process.exit(f > 0 ? 1 : 0);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+const runner = () =>
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+
+if (USE_CLOUD_APP_TARGET) {
+  withTemporaryApiTargetMode("cloud", runner).catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+} else {
+  runner();
+}

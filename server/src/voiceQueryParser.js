@@ -32,18 +32,15 @@ const COLOR_WORDS = [
 
 const CATEGORY_GROUP_MAP = {
   clothing: [
-    "clothes", "men's clothing", "women's clothing", "womens-dresses", "mens-shirts",
-    "tops", "womens-tops", "mens-shoes",
+    "clothes", "men's clothing", "women's clothing", "bags",
   ],
-  footwear: ["womens-shoes", "mens-shoes", "shoesk", "shoes"],
-  electronics: [
-    "electronics", "laptops", "smartphones", "mobile-accessories", "tablets", "watches",
-  ],
-  beauty: ["beauty", "fragrances", "skin-care", "womens-perfumes"],
+  footwear: ["shoes"],
+  electronics: ["electronics", "laptops", "smartphones", "mobile-accessories", "watches"],
+  beauty: ["beauty", "fragrances"],
   home: ["furniture", "home-decoration", "kitchen-accessories"],
   groceries: ["groceries"],
   sports: ["sports-accessories"],
-  jewelry: ["jewellery", "womens-jewellery"],
+  jewelry: ["jewelry"],
 };
 
 const GENDER_KEYWORDS = {
@@ -169,19 +166,15 @@ function expandedCategories(groups, gender) {
     }
   }
   if (gender === "women") {
-    set.add("womens-shoes");
     set.add("women's clothing");
-    set.add("womens-dresses");
-    set.add("womens-tops");
-    set.add("womens-jewellery");
-    set.add("womens-bags");
-    set.add("womens-perfumes");
+    set.add("shoes");
+    set.add("jewelry");
+    set.add("bags");
   }
   if (gender === "men") {
-    set.add("mens-shoes");
     set.add("men's clothing");
-    set.add("mens-shirts");
-    set.add("mens-watches");
+    set.add("shoes");
+    set.add("watches");
   }
   return [...set];
 }

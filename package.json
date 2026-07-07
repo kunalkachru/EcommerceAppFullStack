@@ -35,7 +35,7 @@
     "build:demo:all": "npm run build:demo:apk && npm run build:demo:ios-sim",
     "upload:appetize": "node scripts/upload-appetize.mjs",
     "upload:browserstack": "node scripts/upload-browserstack.mjs",
-    "verify:demo-build-ready": "node scripts/assert-cloud-api-target.mjs && npm run verify:cloud",
+    "verify:demo-build-ready": "node scripts/with-api-target.mjs cloud node scripts/assert-cloud-api-target.mjs && npm run verify:cloud",
     "verify:e2e-android:cloud": "USE_CLOUD_API=1 node scripts/run-e2e-android.mjs",
     "verify:e2e-ios": "node scripts/run-e2e-ios.mjs",
     "verify:e2e-ios:cloud": "USE_CLOUD_API=1 node scripts/run-e2e-ios.mjs",

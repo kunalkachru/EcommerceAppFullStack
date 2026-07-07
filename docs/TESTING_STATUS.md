@@ -1,6 +1,6 @@
 # Testing & Implementation Status
 
-**Last updated:** 2026-07-06  
+**Last updated:** 2026-07-07  
 **Branch target:** `main`  
 **Purpose:** Handoff document for external review agents (Codex, Claude, etc.)
 
@@ -10,28 +10,35 @@
 
 ## Executive Summary
 
-This branch completes a demo-ready e-commerce app with:
+This branch completes a premium, demo-ready e-commerce app with:
 
 1. **Reliable cart/add-to-cart flow** (list + PDP, truthful async feedback, structured errors)
 2. **Hybrid multimodal search** (text, voice, image) with baseline-vs-hybrid runtime split, LLM reasoning, and rule-based fallback
 3. **Lightweight orders lifecycle** (`mocked_paid` checkout → Orders tab → order detail)
 4. **Catalog coverage products** for common demo price/type gaps (laptops $500–900, gaming monitors under $240)
+5. **Richer premium product presentation** via bundled `images[]` galleries, PDP thumbnail switching, and stronger product-list stale-state guards
 
-**Current automated gate status (verified on 2026-07-06):**
+**Current automated gate status (verified 2026-07-07 afternoon):**
 
-| Gate | Command | Result |
-|------|---------|--------|
-| Unit/integration (Jest) | `npm test -- --watchman=false --runInBand --forceExit` | **85/85 passed** (27 suites) |
-| Hybrid search flows | `API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs` | **20/20 passed** |
-| Hybrid ML + catalog | `API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs` | **13/13 passed** |
-| Baseline vs hybrid comparison | `npm run verify:search:hybrid` | Hybrid passed all hybrid fixtures; baseline gap retained for `900 and 500 laptop between` |
-| Live local-Ollama LLM smoke | `npm run verify:llm-local` | **3 passed, 2 warnings, 0 hard failures** on the current local model; query-quality misses are warnings unless `STRICT_LOCAL_LLM=1` |
-| iOS simulator launch (isolated worktree) | `npm start -- --port 8088` + `npm run ios -- --port 8088 --no-packager --udid 7EABE577-D15B-4B90-848F-EDAC9BF2FC7A` | **App built and launched successfully** on iPhone 17 Pro Max (iOS 26.5) |
-| Live paid-provider LLM reasoning | `npm run verify:llm-live` | **6/6 passed** (OpenAI + OpenRouter; 2026-07-06) |
-| Maestro F18 live LLM UI | `USE_CLOUD_API=1 npm run verify:e2e-all` | **PASS** iOS + Android (2026-07-06); API gate authoritative |
-| Android emulator ML smoke | `npm run verify:emulator` | **7/7 passed × 3 consecutive runs** on Pixel 7 Pro (2026-07-02) |
-| Android commerce E2E | `npm run verify:e2e-android` | Login → browse → cart → checkout → profile (requires emulator + API) |
-| Android nav/session | `npm run verify:android-nav` | Browse CTA, stack reset, cart persist, logout (requires emulator + API) |
+| Gate | Command | Result | Status |
+|------|---------|--------|--------|
+| Unit/integration (Jest) | `npm test -- --watchman=false --runInBand --forceExit` | **112/112 passed** (39 suites) | ✓ GREEN |
+| Script-unit tests | `npm run test:scripts` | **24/24 passed** | ✓ GREEN |
+| Local search flows | `npm run verify:search` | **27/27 passed** on baseline `:5001` | ✓ GREEN |
+| Local ML + catalog | `npm run verify:ml` | **15/16 passed** — similar products endpoint failing | ⚠ PARTIAL |
+| Live LLM reasoning | `npm run verify:llm-live` | **6/6 passed** (OpenAI + OpenRouter; Groq/Gemini skipped without keys) | ✓ GREEN |
+| Android emulator ML smoke | `npm run verify:emulator` | ⛔ BLOCKED — app does not render home screen after login | ✗ BLOCKED |
+| Android commerce E2E | `npm run verify:e2e-android` | ⛔ BLOCKED — home screen text not appearing after successful login | ✗ BLOCKED |
+| Cloud basic checks | `npm run verify:cloud` | **4/4 passed** | ✓ GREEN |
+| Cloud ML + parity | `npm run verify:cloud:ml` | **12/16 passed** — catalog size (323 vs 350), enriched metadata missing | ✗ FAIL |
+
+**Current cloud truth (2026-07-07):**
+
+- `npm run verify:cloud` → ✓ PASS (4/4 basic checks)
+- `npm run verify:cloud:clip` → ✓ PASS (252/252 indexed)
+- `npm run verify:cloud:ml` → ✗ FAIL (12/16) — Railway catalog parity issue: 323 products vs 350 local, 0 enriched vs 390 local enriched
+- `npm run verify:cloud:search` → (not completed, blocked by ML failures)
+- **Blocker:** Railway deployment missing demo-coverage product enrichment and has smaller catalog
 
 ---
 
@@ -79,20 +86,15 @@ This branch completes a demo-ready e-commerce app with:
 
 ### Catalog Coverage Fix (Post-testing gap)
 
-Public API catalogs lacked inventory for common demo queries. Added **6 curated demo-coverage products** merged at catalog load time:
-
-| Product | Price | Fills |
-|---------|-------|-------|
-| HP Pavilion 15 Laptop | $649.99 | Laptop $500–900 |
-| Lenovo IdeaPad Slim 7 Laptop | $749.99 | Laptop $500–900 |
-| Dell Inspiron 15 Laptop | $849.99 | Laptop $500–900 |
-| LG UltraGear 24 Gaming Monitor | $179.99 | Gaming monitor under $240 |
-| Acer Nitro 24 Gaming Monitor 144Hz | $219.99 | Gaming monitor under $240 |
-| Dell 24 Full HD Office Monitor | $149.99 | Monitor under $240 |
+Public API catalogs lacked inventory for common demo queries. The repo now adds **20 curated demo-coverage products** merged at catalog load time across laptops, gaming monitors, headphones, blue jackets, women's shoes, fragrances, lipsticks, and backpacks. The bundled snapshot now also preserves `images[]` for all products and carries multi-image gallery depth on **193** fallback items, including **13** curated hero products.
 
 Files: `server/src/demoCoverageProducts.js`, `server/src/catalogService.js`, `__tests__/demoCoverageProducts.test.js`
 
-Offline client fallback updated: `src/data/catalog-fallback.json` (389 products via `npm run snapshot-catalog`).
+Current catalog baseline verified on 2026-07-06:
+
+- `src/data/catalog-fallback.json` snapshot seed: **384** products
+- merged local baseline API (`npm run server`): **394** products
+- CLIP index on refreshed local baseline: **377** products
 
 ---
 
@@ -118,15 +120,14 @@ Offline client fallback updated: `src/data/catalog-fallback.json` (389 products 
 | `matchProductsByLabels.test.js` | Label matching |
 | `App.test.tsx` | App boot smoke |
 
-**Result:** 25 suites, 83 tests — all passing.
+**Result:** 39 suites, 112 tests — all passing.
 
 **Non-blocking warnings:**
-- React `act(...)` warning in `App.test.tsx` on unmount (pre-existing)
 - Jest may report open handles; use `--forceExit` for CI-style runs
 
 ### Layer 2 — Integration / API Scripts
 
-#### Hybrid search regression (`API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs`)
+#### Local search regression (`npm run verify:search`)
 
 - Server health + CLIP index
 - Text queries: `below 45`, `Below 45`, `under $50`, `shoes women`, `blue jacket under 50 dollars`, `wireless headphones below 100`, `between 20 and 40`, `lipstick under 20`
@@ -135,15 +136,15 @@ Offline client fallback updated: `src/data/catalog-fallback.json` (389 products 
 - Bad LLM key handled without crash
 - Local fallback filters
 - Photo search (jacket, category filter, off-catalog pizza)
-- Voice config (4 LLM providers)
+- Voice config (5 LLM providers)
 
-#### Hybrid ML verification (`API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs`)
+#### Local ML verification (`npm run verify:ml`)
 
 - Server health
-- Catalog size ≥200 (live Railway API: **280+**; merged local up to **~389**)
+- Catalog size ≥350 (current local baseline: **394**)
 - Catalog API + categories
-- **Catalog coverage:** laptops $500–900 (≥2), gaming monitors under $240 (≥1)
-- CLIP index ≥200 (current local baseline health on 2026-07-02: **285** indexed)
+- **Catalog coverage:** laptops $500–900 (4), gaming monitors under $240 (2), fragrances under $90 (7), backpacks under $120 (10)
+- CLIP index ≥200 (current local baseline health on 2026-07-06: **377** indexed)
 - Visual search, attributes, similar products, category groups
 - Voice search + `shoes women`
 
@@ -216,8 +217,11 @@ npm run server
 
 # Terminal 2 — after CLIP index finishes (~30s first run)
 npm test -- --watchman=false --runInBand --forceExit
-API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs
-API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs
+npm run test:scripts
+npm run verify:search
+npm run verify:ml
+npm run verify:emulator
+npm run verify:e2e-android
 npm run verify:search:hybrid
 
 # Optional — refresh offline catalog snapshot
@@ -291,9 +295,12 @@ Detailed design and 3-day execution board: `.cursor/plans/robust_hybrid_search_a
 
 ## Review Checklist for External Agents
 
-- [ ] Run `npm test -- --watchman=false --runInBand --forceExit` — expect 85/85
-- [ ] Run `API_URL=http://127.0.0.1:5002 node scripts/verify-search-flows.mjs` — expect 20/20
-- [ ] Run `API_URL=http://127.0.0.1:5002 node scripts/verify-ml-features.mjs` — expect 13/13
+- [ ] Run `npm test -- --watchman=false --runInBand --forceExit` — expect 107/107
+- [ ] Run `npm run test:scripts` — expect 21/21
+- [ ] Run `npm run verify:search` — expect 27/27
+- [ ] Run `npm run verify:ml` — expect 16/16
+- [ ] Run `npm run verify:emulator` — expect 7/7
+- [ ] Run `npm run verify:e2e-android` — expect 19/19
 - [ ] Run `npm run verify:search:hybrid` — expect hybrid pass, baseline comparison note allowed
 - [ ] Run `npm run verify:llm-local` — expect `intentSource=llm` on the successful cases with the installed Ollama model
 - [ ] Run `npm run verify:llm-live` when paid-provider keys are available

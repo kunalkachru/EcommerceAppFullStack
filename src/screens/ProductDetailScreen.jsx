@@ -1,12 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   View,
   Text,
   Image,
-  Button,
-  FlatList,
-  TextInput,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
@@ -14,9 +11,36 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
-import Icon from "react-native-vector-icons/FontAwesome";
 import SimilarProductsStrip from "../components/SimilarProductsStrip";
 import { fetchSimilarProducts } from "../services/visualSearchService";
+import { colors, radius, shadows, spacing, typography } from "../theme/tokens";
+
+function buildPriceStory(price) {
+  if (price < 40) return "Accessible pricing with standout style value.";
+  if (price < 120) return "Balanced pricing for an easy everyday upgrade.";
+  return "Premium pricing with a stronger statement-piece feel.";
+}
+
+function buildConciergeNotes(product, similarCount) {
+  const notes = [];
+
+  if (product.category) {
+    notes.push(`Refined in the ${String(product.category).replace(/-/g, " ")} lane.`);
+  }
+
+  if (product.description) {
+    const sentence = product.description.split(".")[0]?.trim();
+    if (sentence) {
+      notes.push(sentence.endsWith(".") ? sentence : `${sentence}.`);
+    }
+  }
+
+  if (similarCount > 0) {
+    notes.push(`${similarCount} visually similar alternatives are ready if you want to compare.`);
+  }
+
+  return notes.slice(0, 3);
+}
 
 const ProductDetailScreen = ({ route }) => {
   const { product } = route.params;
@@ -25,20 +49,27 @@ const ProductDetailScreen = ({ route }) => {
   const [expanded, setExpanded] = useState(false);
   const [similar, setSimilar] = useState([]);
   const [similarLoading, setSimilarLoading] = useState(true);
-   const [adding, setAdding] = useState(false);
+  const [adding, setAdding] = useState(false);
+  const productImages = useMemo(() => {
+    const raw = Array.isArray(product.images) ? product.images : [];
+    const merged = [...new Set([...raw, product.image].filter(Boolean))];
+    return merged.length ? merged : [product.image];
+  }, [product]);
+  const [activeImage, setActiveImage] = useState(productImages[0]);
 
   const productKey = String(product.id);
   const isCartPendingForProduct = useSelector(
     (state) => !!state.cart?.pendingByProduct?.[productKey]
   );
 
-  const description = product.description || "";
+  const description = String(product.description || "").trim();
   const descriptionPreview =
-    description.length <= 120 ? description : `${description.slice(0, 120)}…`;
+    description.length <= 180 ? description : `${description.slice(0, 180)}…`;
 
   useEffect(() => {
     let cancelled = false;
     setSimilarLoading(true);
+
     fetchSimilarProducts(product.id, 8)
       .then((result) => {
         if (!cancelled) {
@@ -55,10 +86,44 @@ const ProductDetailScreen = ({ route }) => {
           setSimilarLoading(false);
         }
       });
+
     return () => {
       cancelled = true;
     };
   }, [product.id]);
+
+  useEffect(() => {
+    setActiveImage(productImages[0]);
+  }, [product.id, productImages]);
+
+  const conciergeNotes = useMemo(
+    () => buildConciergeNotes(product, similar.length),
+    [product, similar.length]
+  );
+
+  const shoppingSignals = useMemo(
+    () => [
+      {
+        label: "Price point",
+        value: buildPriceStory(Number(product.price || 0)),
+      },
+      {
+        label: "Category fit",
+        value: product.category
+          ? String(product.category).replace(/-/g, " ")
+          : "General catalog item",
+      },
+      {
+        label: "Comparison support",
+        value: similarLoading
+          ? "Preparing similar options..."
+          : similar.length
+            ? `${similar.length} related options ready to compare`
+            : "No related options surfaced yet",
+      },
+    ],
+    [product.category, product.price, similar.length, similarLoading]
+  );
 
   const handleAddToCart = async () => {
     if (adding || isCartPendingForProduct) {
@@ -85,38 +150,6 @@ const ProductDetailScreen = ({ route }) => {
     }
   };
 
-  const [reviews, setReviews] = useState([
-    { id: 1, user: "John Doe", rating: 4, comment: "Great product!" },
-    { id: 2, user: "Jane Smith", rating: 5, comment: "Loved it, highly recommend!" },
-  ]);
-  const [newReview, setNewReview] = useState({ user: "", rating: "", comment: "" });
-
-  const handleAddReview = () => {
-    const ratingNum = parseInt(newReview.rating, 10);
-    if (newReview.user && ratingNum >= 1 && ratingNum <= 5 && newReview.comment) {
-      setReviews([
-        ...reviews,
-        { id: Date.now(), user: newReview.user, rating: ratingNum, comment: newReview.comment },
-      ]);
-      setNewReview({ user: "", rating: "", comment: "" });
-    } else {
-      Alert.alert("Please enter a valid name, rating (1-5), and comment.");
-    }
-  };
-
-  const renderStars = (rating) => (
-    <View style={styles.starsContainer}>
-      {[...Array(5)].map((_, index) => (
-        <Icon
-          key={index}
-          name={index < rating ? "star" : "star-o"}
-          size={18}
-          color="#FFD700"
-        />
-      ))}
-    </View>
-  );
-
   const openSimilar = (item) => {
     navigation.push("ProductDetail", { product: item });
   };
@@ -124,29 +157,98 @@ const ProductDetailScreen = ({ route }) => {
   const addButtonLabel = adding || isCartPendingForProduct ? "Adding..." : "Add to Cart";
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.container} testID="screen-product-detail">
-      <Image source={{ uri: product.image }} style={styles.image} resizeMode="contain" />
+    <ScrollView
+      style={styles.scroll}
+      contentContainerStyle={styles.container}
+      testID="screen-product-detail"
+    >
+      <View style={styles.heroPanel}>
+        <View style={styles.heroBadge}>
+          <Text style={styles.heroBadgeText}>Product detail</Text>
+        </View>
 
-      <Text style={styles.name}>{product.title}</Text>
-      <Text style={styles.price}>${product.price}</Text>
-      {product.category ? (
-        <Text style={styles.category}>{product.category}</Text>
-      ) : null}
+        <Image
+          testID="pdp-hero-image"
+          source={{ uri: activeImage }}
+          style={styles.image}
+          resizeMode="contain"
+        />
 
-      <View style={styles.primaryActions}>
-        <TouchableOpacity
-          testID="pdp-add-to-cart"
-          accessibilityLabel="Add to Cart"
-          accessibilityRole="button"
-          style={[
-            styles.addToCartButton,
-            (adding || isCartPendingForProduct) && styles.addToCartButtonDisabled,
-          ]}
-          onPress={handleAddToCart}
-          disabled={adding || isCartPendingForProduct}
-        >
-          <Text style={styles.addToCartButtonText}>{addButtonLabel}</Text>
-        </TouchableOpacity>
+        {productImages.length > 1 ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.galleryRow}
+          >
+            {productImages.map((imageUrl, index) => {
+              const selected = imageUrl === activeImage;
+              return (
+                <TouchableOpacity
+                  key={`${product.id}-${imageUrl}-${index}`}
+                  testID={`pdp-gallery-thumb-${index}`}
+                  accessibilityRole="button"
+                  accessibilityLabel={`View gallery image ${index + 1}`}
+                  onPress={() => setActiveImage(imageUrl)}
+                  style={[
+                    styles.galleryThumbButton,
+                    selected && styles.galleryThumbButtonSelected,
+                  ]}
+                >
+                  <Image
+                    source={{ uri: imageUrl }}
+                    style={styles.galleryThumbImage}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        ) : null}
+
+        <Text style={styles.name}>{product.title}</Text>
+        <Text style={styles.price}>${product.price}</Text>
+        {product.category ? (
+          <Text style={styles.category}>{String(product.category).replace(/-/g, " ")}</Text>
+        ) : null}
+
+        <Text style={styles.heroStory}>
+          A calmer purchase surface with just enough context to decide quickly.
+        </Text>
+
+        <View style={styles.primaryActions}>
+          <TouchableOpacity
+            testID="pdp-add-to-cart"
+            accessibilityLabel="Add to Cart"
+            accessibilityRole="button"
+            style={[
+              styles.addToCartButton,
+              (adding || isCartPendingForProduct) && styles.addToCartButtonDisabled,
+            ]}
+            onPress={handleAddToCart}
+            disabled={adding || isCartPendingForProduct}
+          >
+            <Text style={styles.addToCartButtonText}>{addButtonLabel}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.signalGrid}>
+        {shoppingSignals.map((signal) => (
+          <View key={signal.label} style={styles.signalCard}>
+            <Text style={styles.signalLabel}>{signal.label}</Text>
+            <Text style={styles.signalValue}>{signal.value}</Text>
+          </View>
+        ))}
+      </View>
+
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionEyebrow}>ShopEase insight</Text>
+        <Text style={styles.sectionTitle}>Why this may work for you</Text>
+        {conciergeNotes.map((note) => (
+          <Text key={note} style={styles.noteText}>
+            {`\u2022 ${note}`}
+          </Text>
+        ))}
       </View>
 
       <SimilarProductsStrip
@@ -155,49 +257,18 @@ const ProductDetailScreen = ({ route }) => {
         onPressProduct={openSimilar}
       />
 
-      <View style={styles.descriptionContainer}>
+      <View style={styles.sectionCard}>
+        <Text style={styles.sectionEyebrow}>Product story</Text>
         <Text style={styles.sectionTitle}>Description</Text>
         <Text style={styles.description}>
-          {expanded ? description : descriptionPreview}
+          {expanded ? description || "No description available." : descriptionPreview || "No description available."}
         </Text>
-        {description.length > 120 ? (
-          <TouchableOpacity onPress={() => setExpanded(!expanded)}>
-            <Text style={styles.readMore}>{expanded ? "Read Less" : "Read More"}</Text>
+        {description.length > 180 ? (
+          <TouchableOpacity onPress={() => setExpanded((value) => !value)}>
+            <Text style={styles.readMore}>{expanded ? "Read less" : "Read more"}</Text>
           </TouchableOpacity>
         ) : null}
       </View>
-
-      <Text style={styles.sectionTitle}>Reviews & Ratings</Text>
-      {reviews.map((item) => (
-        <View key={item.id} style={styles.reviewItem}>
-          <Text style={styles.reviewUser}>{item.user}</Text>
-          {renderStars(item.rating)}
-          <Text style={styles.reviewText}>{item.comment}</Text>
-        </View>
-      ))}
-
-      <Text style={styles.sectionTitle}>Write a Review</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Your Name"
-        value={newReview.user}
-        onChangeText={(text) => setNewReview({ ...newReview, user: text })}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Rating (1-5)"
-        keyboardType="numeric"
-        value={newReview.rating}
-        onChangeText={(text) => setNewReview({ ...newReview, rating: text })}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Your Review"
-        multiline
-        value={newReview.comment}
-        onChangeText={(text) => setNewReview({ ...newReview, comment: text })}
-      />
-      <Button title="Submit Review" onPress={handleAddReview} />
     </ScrollView>
   );
 };
@@ -205,112 +276,177 @@ const ProductDetailScreen = ({ route }) => {
 const styles = StyleSheet.create({
   scroll: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: colors.background,
   },
   container: {
-    alignItems: "center",
-    padding: 20,
-    paddingBottom: 40,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: 120,
+  },
+  heroPanel: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.xl,
+    padding: spacing.xl,
+    borderWidth: 1,
+    borderColor: colors.line,
+    ...shadows.floating,
+  },
+  heroBadge: {
+    alignSelf: "flex-start",
+    backgroundColor: colors.accentWarmSoft,
+    borderRadius: radius.pill,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
+    marginBottom: spacing.md,
+  },
+  heroBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: typography.eyebrowSpacing,
+    textTransform: "uppercase",
+    color: colors.accentWarm,
   },
   image: {
-    width: 220,
-    height: 220,
-    borderRadius: 10,
-    backgroundColor: "#f0f4f8",
+    width: "100%",
+    height: 280,
+    borderRadius: radius.lg,
+    backgroundColor: colors.surfaceMuted,
+    marginBottom: spacing.lg,
+  },
+  galleryRow: {
+    gap: spacing.sm,
+    paddingBottom: spacing.md,
+  },
+  galleryThumbButton: {
+    width: 74,
+    height: 74,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surfaceMuted,
+    padding: 4,
+  },
+  galleryThumbButtonSelected: {
+    borderColor: colors.accentStrong,
+    backgroundColor: colors.accentWarmSoft,
+  },
+  galleryThumbImage: {
+    width: "100%",
+    height: "100%",
+    borderRadius: radius.sm,
   },
   name: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginTop: 10,
-    textAlign: "center",
+    fontSize: 30,
+    fontWeight: "700",
+    color: colors.text,
+    fontFamily: typography.displayFamily,
+    lineHeight: 38,
   },
   price: {
-    fontSize: 20,
-    color: "#28a745",
-    fontWeight: "bold",
-    marginTop: 5,
+    fontSize: 28,
+    color: colors.accentStrong,
+    fontWeight: "700",
+    marginTop: spacing.xs,
   },
   category: {
     fontSize: 13,
-    color: "#5c6370",
-    marginTop: 4,
+    color: colors.textMuted,
+    marginTop: 6,
     textTransform: "capitalize",
+  },
+  heroStory: {
+    fontSize: 14,
+    color: colors.textMuted,
+    lineHeight: 21,
+    marginTop: spacing.sm,
   },
   primaryActions: {
     width: "100%",
-    marginTop: 14,
+    marginTop: spacing.lg,
   },
   addToCartButton: {
     width: "100%",
-    backgroundColor: "#0f6dff",
-    borderRadius: 12,
-    paddingVertical: 14,
-    paddingHorizontal: 18,
+    backgroundColor: colors.surfaceInverse,
+    borderRadius: radius.lg,
+    paddingVertical: 16,
+    paddingHorizontal: spacing.lg,
     alignItems: "center",
-    shadowColor: "#0f6dff",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    elevation: 3,
+    ...shadows.soft,
   },
   addToCartButtonDisabled: {
-    backgroundColor: "#8eb6ff",
+    backgroundColor: colors.textSoft,
   },
   addToCartButtonText: {
-    color: "#fff",
+    color: colors.white,
     fontSize: 16,
     fontWeight: "700",
   },
-  descriptionContainer: {
-    width: "100%",
-    marginVertical: 10,
-    backgroundColor: "#f9f9f9",
-    padding: 10,
-    borderRadius: 5,
+  signalGrid: {
+    marginTop: spacing.md,
+    gap: spacing.sm,
+  },
+  signalCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
+    ...shadows.card,
+  },
+  signalLabel: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: typography.eyebrowSpacing,
+    textTransform: "uppercase",
+    color: colors.accentWarm,
+    marginBottom: 6,
+  },
+  signalValue: {
+    fontSize: 15,
+    color: colors.text,
+    lineHeight: 22,
+  },
+  sectionCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
+    marginTop: spacing.md,
+    ...shadows.card,
+  },
+  sectionEyebrow: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: typography.eyebrowSpacing,
+    textTransform: "uppercase",
+    color: colors.accentWarm,
+    marginBottom: 6,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginTop: 15,
-    alignSelf: "flex-start",
+    fontSize: 24,
+    fontWeight: "700",
+    color: colors.text,
+    fontFamily: typography.displayFamily,
+    lineHeight: 31,
+    marginBottom: spacing.sm,
+  },
+  noteText: {
+    fontSize: 14,
+    color: colors.textMuted,
+    lineHeight: 21,
+    marginBottom: spacing.xs,
   },
   description: {
     fontSize: 14,
-    color: "#444",
-    textAlign: "justify",
+    color: colors.textMuted,
+    lineHeight: 22,
   },
   readMore: {
     fontSize: 14,
-    color: "#007BFF",
-    fontWeight: "bold",
-    marginTop: 5,
-  },
-  reviewItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
-    width: "100%",
-  },
-  reviewUser: {
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  reviewText: {
-    fontSize: 14,
-    marginTop: 5,
-    color: "#444",
-  },
-  starsContainer: {
-    flexDirection: "row",
-    marginTop: 5,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    padding: 10,
-    marginTop: 8,
-    width: "100%",
-    borderRadius: 5,
+    color: colors.accent,
+    fontWeight: "700",
+    marginTop: spacing.sm,
   },
 });
 
