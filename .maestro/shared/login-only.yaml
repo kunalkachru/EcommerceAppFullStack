@@ -1,10 +1,15 @@
 appId: ${APP_ID}
 ---
 # Credentials only — caller must already be on login screen
+- scrollUntilVisible:
+    element:
+      id: "login-email"
+    direction: DOWN
+    timeout: 12000
 - extendedWaitUntil:
     visible:
       id: "login-email"
-    timeout: 12000
+    timeout: 5000
 - tapOn:
     id: "login-email"
 - eraseText
