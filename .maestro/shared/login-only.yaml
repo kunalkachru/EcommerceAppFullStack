@@ -24,10 +24,10 @@ appId: ${APP_ID}
     id: "login-submit"
 - runFlow: dismiss-save-password.yaml
 - extendedWaitUntil:
-    visible: "What are you shopping for today?"
+    visible: "Start with how you think"
     timeout: 5000
     optional: true
 - runFlow: dismiss-save-password.yaml
 - extendedWaitUntil:
-    visible: "What are you shopping for today?"
+    visible: "Start with how you think"
     timeout: 15000
