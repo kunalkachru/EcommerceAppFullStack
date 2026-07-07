@@ -7,14 +7,21 @@
 
 ## Umbrella status
 
-The premium redesign is **not fully complete yet**, but the local baseline is now materially stronger and more trustworthy:
+The premium redesign is **60% complete but blocked on local E2E verification and data limitations**:
 
-- Local app target and local verification scripts are aligned again on baseline API `:5001`
-- Core Android commerce flow passes end to end on the redesigned shell
-- Core Android ML flow passes on the redesigned shell
-- Reported stitching gaps on the premium shell are now guarded: Home visual refine reruns on the current photo, PDP similar items open reliably, and product-list typed search no longer leaves broad stale catalog content visible during a no-match state
-- Product detail now supports premium multi-image galleries, and the bundled fallback catalog now carries `images[]` arrays for all products with gallery depth across a large share of the assortment
-- Reviewer-facing docs now reflect current test counts, catalog totals, and local verification commands
+**WORKING:**
+- ✓ Unit tests: 112/112 Jest, 24/24 script-unit
+- ✓ Search verification: 27/27 flows (text, voice, image)
+- ✓ Live LLM: 6/6 providers working
+- ✓ Premium UI redesigned across all screens
+- ✓ AI integration (voice, visual, text) in product discovery
+- ✓ Gallery support with thumbnail switching (UI ready)
+
+**BLOCKED:**
+- ✗ Android local E2E: App won't render home screen after successful login (React Native/emulator issue) — prevents checkout/orders verification
+- ✗ iOS local E2E: Not attempted
+- ✗ Cloud parity: Railway has 323 vs 350 local products, missing enrichment
+- ✗ Luxury gallery depth: 0/20 premium products have adequate 6-7 angle coverage (data source limitation: dummyjson provides 4 images max)
 
 ---
 
@@ -33,8 +40,8 @@ The premium redesign is **not fully complete yet**, but the local baseline is no
   - `src/screens/ProductDetailScreen.jsx`
   - `src/screens/CartScreen.jsx`
   - `src/screens/CheckoutScreen.jsx`
-- Local Android commerce verification passed on 2026-07-06:
-  - `npm run verify:e2e-android` → `19 pass / 0 fail`
+- Local Android commerce verification BLOCKED on 2026-07-07:
+  - `npm run verify:e2e-android` → ✗ BLOCKED (app won't render home screen post-login)
 
 **Still open**
 
@@ -67,10 +74,10 @@ The premium redesign is **not fully complete yet**, but the local baseline is no
 - Product detail now surfaces a tappable gallery rail when richer image data exists, keeping the hero image aligned with the luxury-first mockup direction:
   - `src/screens/ProductDetailScreen.jsx`
   - `__tests__/ProductDetailGallery.test.js`
-- Local search and ML verification passed on 2026-07-06:
-  - `npm run verify:search` → `27/27 passed`
-  - `npm run verify:ml` → `16 passed / 0 failed`
-  - `npm run verify:emulator` → `7/7 passed`
+- Local search and ML verification status on 2026-07-07:
+  - `npm run verify:search` → ✓ `27/27 passed`
+  - `npm run verify:ml` → ⚠ `15/16 passed` (similar products endpoint failing)
+  - `npm run verify:emulator` → ✗ BLOCKED (same app launch issue as E2E)
 
 **Still open**
 
@@ -110,7 +117,7 @@ The premium redesign is **not fully complete yet**, but the local baseline is no
 - Jest suite green:
   - `npm test -- --watchman=false --runInBand --forceExit` → `112/112 tests`, `39/39 suites`
 - Script-unit suite green:
-  - `npm run test:scripts` → `21/21 passed`
+  - `npm run test:scripts` → `24/24 passed` (verified 2026-07-07)
 - Local catalog realism improved and verified:
   - baseline API catalog total: `394`
   - snapshot seed: `384`
@@ -129,12 +136,26 @@ The premium redesign is **not fully complete yet**, but the local baseline is no
   - `docs/HYBRID_SEARCH_TEST_STEPS.md`
   - `docs/e2e/validation-2026-07-07.md`
 
-**Still open**
+**BLOCKERS (2026-07-07):**
 
-- Cloud parity is still below the local premium baseline:
-  - `npm run verify:cloud:all` now fails fast and truthfully because Railway currently exposes `252` products and `0` enriched products, which is below the local realism target
-- Audit remaining historical docs for stale narrative that is no longer reviewer-critical but still outdated
-- Final umbrella completion should include explicit evidence that local, cloud, and reviewer/demo paths all agree
+1. **Android E2E blocked:** App login succeeds but home screen doesn't render. Prevents checkout/orders/ML flow verification locally.
+   - Affects: `npm run verify:e2e-android`, `npm run verify:emulator`
+   - Root cause: React Native/emulator rendering or app crash
+   - Impact: Cannot verify core commerce flow on Android
+
+2. **iOS E2E not attempted:** Likely same blocker as Android
+   - No local iOS proof yet
+
+3. **Cloud parity broken:**
+   - Railway: 323 products vs 350 local
+   - Missing: demo-coverage enrichment
+   - Result: `npm run verify:cloud:ml` fails (12/16 pass)
+
+4. **Luxury gallery data limitation:**
+   - 0/20 premium products have 6-7 angle coverage
+   - Free data sources (dummyjson) provide 4 images max
+   - Requirement: 6-7 angles for true luxury feel
+   - Blocker: Requires professional product photography (out of scope)
 
 ---
 

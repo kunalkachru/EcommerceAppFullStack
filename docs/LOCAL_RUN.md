@@ -88,10 +88,12 @@ npm test -- --watchman=false --runInBand --forceExit
 **Local API** (Terminal A must be running):
 
 ```bash
-npm run verify:search    # 27/27 search flows
-npm run verify:ml        # 16/16 ML + catalog checks
-npm run verify:emulator  # 7/7 Android ML smoke
+npm run verify:search    # 27/27 search flows ✓
+npm run verify:ml        # 15/16 ML + catalog (similar products endpoint failing) ⚠
+npm run verify:emulator  # BLOCKED — app doesn't render after login ✗
 ```
+
+**Status (2026-07-07):** Search passes, ML partial, emulator blocked.
 
 **Cloud API** (Railway):
 
@@ -112,6 +114,8 @@ USE_CLOUD_API=1 npm run verify:cloud:llm   # against Railway
 Keys are read from gitignored `src/.env` — see [CONFIGURATION.md § Client LLM keys](./CONFIGURATION.md#client-llm-keys-srcenv).
 
 ### Step 4 — Full E2E (emulator + simulator)
+
+⚠️ **STATUS (2026-07-07):** Android E2E is currently BLOCKED due to app render issue post-login. iOS not yet attempted.
 
 **Prerequisites**
 

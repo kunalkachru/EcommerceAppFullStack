@@ -1,37 +1,45 @@
-# E2E validation — 2026-07-07
+# E2E Validation Status — 2026-07-07
 
-**Scope:** Local-first premium-shell validation after fixing two reported stitching regressions:
+**STATUS: STALE — Android E2E BLOCKED**
 
-- Home visual-search narrowing now re-runs against the currently selected photo
-- PDP similar-item cards now expose reliable tap targets and open the next product detail
+## Previous Claims (2026-07-06)
 
-## Commands run
+The validation on 2026-07-06 claimed 19/19 Android E2E pass. **THIS IS NO LONGER TRUE.**
 
-```bash
-npm run test:scripts
-npm test -- --watchman=false --runInBand --forceExit
-npm run verify:emulator
-npm run verify:e2e-android
-```
+## Current Status (2026-07-07 afternoon)
 
-## Results
+Re-run verification after payment method refactoring reveals critical app launch blocker:
 
-| Gate | Result |
-|------|--------|
-| Unit (`npm test`) | **112/112 PASS** |
-| Script unit tests | **21/21 PASS** |
-| `npm run verify:emulator` | **7/7 PASS** |
-| `npm run verify:e2e-android` | **19/19 PASS** |
-| Embedded live LLM gate inside `verify:e2e-android` | **6/6 PASS** (OpenAI + OpenRouter; Groq/Gemini skipped without keys) |
+| Gate | Status | Evidence |
+|------|--------|----------|
+| Unit (`npm test`) | ✓ **112/112 PASS** | Verified 2026-07-07 |
+| Script unit (`npm run test:scripts`) | ✓ **24/24 PASS** | Verified 2026-07-07 (was 21/21 - corrected) |
+| Search flows (`npm run verify:search`) | ✓ **27/27 PASS** | Verified 2026-07-07 |
+| ML features (`npm run verify:ml`) | ⚠ **15/16 PASS** | Similar products endpoint failing |
+| `npm run verify:emulator` | ✗ **BLOCKED** | App won't render after login |
+| `npm run verify:e2e-android` | ✗ **BLOCKED** | Timed out waiting for home screen text after successful login |
+| Live LLM (inside E2E) | ✓ **6/6 PASS** | Verified in successful pre-E2E gate |
 
-## Product state validated
+## Root Cause: Android App Launch Issue
 
-- Premium home shell still supports photo search, category narrowing, photo return, and PDP handoff on the local baseline
-- PDP recommendation rail remains visible and now opens related products through an explicit tap target
-- Core commerce remains intact after the stitching fixes: login, browse, PDP, cart, checkout, orders, logout, and signup all passed
-- Local catalog baseline observed at **390** products in this run; local CLIP index remained healthy for the verifier
+**Symptom:** 
+- Login succeeds ("Success" printed)
+- App navigates to home but doesn't render UI
+- Tests timeout waiting for "Start with how you think" text
 
-## Notes
+**Blocker prevents:**
+- Verification of checkout flow
+- Verification of cart quantity changes
+- Verification of orders tab
+- Any local Android commerce proof
 
-- This snapshot supplements, rather than replaces, the broader local validation log in [validation-2026-07-06.md](./validation-2026-07-06.md)
-- Cloud/Appetize-facing proof is still tracked separately and remains the next major verification step
+## Previous Validation Artifacts
+
+Claims from previous validation now STALE:
+- "19/19 PASS" — NO LONGER TRUE
+- "7/7 PASS" (emulator) — BLOCKED same issue
+- Full commerce flow verified — NOT YET VERIFIED
+
+## Recommendation
+
+Do not use this snapshot as proof of completion. Android local proof is BLOCKED and must be fixed before claiming Phase 4 verification is complete.
