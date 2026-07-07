@@ -55,7 +55,8 @@ appId: ${APP_ID}
 - swipe:
     start: "50%,75%"
     end: "50%,35%"
-- tapOn: "💳 Credit Card"
+- tapOn:
+    id: "checkout-payment-credit-card"
 - scrollUntilVisible:
     element:
       id: "checkout-place-order"
@@ -74,5 +75,5 @@ appId: ${APP_ID}
     commands:
       - tapOn: "OK"
 - extendedWaitUntil:
-    visible: "Order Summary"
+    visible: "Order complete"
     timeout: 60000
