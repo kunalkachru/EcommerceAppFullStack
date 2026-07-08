@@ -13,6 +13,10 @@ appId: ${APP_ID}
 - tapOn:
     id: "login-email"
 - inputText: "test@example.com"
+- extendedWaitUntil:
+    visible:
+      id: "login-password"
+    timeout: 3000
 
 - tapOn:
     id: "login-password"
