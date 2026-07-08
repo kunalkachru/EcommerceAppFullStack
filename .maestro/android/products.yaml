@@ -1,0 +1,19 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# Android-specific product browsing flow
+
+# Navigate to products tab
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible: "Narrow search (optional)"
+    timeout: 12000
+
+# Tap on a specific product (Essence Mascara Lash Princess)
+- tapOn:
+    text: "Essence Mascara Lash Princess"
+
+- extendedWaitUntil:
+    visible: "Add to Cart"
+    timeout: 8000

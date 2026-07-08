@@ -1,0 +1,110 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# Android-specific add to cart and checkout flow
+
+# Add to cart using testID (most reliable)
+- tapOn:
+    id: "pdp-add-to-cart"
+
+- extendedWaitUntil:
+    visible: "Added to cart"
+    timeout: 5000
+    optional: true
+
+# Navigate to cart tab
+- tapOn:
+    id: "tab-cart"
+
+- extendedWaitUntil:
+    visible: "Your cart"
+    timeout: 8000
+
+# Scroll to and tap Proceed to Checkout
+- scrollUntilVisible:
+    element:
+      text: "Proceed to Checkout"
+    direction: DOWN
+    timeout: 8000
+
+- tapOn:
+    text: "Proceed to Checkout"
+
+- extendedWaitUntil:
+    visible: "Checkout"
+    timeout: 8000
+
+# Fill checkout form - using explicit field taps for Android
+# Full name field
+- tapOn:
+    id: "checkout-field-fullname"
+
+- inputText: "Test User Android"
+
+# Address field
+- extendedWaitUntil:
+    visible:
+      id: "checkout-field-address"
+    timeout: 2000
+
+- tapOn:
+    id: "checkout-field-address"
+
+- inputText: "123 Test Street"
+
+# City field
+- extendedWaitUntil:
+    visible:
+      id: "checkout-field-city"
+    timeout: 2000
+
+- tapOn:
+    id: "checkout-field-city"
+
+- inputText: "Austin"
+
+# Zip code field
+- extendedWaitUntil:
+    visible:
+      id: "checkout-field-zip"
+    timeout: 2000
+
+- tapOn:
+    id: "checkout-field-zip"
+
+- inputText: "78701"
+
+# Phone field
+- extendedWaitUntil:
+    visible:
+      id: "checkout-field-phone"
+    timeout: 2000
+
+- tapOn:
+    id: "checkout-field-phone"
+
+- inputText: "5551234567"
+
+# Scroll to and select payment method
+- scrollUntilVisible:
+    element:
+      id: "checkout-payment-credit-card"
+    direction: DOWN
+    timeout: 8000
+
+- tapOn:
+    id: "checkout-payment-credit-card"
+
+# Scroll to and tap Place Order
+- scrollUntilVisible:
+    element:
+      id: "checkout-place-order"
+    direction: DOWN
+    timeout: 8000
+
+- tapOn:
+    id: "checkout-place-order"
+
+# Verify order summary
+- extendedWaitUntil:
+    visible: "Order Summary"
+    timeout: 12000

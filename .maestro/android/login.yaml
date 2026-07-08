@@ -1,0 +1,68 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# Android-specific login flow
+# Uses explicit field taps for proper form field isolation on Android
+
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: "ShopEase"
+    timeout: 20000
+
+- runFlow:
+    when:
+      visible: "Sign in ↓"
+    commands:
+      - tapOn: "Sign in ↓"
+
+- extendedWaitUntil:
+    visible: "Sign in"
+    timeout: 8000
+
+# Android login - explicit field taps to avoid Tab key issues
+- scrollUntilVisible:
+    element:
+      id: "login-email"
+    direction: DOWN
+    timeout: 12000
+
+- extendedWaitUntil:
+    visible:
+      id: "login-email"
+    timeout: 5000
+
+- tapOn:
+    id: "login-email"
+
+- inputText: "test@example.com"
+
+- extendedWaitUntil:
+    visible:
+      id: "login-password"
+    timeout: 3000
+
+- tapOn:
+    id: "login-password"
+
+- inputText: "secret123"
+
+- scrollUntilVisible:
+    element:
+      id: "login-submit"
+    direction: DOWN
+    timeout: 10000
+
+- tapOn:
+    id: "login-submit"
+
+# Dismiss save password prompt if it appears
+- runFlow:
+    when:
+      visible: "Save password"
+    commands:
+      - tapOn: "Not now"
+
+- extendedWaitUntil:
+    visible: "Start with how you think"
+    timeout: 15000

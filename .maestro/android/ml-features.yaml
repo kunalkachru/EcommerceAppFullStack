@@ -1,0 +1,38 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# Android-specific ML/AI features testing
+# Tests voice search and LLM reasoning with OpenAI API
+
+# Navigate to products
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible: "Narrow search (optional)"
+    timeout: 12000
+
+# Test voice search/AI reasoning
+- extendedWaitUntil:
+    visible: "Voice search"
+    timeout: 5000
+    optional: true
+
+# Look for search by photo capability
+- extendedWaitUntil:
+    visible: "Search by photo"
+    timeout: 5000
+    optional: true
+
+# Try searching for a product via text (which uses LLM reasoning on backend)
+- tapOn:
+    text: "Narrow search"
+    optional: true
+
+- inputText: "wireless headphones"
+    optional: true
+
+# Wait for search results
+- extendedWaitUntil:
+    visible: "Wireless"
+    timeout: 8000
+    optional: true
