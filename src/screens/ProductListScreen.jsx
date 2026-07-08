@@ -16,6 +16,7 @@ import RNPickerSelect from "react-native-picker-select";
 import Slider from "@react-native-community/slider";
 import CategoryFilterBar from "../components/CategoryFilterBar";
 import VisualSearchCategoryPrompt from "../components/VisualSearchCategoryPrompt";
+import UnifiedFilterPanel from "../components/UnifiedFilterPanel";
 import { LuxuryErrorBanner, LuxuryLoadingState, LuxuryEmptyState } from "../components/LuxuryStateIndicators";
 import { useCatalogProducts, getTopCategories } from "../redux/api/catalogApi";
 import { addToCart } from "../redux/cartSlice";
@@ -359,12 +360,6 @@ const ProductListScreen = ({ navigation }) => {
           onSelect={setSelectedCategory}
         />
 
-        <Text style={styles.filterLabel}>Bias the photo matcher</Text>
-        <VisualSearchCategoryPrompt
-          value={searchCategory}
-          onChange={setSearchCategory}
-        />
-
         <View style={styles.searchContainer}>
           <TouchableOpacity
             testID="product-search-photo-button"
@@ -436,36 +431,16 @@ const ProductListScreen = ({ navigation }) => {
           </View>
         ) : null}
 
-        <View style={styles.filterContainer}>
-          <RNPickerSelect
-            testID="product-sort-picker"
-            onValueChange={(value) => setSortOption(value)}
-            items={sortOptions.map((option) => ({
-              label: option,
-              value: option,
-            }))}
-            style={pickerStyles}
-            placeholder={{ label: "Sort by...", value: "Default" }}
-            value={sortOption}
-          />
-        </View>
-
-        <View style={styles.priceFilterContainer}>
-          <Text>
-            Price: ${priceRange[0]} - ${priceRange[1]}
-          </Text>
-          <Slider
-            testID="product-price-slider"
-            style={styles.slider}
-            minimumValue={0}
-            maximumValue={PRICE_MAX}
-            step={10}
-            value={priceRange[1]}
-            onValueChange={(value) => setPriceRange([0, value])}
-            minimumTrackTintColor="#007bff"
-            maximumTrackTintColor="#ddd"
-          />
-        </View>
+        <UnifiedFilterPanel
+          sortOptions={sortOptions}
+          sortOption={sortOption}
+          onSortChange={setSortOption}
+          priceRange={priceRange}
+          onPriceChange={setPriceRange}
+          priceMax={PRICE_MAX}
+          searchCategory={searchCategory}
+          onSearchCategoryChange={setSearchCategory}
+        />
       </View>
     ),
     [

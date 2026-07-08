@@ -73,6 +73,23 @@ jest.mock("../src/components/VisualSearchCategoryPrompt", () => {
   };
 });
 
+jest.mock("../src/components/UnifiedFilterPanel", () => {
+  const ReactModule = require("react");
+  const RN = require("react-native");
+  return function UnifiedFilterPanelMock(props) {
+    return ReactModule.createElement(
+      RN.View,
+      {
+        testID: "unified-filter-panel",
+        onSortChange: props.onSortChange,
+        onPriceChange: props.onPriceChange,
+        onSearchCategoryChange: props.onSearchCategoryChange,
+      },
+      ReactModule.createElement(RN.View, null)
+    );
+  };
+});
+
 jest.mock("react-native-vector-icons/Ionicons", () => "Ionicons");
 
 jest.mock("@react-native-community/slider", () => {
@@ -154,7 +171,9 @@ describe("ProductListScreen discovery controls", () => {
     });
 
     await act(async () => {
-      latestPickerProps.onValueChange("Price: High to Low");
+      tree.root
+        .findByProps({ testID: "unified-filter-panel" })
+        .props.onSortChange("Price: High to Low");
     });
 
     expect(visibleProductItemIds(tree)).toEqual([
@@ -164,7 +183,9 @@ describe("ProductListScreen discovery controls", () => {
     ]);
 
     await act(async () => {
-      tree.root.findByProps({ testID: "product-price-slider" }).props.onValueChange(150);
+      tree.root
+        .findByProps({ testID: "unified-filter-panel" })
+        .props.onPriceChange([0, 150]);
     });
 
     expect(visibleProductItemIds(tree)).toEqual([
