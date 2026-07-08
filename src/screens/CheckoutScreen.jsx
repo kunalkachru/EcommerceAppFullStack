@@ -21,6 +21,11 @@ import {
   LuxuryMetricCard,
   LuxurySectionCard,
 } from "../components/LuxuryPrimitives";
+import {
+  LuxuryErrorBanner,
+  LuxuryLoadingState,
+  LuxurySuccessConfirmation,
+} from "../components/LuxuryStateIndicators";
 
 const PAYMENT_OPTIONS = [
   { id: "Credit Card", label: "Credit Card", hint: "Fastest for a smooth checkout finish" },
@@ -42,6 +47,8 @@ const CheckoutScreen = ({ navigation }) => {
   });
   const [paymentMethod, setPaymentMethod] = useState("Credit Card");
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [orderError, setOrderError] = useState(null);
+  const [orderSuccess, setOrderSuccess] = useState(false);
 
   const itemCount = useMemo(
     () => cartItems.reduce((total, item) => total + item.quantity, 0),
@@ -64,22 +71,24 @@ const CheckoutScreen = ({ navigation }) => {
       !shippingInfo.zipCode ||
       !shippingInfo.phone
     ) {
-      Alert.alert("Error", "Please fill in all the shipping details.");
+      setOrderError("Please fill in all the shipping details.");
       return;
     }
 
     if (!paymentMethod) {
-      Alert.alert("Error", "Please select a payment method.");
+      setOrderError("Please select a payment method.");
       return;
     }
 
     if (!cartItems.length) {
-      Alert.alert("Error", "Your cart is empty.");
+      setOrderError("Your cart is empty.");
       return;
     }
 
     try {
       setIsPlacingOrder(true);
+      setOrderError(null);
+      setOrderSuccess(false);
       const order = await createOrder({
         items: cartItems,
         shippingInfo,
@@ -87,11 +96,14 @@ const CheckoutScreen = ({ navigation }) => {
         grandTotal,
       });
 
+      setOrderSuccess(true);
       dispatch(clearCart());
 
-      navigation.navigate("OrderSummary", {
-        order,
-      });
+      setTimeout(() => {
+        navigation.navigate("OrderSummary", {
+          order,
+        });
+      }, 1500);
     } catch (error) {
       // Keep cart intact on failure.
       console.error("Place Order Error:", error?.response?.data || error?.message || error);
@@ -99,7 +111,7 @@ const CheckoutScreen = ({ navigation }) => {
         error?.response?.data?.message ||
         (typeof error?.message === "string" && error.message) ||
         "Failed to place order. Please try again.";
-      Alert.alert("Order Failed", message);
+      setOrderError(message);
     } finally {
       setIsPlacingOrder(false);
     }
@@ -126,6 +138,26 @@ const CheckoutScreen = ({ navigation }) => {
           <LuxuryMetricCard label="Items" value={String(itemCount)} />
           <LuxuryMetricCard label="Total" value={`$${grandTotal.toFixed(2)}`} />
         </View>
+
+        {orderError && (
+          <LuxuryErrorBanner
+            title="Checkout Error"
+            message={orderError}
+            style={styles.stateMargin}
+          />
+        )}
+
+        {orderSuccess && (
+          <LuxurySuccessConfirmation
+            title="Order Placed"
+            message="Your order has been confirmed. Redirecting to summary..."
+            style={styles.stateMargin}
+          />
+        )}
+
+        {isPlacingOrder && (
+          <LuxuryLoadingState label="Processing your order..." />
+        )}
 
         <LuxurySectionCard eyebrow="Shipping" title="Delivery details" style={styles.sectionCard}>
           <View style={styles.form}>
@@ -336,6 +368,10 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 16,
     fontWeight: "700",
+  },
+  stateMargin: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
   },
 });
 
