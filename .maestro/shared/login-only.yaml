@@ -12,27 +12,9 @@ appId: ${APP_ID}
     timeout: 5000
 - tapOn:
     id: "login-email"
-- extendedWaitUntil:
-    visible:
-      id: "login-email"
-    timeout: 2000
-- waitForAnimationToEnd
 - inputText: "test@example.com"
-- waitForAnimationToEnd
-- extendedWaitUntil:
-    visible:
-      id: "login-password"
-    timeout: 3000
-
-- tapOn:
-    id: "login-password"
-- extendedWaitUntil:
-    visible:
-      id: "login-password"
-    timeout: 2000
-- waitForAnimationToEnd
+- pressKey: tab
 - inputText: "secret123"
-- waitForAnimationToEnd
 - scrollUntilVisible:
     element:
       id: "login-submit"

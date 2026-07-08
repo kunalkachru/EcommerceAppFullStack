@@ -28,56 +28,18 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
     direction: DOWN
 - tapOn: "Proceed to Checkout"
 
-# Fill checkout form with explicit focus waits and animations
+# Fill checkout form using keyboard navigation (Tab to move between fields)
 - tapOn:
     id: "checkout-field-fullname"
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-fullname"
-    timeout: 2000
-- waitForAnimationToEnd
 - inputText: "Demo User"
-- waitForAnimationToEnd
-
-- tapOn:
-    id: "checkout-field-address"
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-address"
-    timeout: 2000
-- waitForAnimationToEnd
+- pressKey: tab
 - inputText: "1 Demo Street"
-- waitForAnimationToEnd
-
-- tapOn:
-    id: "checkout-field-city"
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-city"
-    timeout: 2000
-- waitForAnimationToEnd
+- pressKey: tab
 - inputText: "Austin"
-- waitForAnimationToEnd
-
-- tapOn:
-    id: "checkout-field-zipcode"
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-zipcode"
-    timeout: 2000
-- waitForAnimationToEnd
+- pressKey: tab
 - inputText: "78701"
-- waitForAnimationToEnd
-
-- tapOn:
-    id: "checkout-field-phone"
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-phone"
-    timeout: 2000
-- waitForAnimationToEnd
+- pressKey: tab
 - inputText: "5551234567"
-- waitForAnimationToEnd
 # Select payment method using testID
 - scrollUntilVisible:
     element:
