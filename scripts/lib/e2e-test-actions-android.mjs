@@ -24,16 +24,54 @@ function log(...args) {
  * 6. Input the new value
  * 7. Optionally hide keyboard
  * 8. Verify field has correct value
+ *
+ * @param {string} testId - Test ID of the field to fill
+ * @param {string} value - Text value to input
+ * @param {object} options - Optional parameters
+ * @param {number} options.timeoutMs - Wait timeout in milliseconds (default: 8000)
+ * @param {boolean} options.hideKeyboardAfter - Hide keyboard after filling (default: false)
  */
 export function fillField(testId, value, options = {}) {
   const { timeoutMs = 8000, hideKeyboardAfter = false } = options;
 
   log(`Filling field: ${testId} with value: "${value}"`);
 
-  // Delegate to existing adb implementation
-  adb.fillTestId(testId, value, { timeoutMs, hideKeyboardAfter });
+  try {
+    // Tap the field to focus it
+    adb.tapTestId(testId, { timeoutMs });
+    adb.sleep(500);
 
-  log(`Field filled: ${testId}`);
+    // Ensure field is focused by tapping again
+    const xml = adb.dumpUi();
+    const node = adb.findByTestId(xml, testId);
+    if (node) {
+      adb.tap(node.center.x, node.center.y);
+      adb.sleep(200);
+    }
+
+    // Select all existing text
+    adb.selectAllInField();
+    adb.sleep(150);
+
+    // Clear the field thoroughly
+    adb.clearField();
+    adb.sleep(200);
+
+    // Input the new value
+    adb.inputText(String(value));
+    adb.sleep(400);
+
+    // Hide keyboard if requested
+    if (hideKeyboardAfter) {
+      adb.hideKeyboard();
+      adb.sleep(600);
+    }
+
+    log(`Field filled successfully: ${testId}`);
+  } catch (error) {
+    log(`Error filling field ${testId}: ${error.message}`);
+    throw error;
+  }
 }
 
 /**

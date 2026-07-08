@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 /**
  * Android emulator UI helpers for E2E flows (uiautomator + adb input).
+ *
+ * REFACTORED: Uses shared E2E test action library for unified field operations
+ * and keyboard management across platforms.
  */
 import { execSync, spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import * as TestActions from "./lib/e2e-test-actions.mjs";
 import {
   isAuthenticatedShell,
   isLoginScreen,
@@ -220,40 +224,29 @@ export function selectAllInField() {
   sleep(100);
 }
 
+/**
+ * Fill a text field by test ID with optional keyboard management.
+ *
+ * REFACTORED: Delegates to shared test action library for consistency
+ * across Android and iOS platforms. Maintains backward compatibility with
+ * existing call sites.
+ *
+ * @param {string} testId - Test ID of the field to fill
+ * @param {string} value - Text value to input
+ * @param {object} options - Optional parameters
+ * @param {number} options.timeoutMs - Wait timeout in milliseconds (default: 8000)
+ * @param {boolean} options.hideKeyboardAfter - Hide keyboard after filling (default: false)
+ */
 export function fillTestId(
   testId,
   value,
   { timeoutMs = 8000, hideKeyboardAfter = false } = {}
 ) {
-  // Tap the field to focus it
-  tapTestId(testId, { timeoutMs });
-  sleep(500);
-
-  // Ensure field is focused by tapping again
-  const xml = dumpUi();
-  const node = findByTestId(xml, testId);
-  if (node) {
-    tap(node.center.x, node.center.y);
-    sleep(200);
-  }
-
-  // Select all existing text
-  selectAllInField();
-  sleep(150);
-
-  // Clear the field thoroughly
-  clearField();
-  sleep(200);
-
-  // Input the new value
-  inputText(String(value));
-  sleep(400);
-
-  // Hide keyboard if requested
-  if (hideKeyboardAfter) {
-    hideKeyboard();
-    sleep(600);
-  }
+  // Delegate to shared library implementation for unified field operations
+  TestActions.fillField(TestActions.PLATFORMS.ANDROID, testId, value, {
+    hideKeyboardAfter,
+    timeoutMs,
+  });
 }
 
 export function readFieldTextByTestId(xml, testId) {
@@ -463,25 +456,33 @@ export async function loginIfNeeded({
   if (scrollBtn?.center) tap(scrollBtn.center.x, scrollBtn.center.y);
   sleep(1200);
 
-  // Fill email field and hide keyboard
+  // CRITICAL: Fill email field with keyboard hide to prevent focus bleed
+  console.log("[android] Filling email field with keyboard hide");
   fillTestId("login-email", email, { hideKeyboardAfter: true });
-  sleep(800);
+  sleep(800);  // Extra wait for keyboard to fully dismiss
 
-  // Fill password field and hide keyboard
+  // Fill password field with keyboard hide
+  console.log("[android] Filling password field with keyboard hide");
   fillTestId("login-password", password, { hideKeyboardAfter: true });
   sleep(800);
 
+  // Verify both fields before submitting to catch focus mix-up bugs
+  console.log("[android] Verifying field values before login submit");
   const beforeSubmit = dumpUi();
   const emailVal = readFieldTextByTestId(beforeSubmit, "login-email");
+  console.log(`[android] Email field value: "${emailVal}" (expected: "${email}")`);
+
   if (emailVal !== email) {
     throw new Error(
       `Email field wrong before submit — got "${emailVal}", expected "${email}"`
     );
   }
+
   const passNode = findByTestId(beforeSubmit, "login-password");
   if (passNode?.text === email || passNode?.text === "Email") {
     throw new Error("Password value appears in email field — focus mix-up");
   }
+  console.log("[android] Field verification passed");
 
   swipe(720, 2600, 720, 1200, 350);
   sleep(500);
