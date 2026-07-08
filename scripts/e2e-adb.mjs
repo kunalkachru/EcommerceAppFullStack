@@ -251,7 +251,9 @@ export function fillTestId(
 
 export function readFieldTextByTestId(xml, testId) {
   const node = findByTestId(xml, testId);
-  return node?.text || node?.hint || "";
+  // CRITICAL: Return only the actual text, NOT the placeholder (hint)
+  // If text is empty, the field is empty (don't fallback to hint)
+  return node?.text || "";
 }
 export function clearAndType(value) {
   selectAllInField();
@@ -453,13 +455,55 @@ export async function loginIfNeeded({
   }
 
   const scrollBtn = findNodes(xml).find((n) => n.text === "Sign in ↓" || n.text === "Sign in");
-  if (scrollBtn?.center) tap(scrollBtn.center.x, scrollBtn.center.y);
-  sleep(1200);
+  if (scrollBtn?.center) {
+    console.log("[android] Found 'Sign in ↓' button, tapping it...");
+    tap(scrollBtn.center.x, scrollBtn.center.y);
+    console.log("[android] Tapped, waiting for form to appear...");
+  } else {
+    console.log("[android] WARNING: Could not find 'Sign in ↓' button");
+  }
+  sleep(2000); // Increased wait for scroll/navigation animation
+
+  // CRITICAL: Check if tap navigated to Signup instead of scrolling to login form
+  // If so, navigate back to Login by clicking "Already have an account? Login" link
+  console.log("[android] Checking if login form is visible after tap...");
+  let postTapXml = dumpUi();
+  const hasLoginEmail = findByTestId(postTapXml, "login-email");
+  const hasSignupLink = findByTestId(postTapXml, "signup-login-link");
+  console.log(`[android] After tap: login-email=${!!hasLoginEmail}, signup-login-link=${!!hasSignupLink}`);
+
+  if (!hasLoginEmail && hasSignupLink) {
+    console.log("[android] Tap navigated to Signup screen instead of showing login form");
+    // Click the "Already have an account? Login" link to navigate back to Login
+    try {
+      tap(hasSignupLink.center.x, hasSignupLink.center.y);
+      console.log("[android] Clicked signup-login-link to navigate to Login screen");
+      sleep(1500);
+      postTapXml = dumpUi();
+    } catch (e) {
+      console.log(`[android] Error tapping signup-login-link: ${e.message}`);
+    }
+  } else if (!hasLoginEmail) {
+    console.log("[android] Login form not visible and no signup link found - trying back key");
+    pressKey(4);
+    sleep(1500);
+    postTapXml = dumpUi();
+  }
 
   // CRITICAL: Fill email field with keyboard hide to prevent focus bleed
   console.log("[android] Filling email field with keyboard hide");
   fillTestId("login-email", email, { hideKeyboardAfter: true });
   sleep(800);  // Extra wait for keyboard to fully dismiss
+
+  // CRITICAL: Explicitly tap password field before filling (Tab doesn't work in React Native)
+  console.log("[android] Explicitly tapping password field before filling");
+  try {
+    const passwordNode = waitForTestId("login-password", { timeoutMs: 3000 });
+    tap(passwordNode.center.x, passwordNode.center.y);
+    sleep(400);  // Wait for field to focus
+  } catch (e) {
+    console.log(`[android] Warning: Could not tap password field: ${e.message}`);
+  }
 
   // Fill password field with keyboard hide
   console.log("[android] Filling password field with keyboard hide");

@@ -28,37 +28,17 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
     direction: DOWN
 - tapOn: "Proceed to Checkout"
 
-# Fill checkout form using explicit field taps (mobile doesn't support Tab navigation)
+# Fill checkout form using keyboard navigation (Tab to move between fields)
 - tapOn:
     id: "checkout-field-fullname"
 - inputText: "Demo User"
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-address"
-    timeout: 2000
-- tapOn:
-    id: "checkout-field-address"
+- pressKey: tab
 - inputText: "1 Demo Street"
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-city"
-    timeout: 2000
-- tapOn:
-    id: "checkout-field-city"
+- pressKey: tab
 - inputText: "Austin"
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-zip"
-    timeout: 2000
-- tapOn:
-    id: "checkout-field-zip"
+- pressKey: tab
 - inputText: "78701"
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-phone"
-    timeout: 2000
-- tapOn:
-    id: "checkout-field-phone"
+- pressKey: tab
 - inputText: "5551234567"
 # Select payment method using testID
 - scrollUntilVisible:

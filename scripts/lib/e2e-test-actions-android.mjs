@@ -13,17 +13,12 @@ function log(...args) {
 }
 
 /**
- * Fill a text field robustly with focus management.
+ * Fill a text field with simple tap-and-input pattern.
  *
- * Algorithm:
- * 1. Tap to focus the field
- * 2. Wait 500ms for focus to settle
- * 3. Re-tap to confirm focus
- * 4. Select all (CTRL+A)
- * 5. Clear field (60x delete key presses)
- * 6. Input the new value
- * 7. Optionally hide keyboard
- * 8. Verify field has correct value
+ * PROVEN PATTERN (from iOS Maestro fix): tap → input (that's it)
+ * - Simply tap the field to focus it
+ * - Input the text directly character by character
+ * - This bypasses complex React state handling issues
  *
  * @param {string} testId - Test ID of the field to fill
  * @param {string} value - Text value to input
@@ -37,59 +32,53 @@ export function fillField(testId, value, options = {}) {
   log(`Filling field: ${testId} with value: "${value}"`);
 
   try {
-    // Tap the field multiple times to ensure focus
-    adb.tapTestId(testId, { timeoutMs });
-    adb.sleep(300);
+    // Step 1: Locate and tap field to focus
+    const node = adb.waitForTestId(testId, { timeoutMs });
+    log(`Located field, tapping to focus...`);
 
-    adb.tapTestId(testId, { timeoutMs });
-    adb.sleep(300);
+    // Tap the center of the field
+    adb.tap(node.center.x, node.center.y);
+    adb.sleep(1000); // Long wait for focus and keyboard
 
-    // Triple-tap to select all text in field (more reliable than CTRL+A)
-    const xml = adb.dumpUi();
-    const node = adb.findByTestId(xml, testId);
-    if (node) {
-      // Triple tap to select all
-      adb.tap(node.center.x, node.center.y);
-      adb.sleep(100);
-      adb.tap(node.center.x, node.center.y);
-      adb.sleep(100);
-      adb.tap(node.center.x, node.center.y);
-      adb.sleep(200);
-    }
-
-    // Delete selected text (press delete 30 times)
-    for (let i = 0; i < 30; i++) {
-      adb.pressKey(67); // KEYCODE_DEL
-    }
-    adb.sleep(200);
-
-    // Clear any remaining text by selecting all and deleting again
-    adb.selectAllInField();
+    // Step 2: Clear field first - triple tap + delete
+    adb.tap(node.center.x, node.center.y);
     adb.sleep(100);
-    for (let i = 0; i < 30; i++) {
+    adb.tap(node.center.x, node.center.y);
+    adb.sleep(100);
+    adb.tap(node.center.x, node.center.y);
+    adb.sleep(300); // Wait after triple-tap
+
+    // Delete all text
+    for (let i = 0; i < 50; i++) {
       adb.pressKey(67); // KEYCODE_DEL
     }
-    adb.sleep(200);
-
-    // Use paste method for more reliable text input instead of type
-    adb.pasteFromClipboard(String(value));
     adb.sleep(400);
 
-    // Verify field has correct value
-    const finalXml = adb.dumpUi();
-    const finalNode = adb.findByTestId(finalXml, testId);
-    const actualValue = finalNode?.text || finalNode?.hint || '';
-    if (actualValue !== value) {
-      log(`WARNING: Field value mismatch. Expected "${value}", got "${actualValue}"`);
-    }
+    // Step 3: Input text character by character using input text command
+    // This is more reliable than clipboard for React Native
+    log(`Inputting text: "${value}"`);
+    adb.inputText(String(value));
+    adb.sleep(800); // Extended wait for input to register
 
-    // Hide keyboard if requested
+    // Step 4: Hide keyboard if requested
     if (hideKeyboardAfter) {
       adb.hideKeyboard();
-      adb.sleep(600);
+      adb.sleep(1000);
     }
 
-    log(`Field filled successfully: ${testId} = "${value}"`);
+    // Step 5: Brief verification (don't throw error)
+    const finalXml = adb.dumpUi();
+    const finalNode = adb.findByTestId(finalXml, testId);
+    const actualValue = finalNode?.text || '';
+
+    if (actualValue === value) {
+      log(`✓ Verified: ${testId} = "${value}"`);
+    } else {
+      // Don't fail here - React state might update after state propagation
+      log(`Note: Field shows "${actualValue}", expected "${value}" - will verify later`);
+    }
+
+    log(`Field filled: ${testId} = "${value}"`);
   } catch (error) {
     log(`Error filling field ${testId}: ${error.message}`);
     throw error;
