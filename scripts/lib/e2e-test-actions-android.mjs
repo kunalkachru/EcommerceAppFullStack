@@ -37,29 +37,51 @@ export function fillField(testId, value, options = {}) {
   log(`Filling field: ${testId} with value: "${value}"`);
 
   try {
-    // Tap the field to focus it
+    // Tap the field multiple times to ensure focus
     adb.tapTestId(testId, { timeoutMs });
-    adb.sleep(500);
+    adb.sleep(300);
 
-    // Ensure field is focused by tapping again
+    adb.tapTestId(testId, { timeoutMs });
+    adb.sleep(300);
+
+    // Triple-tap to select all text in field (more reliable than CTRL+A)
     const xml = adb.dumpUi();
     const node = adb.findByTestId(xml, testId);
     if (node) {
+      // Triple tap to select all
+      adb.tap(node.center.x, node.center.y);
+      adb.sleep(100);
+      adb.tap(node.center.x, node.center.y);
+      adb.sleep(100);
       adb.tap(node.center.x, node.center.y);
       adb.sleep(200);
     }
 
-    // Select all existing text
-    adb.selectAllInField();
-    adb.sleep(150);
-
-    // Clear the field thoroughly
-    adb.clearField();
+    // Delete selected text (press delete 30 times)
+    for (let i = 0; i < 30; i++) {
+      adb.pressKey(67); // KEYCODE_DEL
+    }
     adb.sleep(200);
 
-    // Input the new value
-    adb.inputText(String(value));
+    // Clear any remaining text by selecting all and deleting again
+    adb.selectAllInField();
+    adb.sleep(100);
+    for (let i = 0; i < 30; i++) {
+      adb.pressKey(67); // KEYCODE_DEL
+    }
+    adb.sleep(200);
+
+    // Use paste method for more reliable text input instead of type
+    adb.pasteFromClipboard(String(value));
     adb.sleep(400);
+
+    // Verify field has correct value
+    const finalXml = adb.dumpUi();
+    const finalNode = adb.findByTestId(finalXml, testId);
+    const actualValue = finalNode?.text || finalNode?.hint || '';
+    if (actualValue !== value) {
+      log(`WARNING: Field value mismatch. Expected "${value}", got "${actualValue}"`);
+    }
 
     // Hide keyboard if requested
     if (hideKeyboardAfter) {
@@ -67,7 +89,7 @@ export function fillField(testId, value, options = {}) {
       adb.sleep(600);
     }
 
-    log(`Field filled successfully: ${testId}`);
+    log(`Field filled successfully: ${testId} = "${value}"`);
   } catch (error) {
     log(`Error filling field ${testId}: ${error.message}`);
     throw error;
