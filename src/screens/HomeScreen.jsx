@@ -207,10 +207,10 @@ const HomeScreen = () => {
           }}
         />
 
-        <View style={styles.visualCard} testID="photo-search-section">
-          <Text style={styles.sectionEyebrow}>Visual discovery</Text>
-          <Text style={styles.sectionTitle}>Match the look from one reference image.</Text>
-          <Text style={styles.sectionHint}>
+        <View style={[styles.visualCard, styles.visualCardReduced]} testID="photo-search-section">
+          <Text style={styles.sectionEyebrow}>Advanced discovery</Text>
+          <Text style={[styles.sectionTitle, styles.visualTitleSmall]}>Visual search (optional).</Text>
+          <Text style={[styles.sectionHint, styles.visualHintSmall]}>
             Bring a single product photo and ShopEase will match material, silhouette, and
             closest catalog items. Tip: Gallery - Pictures - ShopEaseTest (`npm run
             seed:emulator-photos`).
@@ -827,6 +827,17 @@ const styles = StyleSheet.create({
   errorMargin: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.md,
+  },
+  visualCardReduced: {
+    opacity: 0.9,
+    backgroundColor: "rgba(255, 250, 244, 0.7)",
+  },
+  visualTitleSmall: {
+    fontSize: 18,
+  },
+  visualHintSmall: {
+    fontSize: 12,
+    marginBottom: spacing.sm,
   },
 });
 
