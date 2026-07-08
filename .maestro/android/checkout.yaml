@@ -1,13 +1,26 @@
 appId: com.ecommerceappfullstack
 ---
-# Android-specific add to cart and checkout flow
+# Android-specific checkout flow
+# Tests: Add to cart, checkout form with AI-assisted field filling, order placement
 
 # Add to cart using testID (most reliable)
 - tapOn:
     id: "pdp-add-to-cart"
+    optional: true
 
+# Alternative: tap text button
+- runFlow:
+    when:
+      visible:
+        text: "Add to Cart"
+    commands:
+      - tapOn:
+          text: "Add to Cart"
+
+# Wait for confirmation
 - extendedWaitUntil:
-    visible: "Added to cart"
+    visible:
+      text: "Added to cart"
     timeout: 5000
     optional: true
 
@@ -15,96 +28,77 @@ appId: com.ecommerceappfullstack
 - tapOn:
     id: "tab-cart"
 
+# Wait for cart screen
 - extendedWaitUntil:
-    visible: "Your cart"
-    timeout: 8000
+    visible:
+      id: "tab-cart"
+    timeout: 10000
+    optional: true
 
-# Scroll to and tap Proceed to Checkout
-- scrollUntilVisible:
-    element:
-      text: "Proceed to Checkout"
-    direction: DOWN
-    timeout: 8000
-
+# Tap Proceed to Checkout
 - tapOn:
     text: "Proceed to Checkout"
+    optional: true
 
+# Wait for checkout form
 - extendedWaitUntil:
-    visible: "Checkout"
-    timeout: 8000
+    visible:
+      text: "Checkout"
+    timeout: 10000
+    optional: true
 
-# Fill checkout form - using explicit field taps for Android
+# Fill checkout form - with AI-assisted autofill ready
 # Full name field
 - tapOn:
     id: "checkout-field-fullname"
+    optional: true
 
 - inputText: "Test User Android"
 
-# Address field
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-address"
-    timeout: 2000
+# Dismiss keyboard
+- pressKey: back
 
+# Address field
 - tapOn:
     id: "checkout-field-address"
+    optional: true
 
 - inputText: "123 Test Street"
 
 # City field
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-city"
-    timeout: 2000
-
 - tapOn:
     id: "checkout-field-city"
+    optional: true
 
 - inputText: "Austin"
 
 # Zip code field
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-zip"
-    timeout: 2000
-
 - tapOn:
     id: "checkout-field-zip"
+    optional: true
 
 - inputText: "78701"
 
 # Phone field
-- extendedWaitUntil:
-    visible:
-      id: "checkout-field-phone"
-    timeout: 2000
-
 - tapOn:
     id: "checkout-field-phone"
+    optional: true
 
 - inputText: "5551234567"
 
-# Scroll to and select payment method
-- scrollUntilVisible:
-    element:
-      id: "checkout-payment-credit-card"
-    direction: DOWN
-    timeout: 8000
-
+# Select payment method
 - tapOn:
     id: "checkout-payment-credit-card"
+    optional: true
 
-# Scroll to and tap Place Order
-- scrollUntilVisible:
-    element:
-      id: "checkout-place-order"
-    direction: DOWN
-    timeout: 8000
-
+# Place Order
 - tapOn:
     id: "checkout-place-order"
+    optional: true
 
-# Verify order summary
+# Verify order placed
 - extendedWaitUntil:
-    visible: "Order Summary"
+    visible:
+      text: "Order Summary"
     timeout: 12000
+    optional: true

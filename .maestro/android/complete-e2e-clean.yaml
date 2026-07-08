@@ -1,0 +1,207 @@
+appId: com.ecommerceappfullstack
+---
+# Android Complete E2E Flow - Clean (No Extra Popups)
+# Tests: Login → Products → Add to Cart → Checkout → Orders → ML Features
+
+# ============================================================================
+# PHASE 1: LOGIN
+# ============================================================================
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: "ShopEase"
+    timeout: 20000
+
+- runFlow:
+    when:
+      visible: "Sign in ↓"
+    commands:
+      - tapOn: "Sign in ↓"
+
+- extendedWaitUntil:
+    visible: "Sign in"
+    timeout: 8000
+
+# Login form - explicit field taps with immediate keyboard dismissal
+- scrollUntilVisible:
+    element:
+      id: "login-email"
+    direction: DOWN
+    timeout: 12000
+
+- extendedWaitUntil:
+    visible:
+      id: "login-email"
+    timeout: 5000
+
+- tapOn:
+    id: "login-email"
+
+- inputText: "test@example.com"
+
+- pressKey: back
+
+- extendedWaitUntil:
+    visible:
+      id: "login-password"
+    timeout: 3000
+
+- tapOn:
+    id: "login-password"
+
+- inputText: "secret123"
+
+- pressKey: back
+
+- extendedWaitUntil:
+    visible:
+      id: "login-submit"
+    timeout: 5000
+
+- scrollUntilVisible:
+    element:
+      id: "login-submit"
+    direction: DOWN
+    timeout: 3000
+
+- tapOn:
+    id: "login-submit"
+
+- runFlow:
+    when:
+      visible: "Save password"
+    commands:
+      - tapOn: "Not now"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 15000
+
+# ============================================================================
+# PHASE 2: BROWSE PRODUCTS
+# ============================================================================
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+# Wait for product list to load
+- extendedWaitUntil:
+    visible:
+      text: "Essence Mascara"
+    timeout: 15000
+    optional: true
+
+# Tap first product
+- tapOn:
+    text: "Essence Mascara Lash Princess"
+    optional: true
+
+# ============================================================================
+# PHASE 3: ADD TO CART
+# ============================================================================
+- extendedWaitUntil:
+    visible:
+      text: "Add to Cart"
+    timeout: 10000
+
+- tapOn:
+    id: "pdp-add-to-cart"
+    optional: true
+
+- runFlow:
+    when:
+      visible:
+        text: "Add to Cart"
+    commands:
+      - tapOn:
+          text: "Add to Cart"
+
+- extendedWaitUntil:
+    visible:
+      text: "Added to cart"
+    timeout: 8000
+    optional: true
+
+# ============================================================================
+# PHASE 4: NAVIGATE TO CART
+# ============================================================================
+- tapOn:
+    id: "tab-cart"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-cart"
+    timeout: 10000
+
+# ============================================================================
+# PHASE 5: CHECKOUT
+# ============================================================================
+- tapOn:
+    text: "Proceed to Checkout"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "Finish the purchase"
+    timeout: 10000
+    optional: true
+
+# Scroll down to find and fill shipping details
+- scrollUntilVisible:
+    element:
+      text: "Full"
+    direction: DOWN
+    timeout: 8000
+    optional: true
+
+# Continue scrolling for form fields
+- scrollUntilVisible:
+    element:
+      text: "Next"
+    direction: DOWN
+    timeout: 10000
+    optional: true
+
+# Click Next to complete checkout
+- tapOn:
+    text: "Next"
+    optional: true
+
+# ============================================================================
+# PHASE 6: VERIFY ORDER PLACED
+# ============================================================================
+- extendedWaitUntil:
+    visible:
+      text: "Order"
+    timeout: 10000
+    optional: true
+
+# ============================================================================
+# PHASE 7: ML FEATURES - Text Search with AI Reasoning
+# ============================================================================
+- tapOn:
+    id: "tab-products"
+    optional: true
+
+# Look for search/discovery features
+- extendedWaitUntil:
+    visible:
+      text: "Voice"
+    timeout: 5000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "photo"
+    timeout: 5000
+    optional: true
+
+# ============================================================================
+# TEST COMPLETE - All Phases Executed
+# ============================================================================

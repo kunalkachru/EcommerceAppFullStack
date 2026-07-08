@@ -1,7 +1,7 @@
-appId: com.ecommerceappfullstack
+appId: org.reactjs.native.example.EcommerceAppFullStack
 ---
-# Android-specific login flow
-# Uses explicit field taps for proper form field isolation on Android
+# iOS-specific login flow
+# CRITICAL: iOS requires explicit keyboard dismissal between fields to prevent concatenation
 
 - launchApp:
     clearState: true
@@ -20,7 +20,7 @@ appId: com.ecommerceappfullstack
     visible: "Sign in"
     timeout: 8000
 
-# Android login - explicit field taps to avoid Tab key issues
+# iOS login - explicit field taps with AGGRESSIVE keyboard dismissal
 - scrollUntilVisible:
     element:
       id: "login-email"
@@ -37,6 +37,11 @@ appId: com.ecommerceappfullstack
 
 - inputText: "test@example.com"
 
+# iOS: Tap outside or use keyboard dismissal
+- tapOn:
+    text: "Sign in"
+    optional: true
+
 - extendedWaitUntil:
     visible:
       id: "login-password"
@@ -47,8 +52,10 @@ appId: com.ecommerceappfullstack
 
 - inputText: "secret123"
 
-# Dismiss keyboard before scrolling
-- pressKey: back
+# Dismiss keyboard on iOS
+- tapOn:
+    text: "Sign in"
+    optional: true
 
 - extendedWaitUntil:
     visible:
@@ -64,16 +71,15 @@ appId: com.ecommerceappfullstack
 - tapOn:
     id: "login-submit"
 
-# Dismiss save password prompt if it appears
+# Skip password save dialog
 - runFlow:
     when:
       visible: "Save password"
     commands:
       - tapOn: "Not now"
 
-# Wait for home screen - login is complete when sign in screen is gone
+# Verify login success
 - extendedWaitUntil:
     visible:
       id: "tab-home"
-    timeout: 10000
-    optional: true
+    timeout: 15000
