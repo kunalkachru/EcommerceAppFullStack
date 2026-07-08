@@ -28,36 +28,41 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
     direction: DOWN
 - tapOn: "Proceed to Checkout"
 
-# Fill checkout form using testIDs
+# Fill checkout form using testIDs — all fields use doubleTap + erase pattern
 - tapOn:
+    id: "checkout-field-fullname"
+- doubleTapOn:
     id: "checkout-field-fullname"
 - eraseText
 - inputText: "Demo User"
-# delay: 200
 
 - tapOn:
     id: "checkout-field-address"
+- doubleTapOn:
+    id: "checkout-field-address"
 - eraseText
 - inputText: "1 Demo Street"
-# delay: 200
 
 - tapOn:
     id: "checkout-field-city"
+- doubleTapOn:
+    id: "checkout-field-city"
 - eraseText
 - inputText: "Austin"
-# delay: 200
 
 - tapOn:
     id: "checkout-field-zipcode"
+- doubleTapOn:
+    id: "checkout-field-zipcode"
 - eraseText
 - inputText: "78701"
-# delay: 200
 
 - tapOn:
     id: "checkout-field-phone"
+- doubleTapOn:
+    id: "checkout-field-phone"
 - eraseText
 - inputText: "5551234567"
-# delay: 200
 # Select payment method using testID
 - scrollUntilVisible:
     element:
@@ -66,7 +71,6 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
     timeout: 8000
 - tapOn:
     id: "checkout-payment-credit-card"
-# delay: 300
 
 # Scroll to and tap place order button
 - scrollUntilVisible:
