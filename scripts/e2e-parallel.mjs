@@ -27,11 +27,13 @@ function parseArgs() {
   const hasIos = argv.includes('--ios');
   const verbose = argv.includes('--verbose');
 
-  // If neither flag is specified, run both (default behavior)
+  // If neither platform flag is specified, run both (default behavior)
   // If one or both flags are specified, honor them
+  const hasPlatformFlags = hasAndroid || hasIos;
+
   const flags = {
-    android: !hasIos || hasAndroid,  // Run if --android is specified OR if no platform flags given
-    ios: !hasAndroid || hasIos,      // Run if --ios is specified OR if no platform flags given
+    android: hasPlatformFlags ? hasAndroid : true,   // Run by default, or if --android specified
+    ios: hasPlatformFlags ? hasIos : true,           // Run by default, or if --ios specified
     verbose,
   };
 
