@@ -31,27 +31,27 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
 # Fill checkout form using testIDs — all fields use tap + clear + input pattern (safer for iOS)
 - tapOn:
     id: "checkout-field-fullname"
-- clearText
+- eraseText
 - inputText: "Demo User"
 
 - tapOn:
     id: "checkout-field-address"
-- clearText
+- eraseText
 - inputText: "1 Demo Street"
 
 - tapOn:
     id: "checkout-field-city"
-- clearText
+- eraseText
 - inputText: "Austin"
 
 - tapOn:
     id: "checkout-field-zipcode"
-- clearText
+- eraseText
 - inputText: "78701"
 
 - tapOn:
     id: "checkout-field-phone"
-- clearText
+- eraseText
 - inputText: "5551234567"
 # Select payment method using testID
 - scrollUntilVisible:

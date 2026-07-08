@@ -12,12 +12,12 @@ appId: ${APP_ID}
     timeout: 5000
 - tapOn:
     id: "login-email"
-- clearText
+- eraseText
 - inputText: "test@example.com"
 
 - tapOn:
     id: "login-password"
-- clearText
+- eraseText
 - inputText: "secret123"
 - scrollUntilVisible:
     element:
