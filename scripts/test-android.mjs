@@ -21,13 +21,22 @@ console.log(`  Device: ${DEVICE}`);
 console.log(`  Package: ${PACKAGE}\n`);
 
 try {
-  // Check device (with timeout)
-  execSync(`timeout 5 ${ADB} devices 2>/dev/null | grep ${DEVICE}`, {stdio: "pipe"});
-  console.log("✓ Device connected");
+  // Check device
+  const devices = execSync(`${ADB} devices 2>/dev/null`, {encoding: "utf8", stdio: ["pipe", "pipe", "ignore"]});
+  if (devices.includes(DEVICE)) {
+    console.log("✓ Device connected");
+  } else {
+    throw new Error("Device not found");
+  }
 
   // Launch app directly
-  execSync(`timeout 10 ${ADB} -s ${DEVICE} shell pm clear ${PACKAGE} 2>/dev/null || true`, {stdio: "ignore"});
-  execSync(`timeout 10 ${ADB} -s ${DEVICE} shell am start -n ${PACKAGE}/.MainActivity 2>/dev/null || true`, {stdio: "ignore"});
+  try {
+    execSync(`${ADB} -s ${DEVICE} shell pm clear ${PACKAGE}`, {stdio: "ignore"});
+  } catch {
+    // App may not be installed yet
+  }
+
+  execSync(`${ADB} -s ${DEVICE} shell am start ${PACKAGE}/.MainActivity`, {stdio: "ignore"});
   console.log("✓ App launched successfully");
 
   // Check env
