@@ -5,7 +5,8 @@ require Pod::Executable.execute_command('node', ['-p',
     {paths: [process.argv[1]]},
   )', __dir__]).strip
 
-platform :ios, min_ios_version_supported
+min_ios_version = '15.1'
+platform :ios, min_ios_version
 prepare_react_native_project!
 
 linkage = ENV['USE_FRAMEWORKS']
@@ -31,5 +32,12 @@ target 'EcommerceAppFullStack' do
       :mac_catalyst_enabled => false,
       # :ccache_enabled => true
     )
+
+    # Fix deployment target for all pods to match minimum iOS version (15.1+)
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version
+      end
+    end
   end
 end
