@@ -28,40 +28,25 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
     direction: DOWN
 - tapOn: "Proceed to Checkout"
 
-# Fill checkout form using testIDs — proper field selection with doubleTap
+# Fill checkout form using testIDs — simple tap and input pattern
 - tapOn:
     id: "checkout-field-fullname"
-- doubleTapOn:
-    id: "checkout-field-fullname"
-- eraseText
 - inputText: "Demo User"
 
 - tapOn:
     id: "checkout-field-address"
-- doubleTapOn:
-    id: "checkout-field-address"
-- eraseText
 - inputText: "1 Demo Street"
 
 - tapOn:
     id: "checkout-field-city"
-- doubleTapOn:
-    id: "checkout-field-city"
-- eraseText
 - inputText: "Austin"
 
 - tapOn:
     id: "checkout-field-zipcode"
-- doubleTapOn:
-    id: "checkout-field-zipcode"
-- eraseText
 - inputText: "78701"
 
 - tapOn:
     id: "checkout-field-phone"
-- doubleTapOn:
-    id: "checkout-field-phone"
-- eraseText
 - inputText: "5551234567"
 # Select payment method using testID
 - scrollUntilVisible:
