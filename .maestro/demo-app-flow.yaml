@@ -28,22 +28,54 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
     direction: DOWN
 - tapOn: "Proceed to Checkout"
 
-- tapOn: "Full Name"
+# Fill checkout form using testIDs
+- tapOn:
+    id: "checkout-field-fullname"
+- eraseText
 - inputText: "Demo User"
-- tapOn: "Address"
+# delay: 200
+
+- tapOn:
+    id: "checkout-field-address"
+- eraseText
 - inputText: "1 Demo Street"
-- tapOn: "City"
+# delay: 200
+
+- tapOn:
+    id: "checkout-field-city"
+- eraseText
 - inputText: "Austin"
-- tapOn: "Zip Code"
+# delay: 200
+
+- tapOn:
+    id: "checkout-field-zipcode"
+- eraseText
 - inputText: "78701"
-- tapOn: "Phone Number"
+# delay: 200
+
+- tapOn:
+    id: "checkout-field-phone"
+- eraseText
 - inputText: "5551234567"
-- tapOn: "💳 Credit Card"
-- tapOn: "Order Summary"
+# delay: 200
+# Select payment method using testID
 - scrollUntilVisible:
-    element: "Place Order"
+    element:
+      id: "checkout-payment-credit-card"
     direction: DOWN
-- tapOn: "Place Order"
+    timeout: 8000
+- tapOn:
+    id: "checkout-payment-credit-card"
+# delay: 300
+
+# Scroll to and tap place order button
+- scrollUntilVisible:
+    element:
+      id: "checkout-place-order"
+    direction: DOWN
+    timeout: 8000
+- tapOn:
+    id: "checkout-place-order"
 - extendedWaitUntil:
     visible: "Order Summary"
     timeout: 12000

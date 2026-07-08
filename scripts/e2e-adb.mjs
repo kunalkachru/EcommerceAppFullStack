@@ -172,7 +172,17 @@ export function hideKeyboard() {
 }
 
 export function clearField() {
-  for (let i = 0; i < 60; i++) pressKey(67);
+  // Select all (CTRL+A) then delete for better clearing
+  try {
+    adb("shell input keycombination 113 29");
+    sleep(50);
+  } catch {
+    // fallback
+  }
+  // Press delete key multiple times to ensure clearing
+  for (let i = 0; i < 60; i++) {
+    pressKey(67);  // KEYCODE_DEL = 67
+  }
   sleep(100);
 }
 
@@ -215,16 +225,34 @@ export function fillTestId(
   value,
   { timeoutMs = 8000, hideKeyboardAfter = false } = {}
 ) {
+  // Tap the field to focus it
   tapTestId(testId, { timeoutMs });
-  sleep(400);
+  sleep(500);
+
+  // Ensure field is focused by tapping again
+  const xml = dumpUi();
+  const node = findByTestId(xml, testId);
+  if (node) {
+    tap(node.center.x, node.center.y);
+    sleep(200);
+  }
+
+  // Select all existing text
   selectAllInField();
-  clearField();
   sleep(150);
+
+  // Clear the field thoroughly
+  clearField();
+  sleep(200);
+
+  // Input the new value
   inputText(String(value));
-  sleep(300);
+  sleep(400);
+
+  // Hide keyboard if requested
   if (hideKeyboardAfter) {
     hideKeyboard();
-    sleep(400);
+    sleep(600);
   }
 }
 
@@ -435,8 +463,13 @@ export async function loginIfNeeded({
   if (scrollBtn?.center) tap(scrollBtn.center.x, scrollBtn.center.y);
   sleep(1200);
 
-  fillTestId("login-email", email);
+  // Fill email field and hide keyboard
+  fillTestId("login-email", email, { hideKeyboardAfter: true });
+  sleep(800);
+
+  // Fill password field and hide keyboard
   fillTestId("login-password", password, { hideKeyboardAfter: true });
+  sleep(800);
 
   const beforeSubmit = dumpUi();
   const emailVal = readFieldTextByTestId(beforeSubmit, "login-email");

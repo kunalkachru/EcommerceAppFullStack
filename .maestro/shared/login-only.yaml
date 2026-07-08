@@ -12,14 +12,17 @@ appId: ${APP_ID}
     timeout: 5000
 - tapOn:
     id: "login-email"
+- doubleTapOn:
+    id: "login-email"
 - eraseText
 - inputText: "test@example.com"
-- hideKeyboard
+
 - tapOn:
+    id: "login-password"
+- doubleTapOn:
     id: "login-password"
 - eraseText
 - inputText: "secret123"
-- hideKeyboard
 - scrollUntilVisible:
     element:
       id: "login-submit"
