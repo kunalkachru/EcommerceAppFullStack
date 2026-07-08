@@ -47,6 +47,7 @@
     "verify:e2e-all": "node scripts/run-e2e-all.mjs",
     "verify:e2e-all:android": "node scripts/run-e2e-all.mjs --android-only",
     "verify:e2e-all:ios": "node scripts/run-e2e-all.mjs --ios-only",
+    "e2e:parallel": "node scripts/e2e-parallel.mjs",
     "record:demo:android": "node scripts/record-demo-android.mjs",
     "record:demo:ios": "node scripts/record-demo-ios.mjs",
     "build:demo:videos": "bash scripts/build-demo-videos-from-e2e.sh",
