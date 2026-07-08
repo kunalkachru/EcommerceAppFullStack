@@ -26,6 +26,7 @@ import {
   LuxuryLoadingState,
   LuxurySuccessConfirmation,
 } from "../components/LuxuryStateIndicators";
+import LuxuryTextInput from "../components/LuxuryTextInput";
 
 const PAYMENT_OPTIONS = [
   { id: "Credit Card", label: "Credit Card", hint: "Fastest for a smooth checkout finish" },
@@ -161,44 +162,39 @@ const CheckoutScreen = ({ navigation }) => {
 
         <LuxurySectionCard eyebrow="Shipping" title="Delivery details" style={styles.sectionCard}>
           <View style={styles.form}>
-            <TextInput
+            <LuxuryTextInput
               testID="checkout-field-fullname"
-              style={styles.input}
-              placeholder="Full Name"
-              placeholderTextColor={colors.textSoft}
+              label="Full Name"
+              placeholder="Enter your full name"
               value={shippingInfo.name}
               onChangeText={(text) => updateField("name", text)}
             />
-            <TextInput
+            <LuxuryTextInput
               testID="checkout-field-address"
-              style={styles.input}
-              placeholder="Address"
-              placeholderTextColor={colors.textSoft}
+              label="Address"
+              placeholder="Enter your street address"
               value={shippingInfo.address}
               onChangeText={(text) => updateField("address", text)}
             />
-            <TextInput
+            <LuxuryTextInput
               testID="checkout-field-city"
-              style={styles.input}
-              placeholder="City"
-              placeholderTextColor={colors.textSoft}
+              label="City"
+              placeholder="Enter your city"
               value={shippingInfo.city}
               onChangeText={(text) => updateField("city", text)}
             />
-            <TextInput
+            <LuxuryTextInput
               testID="checkout-field-zipcode"
-              style={styles.input}
-              placeholder="Zip Code"
-              placeholderTextColor={colors.textSoft}
+              label="Zip Code"
+              placeholder="Enter your zip code"
               keyboardType="numeric"
               value={shippingInfo.zipCode}
               onChangeText={(text) => updateField("zipCode", text)}
             />
-            <TextInput
+            <LuxuryTextInput
               testID="checkout-field-phone"
-              style={styles.input}
-              placeholder="Phone Number"
-              placeholderTextColor={colors.textSoft}
+              label="Phone Number"
+              placeholder="Enter your phone number"
               keyboardType="phone-pad"
               returnKeyType="done"
               blurOnSubmit
