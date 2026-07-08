@@ -21,6 +21,7 @@ import {
 import CategoryFilterBar from "../components/CategoryFilterBar";
 import VisualSearchCategoryPrompt from "../components/VisualSearchCategoryPrompt";
 import VoiceSearchCard from "../components/VoiceSearchCard";
+import { LuxuryErrorBanner, LuxuryLoadingState } from "../components/LuxuryStateIndicators";
 import { pickPhotoAsset } from "../utils/photoPicker";
 import { storePromos } from "../data/promos";
 import {
@@ -242,20 +243,22 @@ const HomeScreen = () => {
         </View>
 
         {searchError ? (
-          <View style={[styles.resultBanner, styles.resultBannerError]}>
-            <Text style={styles.resultTitle}>Search unavailable</Text>
-            <Text style={styles.resultMessage}>{searchError}</Text>
-          </View>
+          <LuxuryErrorBanner
+            title="Visual Search Unavailable"
+            message={searchError}
+            onRetry={() => {
+              setSearchError(null);
+              if (selectedVisualAsset) runVisualSearch(selectedVisualAsset);
+            }}
+            style={styles.errorMargin}
+          />
         ) : null}
 
         {previewUri ? (
           <View style={styles.previewWrap}>
             <Image source={{ uri: previewUri }} style={styles.preview} resizeMode="cover" />
             {analyzing ? (
-              <View style={styles.analyzingOverlay}>
-                <ActivityIndicator color="#fff" size="large" />
-                <Text style={styles.analyzingText}>CLIP analysis…</Text>
-              </View>
+              <LuxuryLoadingState label="Analyzing photo..." />
             ) : null}
           </View>
         ) : null}
@@ -820,6 +823,10 @@ const styles = StyleSheet.create({
     color: colors.textMuted,
     marginTop: 4,
     lineHeight: 18,
+  },
+  errorMargin: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
   },
 });
 
