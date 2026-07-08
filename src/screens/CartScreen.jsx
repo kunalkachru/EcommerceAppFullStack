@@ -28,6 +28,11 @@ import {
   LuxuryMetricCard,
   LuxurySectionCard,
 } from "../components/LuxuryPrimitives";
+import {
+  LuxuryErrorBanner,
+  LuxuryLoadingState,
+  LuxuryEmptyState,
+} from "../components/LuxuryStateIndicators";
 
 const CartScreen = ({ navigation }) => {
   const { cartItems = [], loading, error } = useSelector((state) => state.cart);
@@ -156,24 +161,16 @@ const CartScreen = ({ navigation }) => {
             </View>
 
             {errorMessage ? (
-              <View style={styles.errorBanner}>
-                <Text style={styles.errorText}>
-                  {errorMessage}
-                  {isAuthError ? " Please log in again to refresh your cart." : ""}
-                </Text>
-                {!isAuthError ? (
-                  <TouchableOpacity
-                    style={styles.retryButton}
-                    onPress={() => dispatch(fetchCart())}
-                  >
-                    <Text style={styles.retryText}>Retry</Text>
-                  </TouchableOpacity>
-                ) : null}
-              </View>
+              <LuxuryErrorBanner
+                title="Cart Error"
+                message={errorMessage + (isAuthError ? " Please log in again to refresh your cart." : "")}
+                onRetry={!isAuthError ? () => dispatch(fetchCart()) : undefined}
+                style={styles.errorMargin}
+              />
             ) : null}
 
             {loading && cartItems.length > 0 ? (
-              <ActivityIndicator style={styles.inlineLoader} color={colors.accent} />
+              <LuxuryLoadingState label="Updating cart..." />
             ) : null}
           </View>
         }
@@ -405,6 +402,10 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 16,
     fontWeight: "700",
+  },
+  errorMargin: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
   },
 });
 

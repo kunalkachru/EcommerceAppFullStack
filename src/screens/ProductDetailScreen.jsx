@@ -12,6 +12,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import SimilarProductsStrip from "../components/SimilarProductsStrip";
+import { LuxuryErrorBanner, LuxuryLoadingState, LuxurySuccessConfirmation } from "../components/LuxuryStateIndicators";
 import { fetchSimilarProducts } from "../services/visualSearchService";
 import { colors, radius, shadows, spacing, typography } from "../theme/tokens";
 
@@ -50,6 +51,8 @@ const ProductDetailScreen = ({ route }) => {
   const [similar, setSimilar] = useState([]);
   const [similarLoading, setSimilarLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [addError, setAddError] = useState(null);
+  const [addSuccess, setAddSuccess] = useState(false);
   const productImages = useMemo(() => {
     const raw = Array.isArray(product.images) ? product.images : [];
     const merged = [...new Set([...raw, product.image].filter(Boolean))];
@@ -131,8 +134,11 @@ const ProductDetailScreen = ({ route }) => {
     }
     try {
       setAdding(true);
+      setAddError(null);
+      setAddSuccess(false);
       await dispatch(addToCart(product)).unwrap();
-      Alert.alert("Added to cart", "This item is now in your cart.");
+      setAddSuccess(true);
+      setTimeout(() => setAddSuccess(false), 2000);
     } catch (err) {
       let message = "Failed to add item to cart.";
       if (err && typeof err === "object") {
@@ -144,7 +150,7 @@ const ProductDetailScreen = ({ route }) => {
       } else if (typeof err === "string") {
         message = err;
       }
-      Alert.alert("Could not add to cart", message);
+      setAddError(message);
     } finally {
       setAdding(false);
     }
@@ -231,6 +237,23 @@ const ProductDetailScreen = ({ route }) => {
           </TouchableOpacity>
         </View>
       </View>
+
+      {addError && (
+        <LuxuryErrorBanner
+          title="Could not add to cart"
+          message={addError}
+          onRetry={handleAddToCart}
+          style={styles.stateMargin}
+        />
+      )}
+
+      {addSuccess && (
+        <LuxurySuccessConfirmation
+          title="Added to cart"
+          message="Item is now in your cart"
+          style={styles.stateMargin}
+        />
+      )}
 
       <View style={styles.signalGrid}>
         {shoppingSignals.map((signal) => (
@@ -447,6 +470,10 @@ const styles = StyleSheet.create({
     color: colors.accent,
     fontWeight: "700",
     marginTop: spacing.sm,
+  },
+  stateMargin: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
   },
 });
 

@@ -16,6 +16,7 @@ import RNPickerSelect from "react-native-picker-select";
 import Slider from "@react-native-community/slider";
 import CategoryFilterBar from "../components/CategoryFilterBar";
 import VisualSearchCategoryPrompt from "../components/VisualSearchCategoryPrompt";
+import { LuxuryErrorBanner, LuxuryLoadingState, LuxuryEmptyState } from "../components/LuxuryStateIndicators";
 import { useCatalogProducts, getTopCategories } from "../redux/api/catalogApi";
 import { addToCart } from "../redux/cartSlice";
 import { analyzeImageForProducts } from "../services/visualSearchService";
@@ -339,12 +340,12 @@ const ProductListScreen = ({ navigation }) => {
           </View>
         ) : null}
         {error && !isOfflineFallback ? (
-          <View style={styles.banner}>
-            <Text style={styles.bannerText}>Could not load products.</Text>
-            <TouchableOpacity onPress={refetch}>
-              <Text style={styles.bannerLink}>Retry</Text>
-            </TouchableOpacity>
-          </View>
+          <LuxuryErrorBanner
+            title="Failed to Load Products"
+            message={typeof error === 'string' ? error : error.message || 'Could not load products.'}
+            onRetry={refetch}
+            style={styles.errorMargin}
+          />
         ) : null}
 
         <Text style={styles.catalogCount} accessibilityRole="header">
@@ -493,8 +494,7 @@ const ProductListScreen = ({ navigation }) => {
   if (isLoading) {
     return (
       <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#007BFF" />
-        <Text style={styles.statusText}>Loading catalog…</Text>
+        <LuxuryLoadingState label="Loading products..." />
       </View>
     );
   }
@@ -738,6 +738,10 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 14,
     fontWeight: "600",
+  },
+  errorMargin: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
   },
 });
 
