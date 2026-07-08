@@ -2,10 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
@@ -14,6 +12,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../redux/authSlice";
 import PromoCarousel from "../components/PromoCarousel";
 import FeaturedProductsStrip from "../components/FeaturedProductsStrip";
+import LuxuryTextInput from "../components/LuxuryTextInput";
+import { LuxuryErrorBanner, LuxuryLoadingState } from "../components/LuxuryStateIndicators";
 import { storeUpdates } from "../data/promos";
 import { colors, radius, shadows, spacing, typography } from "../theme/tokens";
 
@@ -106,38 +106,36 @@ const LoginScreen = ({ navigation }) => {
             Demo account: test@example.com / secret123
           </Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor={colors.textSoft}
+          <LuxuryTextInput
+            label="Email"
+            placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
             autoComplete="off"
             textContentType="none"
             importantForAutofill="no"
-            accessibilityLabel="Email"
             testID="login-email"
             value={email}
             onChangeText={setEmail}
           />
 
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor={colors.textSoft}
+          <LuxuryTextInput
+            label="Password"
+            placeholder="Enter your password"
             secureTextEntry
             autoComplete="off"
             textContentType="oneTimeCode"
             importantForAutofill="no"
-            accessibilityLabel="Password"
             testID="login-password"
             value={password}
             onChangeText={setPassword}
           />
 
-          {loading ? (
-            <ActivityIndicator size="large" color={colors.accentStrong} style={styles.loader} />
-          ) : (
+          {loading && (
+            <LuxuryLoadingState label="Signing in..." />
+          )}
+
+          {!loading && (
             <TouchableOpacity
               style={styles.button}
               onPress={handleLogin}
@@ -148,7 +146,13 @@ const LoginScreen = ({ navigation }) => {
             </TouchableOpacity>
           )}
 
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {error && (
+            <LuxuryErrorBanner
+              title="Login Failed"
+              message={error}
+              style={styles.errorMargin}
+            />
+          )}
 
           <TouchableOpacity
             onPress={() => navigation.navigate("Signup")}
@@ -387,6 +391,10 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     textAlign: "center",
     lineHeight: 20,
+  },
+  errorMargin: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
   },
 });
 

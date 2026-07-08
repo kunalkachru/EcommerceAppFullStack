@@ -2,17 +2,16 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
-  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Alert,
 } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../redux/authSlice";
+import LuxuryTextInput from "../components/LuxuryTextInput";
+import { LuxuryErrorBanner, LuxuryLoadingState } from "../components/LuxuryStateIndicators";
 import { colors, radius, shadows, spacing, typography } from "../theme/tokens";
 
 const SignupScreen = ({ navigation }) => {
@@ -22,12 +21,14 @@ const SignupScreen = ({ navigation }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [validationError, setValidationError] = useState(null);
 
   const handleSignup = () => {
     if (!name || !email || !password) {
-      Alert.alert("Missing details", "Please fill in all fields.");
+      setValidationError("Please fill in all fields.");
       return;
     }
+    setValidationError(null);
     dispatch(registerUser({ name, email, password }));
   };
 
@@ -72,46 +73,57 @@ const SignupScreen = ({ navigation }) => {
             Use any email for local development. The flow drops you straight into the live app.
           </Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Full Name"
-            placeholderTextColor={colors.textSoft}
+          <LuxuryTextInput
+            label="Full Name"
+            placeholder="Enter your full name"
             value={name}
             onChangeText={setName}
           />
 
-          <TextInput
-            style={styles.input}
-            placeholder="Email"
-            placeholderTextColor={colors.textSoft}
+          <LuxuryTextInput
+            label="Email"
+            placeholder="Enter your email"
             keyboardType="email-address"
             autoCapitalize="none"
             value={email}
             onChangeText={setEmail}
           />
 
-          <TextInput
-            style={styles.input}
-            placeholder="Password"
-            placeholderTextColor={colors.textSoft}
+          <LuxuryTextInput
+            label="Password"
+            placeholder="Enter your password"
             secureTextEntry
             value={password}
             onChangeText={setPassword}
           />
 
-          {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          {validationError && (
+            <LuxuryErrorBanner
+              title="Validation Error"
+              message={validationError}
+              style={styles.errorMargin}
+            />
+          )}
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.disabledButton]}
-            onPress={handleSignup}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color={colors.white} />
-            ) : (
+          {error && (
+            <LuxuryErrorBanner
+              title="Signup Failed"
+              message={error}
+              style={styles.errorMargin}
+            />
+          )}
+
+          {loading ? (
+            <LuxuryLoadingState label="Creating account..." />
+          ) : (
+            <TouchableOpacity
+              style={styles.button}
+              onPress={handleSignup}
+              disabled={loading}
+            >
               <Text style={styles.buttonText}>Create account</Text>
-            )}
-          </TouchableOpacity>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity
             testID="signup-login-link"
@@ -270,6 +282,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     lineHeight: 20,
     marginBottom: spacing.xs,
+  },
+  errorMargin: {
+    marginHorizontal: spacing.lg,
+    marginBottom: spacing.md,
   },
 });
 
