@@ -1,30 +1,35 @@
-# E2E Test Framework Refactor + Comprehensive Automation Dashboard Design
+# E2E Test Framework Refactor Design — Phase 1: Core Automation Scripts
 
 **Date:** 2026-07-08  
-**Goal:** Build a complete E2E automation suite covering all functionality and ML features, with 100% consistent pass rate on both platforms, real-time dashboard monitoring, and parallel video recording of automation.
+**Goal (Phase 1):** Fix automation script issues on both platforms and achieve 100% consistent pass rate with a single CLI command to run tests in parallel.
+
+**Scope:** Phase 1 focuses on fixing the core issues occurring today. Comprehensive test expansion and dashboard/monitoring features are Phase 2+ work.
 
 **Architecture:** 
 1. **Shared test action library** (`scripts/lib/e2e-test-actions.mjs`) — abstracts field operations, interactions, verification, error recovery for both platforms
-2. **Comprehensive test suites** — expand current tests to cover all flows, ML features (visual/voice search, LLM), and edge cases
-3. **Real-time dashboard** (`scripts/e2e-dashboard/`) — web UI showing test progress, results, and metrics in real-time
-4. **Parallel video recording** — simultaneous capture of Android emulator + iOS simulator during test runs
-5. **CLI orchestration** (`npm run e2e:complete`) — triggers parallel test execution on both platforms with dashboard monitoring
+2. **Refactored Android scripts** — fix fillTestId(), keyboard management, timing issues
+3. **Refactored iOS/Maestro scripts** — remove hideKeyboard, standardize selectors, fix crashes
+4. **Simple CLI orchestration** (`npm run e2e:parallel`) — runs both platform tests simultaneously with basic output
 
-**Tech Stack:** Node.js, Maestro, Android ADB, Express.js (dashboard), FFmpeg (video recording), Socket.io (real-time updates)
+**Tech Stack:** Node.js, Maestro, Android ADB
+
+**Future Phases (Phase 2+):**
+- Comprehensive test coverage expansion (ML features, edge cases)
+- Real-time dashboard with video monitoring
+- Advanced reporting and artifacts
 
 ---
 
-## Global Constraints
+## Global Constraints (Phase 1)
 
 - Test scripts must use only testID-based selectors where stable IDs exist (no text-based selectors for form fields)
 - iOS Maestro flows must NOT use hideKeyboard command (incompatible with React Native custom TextInput)
 - Android fillTestId() must hide keyboard AFTER each field to prevent focus bleed
 - All tests must include field value verification BEFORE submission
 - Error messages must include UI context (screenshot or XML dump) for debugging
-- Comprehensive test suite must cover: core flows (login, checkout), ML features (visual search, voice search, LLM), edge cases, error states
-- Real-time dashboard must show: test progress, individual results, video feeds, metrics
-- Parallel execution: Both platforms run simultaneously with independent video recording
-- CLI must be single command: `npm run e2e:complete` with optional platform filter (--android, --ios, or both)
+- CLI entry point: `npm run e2e:parallel` runs both platforms simultaneously
+- Phase 1 scope: Fix existing tests (13 Android + 12 iOS) to 100% pass rate
+- No app code changes — only test script improvements
 
 ---
 
@@ -416,294 +421,160 @@ if (testsFailing) {
 
 ---
 
-## Part 5: Comprehensive Test Coverage
+## Part 5: Phase 1 CLI Orchestration
 
-**Expand test suite from 13+12 tests to comprehensive coverage:**
+**File:** `scripts/e2e-parallel.mjs` (NEW entry point)
 
-### Core Flows (Infrastructure)
-1. API health check ✓ (existing)
-2. Authentication (login/logout) ✓ (existing)
-3. Credentials validation ✓ (existing)
-4. Cart operations (add/remove/clear) ✓ (existing)
-
-### ML Features (NEW)
-5. **Visual Search Flow**
-   - Upload photo → verify CLIP index search → verify results
-   - Verify visual search category filter works
-   
-6. **Voice Search Flow**
-   - Trigger voice input → verify voice query parser
-   - Verify LLM reasoning on voice queries
-   
-7. **LLM Reasoning** (currently 6 tests, expand to 10+)
-   - Text queries (conversational, ambiguous, technical)
-   - Voice queries (natural language)
-   - Photo queries (CLIP similarity)
-   - Verify reasoning chain and confidence scores
-
-### Commerce Flows (Expand existing)
-8. **Product Discovery**
-   - Browse all products
-   - Search by text
-   - Filter by category, price, rating
-   - Verify consolidation UI works
-   
-9. **Checkout & Orders**
-   - Add product to cart
-   - Apply filters
-   - Proceed to checkout
-   - Fill all form fields
-   - Select payment method
-   - Place order
-   - View order summary
-
-### Edge Cases & Error States (NEW)
-10. **Error Handling**
-    - Invalid email on login
-    - Wrong password
-    - Network error recovery
-    - Form validation errors
-    - Empty cart checkout
-
-11. **State Persistence**
-    - Cart persists after logout/login
-    - Filters persist across navigation
-    - LLM context maintained across queries
-
-### Summary
-- **Current:** 13 Android + 12 iOS = 25 total tests
-- **Target:** 50+ Android + 50+ iOS = 100+ total comprehensive tests
-- **ML Coverage:** 15+ tests covering visual, voice, LLM features
-- **Pass Rate:** 100% on all tests, all platforms, consistently
-
----
-
-## Part 6: Real-Time Dashboard & Monitoring
-
-**File:** `scripts/e2e-dashboard/` (NEW directory)
-
-**Purpose:** Web-based UI showing test execution in real-time with video feeds, progress, and results.
-
-### Dashboard Components
-
-**1. Test Orchestrator (Node.js backend)**
-- File: `scripts/e2e-orchestrator.mjs`
-- Launches both Android and iOS test runners in parallel
-- Collects results from both platforms
-- Streams real-time updates to dashboard via Socket.io
-- Manages video recording start/stop
-- Handles test cleanup and reporting
-
-**2. Dashboard Server (Express.js)**
-- File: `scripts/e2e-dashboard/server.js`
-- Serves web UI on `http://localhost:3000`
-- WebSocket endpoint for real-time updates
-- API endpoints for test results, metrics, logs
-- Static file serving for videos after test completion
-
-**3. Dashboard UI (React)**
-- File: `scripts/e2e-dashboard/ui/`
-- **Left panel:** Test progress (current test, pass/fail count, timeline)
-- **Center:** Parallel video feeds (Android left, iOS right)
-- **Right panel:** Real-time logs, error messages, metrics
-- **Bottom:** Overall summary (pass rate, duration, coverage)
-
-**Dashboard updates in real-time:**
-```json
-{
-  "timestamp": "2026-07-08T14:30:45Z",
-  "platform": "android",
-  "test": "ml-voice-search",
-  "status": "running",
-  "progress": 45,
-  "passCount": 18,
-  "failCount": 0,
-  "logs": ["Triggering voice input...", "LLM reasoning..."],
-  "screenshot": "base64-encoded-or-url"
-}
-```
-
-### Video Recording Integration
-
-Both platforms record simultaneously:
-
-**Android:**
-- Tool: `adb exec-out screenrecord` or FFmpeg
-- Output: `docs/e2e/videos/android-{timestamp}.mp4`
-- Real-time feed to dashboard via streaming
-
-**iOS:**
-- Tool: Maestro built-in recording or FFmpeg
-- Output: `docs/e2e/videos/ios-{timestamp}.mp4`
-- Real-time feed to dashboard via streaming
-
-**Parallel display:**
-- Dashboard shows both videos side-by-side at 30fps
-- Synced to same timeline (both start at 00:00)
-- User can pause/play/seek either video
-
----
-
-## Part 7: CLI Orchestration
-
-**File:** `scripts/e2e-complete.mjs` (NEW entry point)
-
-**Command:** `npm run e2e:complete` or `npm run e2e:complete -- --android` or `npm run e2e:complete -- --ios`
+**Command:** `npm run e2e:parallel` or `npm run e2e:parallel -- --android` or `npm run e2e:parallel -- --ios`
 
 **Workflow:**
 
 ```bash
-# Run on both platforms (default)
-npm run e2e:complete
+# Run both platforms in parallel (default)
+npm run e2e:parallel
 
-# Run on Android only
-npm run e2e:complete -- --android
+# Run Android only
+npm run e2e:parallel -- --android
 
-# Run on iOS only
-npm run e2e:complete -- --ios
+# Run iOS only
+npm run e2e:parallel -- --ios
 
 # Run with verbose logging
-npm run e2e:complete -- --verbose
-
-# Run subset of tests
-npm run e2e:complete -- --tags ml-features
+npm run e2e:parallel -- --verbose
 ```
 
 **What happens:**
 
-1. **Startup phase (30 seconds)**
+1. **Startup (10 seconds)**
    - Kill any existing test processes
-   - Launch emulator/simulator if not running
-   - Start dashboard server on http://localhost:3000
-   - Start video recording on both platforms
+   - Verify emulator/simulator are running
+   - Log starting conditions
 
-2. **Execution phase (5-10 minutes)**
-   - Run comprehensive test suite in parallel
-   - Dashboard updates in real-time
-   - User watches both platforms executing tests simultaneously
-   - Videos stream to browser
+2. **Parallel Execution (3-5 minutes)**
+   - Launch Android test runner in subprocess
+   - Launch iOS test runner in subprocess
+   - Both run simultaneously
+   - Capture output and results from each
 
-3. **Completion phase (1 minute)**
-   - Finalize video files
-   - Generate test report (pass/fail by category)
-   - Display summary in dashboard
-   - Save all artifacts to `docs/e2e/`
+3. **Completion (30 seconds)**
+   - Wait for both to finish
+   - Aggregate results
+   - Print summary: PASS/FAIL counts per platform
+   - Exit with status 0 (all pass) or 1 (any fail)
 
-**Output artifacts:**
-- `docs/e2e/results-{timestamp}.json` — detailed test results
-- `docs/e2e/report-{timestamp}.html` — HTML report with pass rates by category
-- `docs/e2e/videos/android-{timestamp}.mp4` — Android test video
-- `docs/e2e/videos/ios-{timestamp}.mp4` — iOS test video
-- `docs/e2e/screenshots/` — failure screenshots with annotations
-
----
-
-## Part 8: Test Coverage & Success Criteria
-
-**Current state:**
-- Android: 13 tests (62% pass rate)
-- iOS: 12 tests (83% pass rate)
-- ML coverage: 6 basic LLM tests
-
-**Target state after refactor:**
-- Android: 50+ tests (100% pass rate)
-- iOS: 50+ tests (100% pass rate)
-- ML coverage: 15+ tests (visual, voice, LLM)
-- Dashboard: Real-time monitoring with parallel video
-- CLI: Single command orchestration
-
-**Verification steps:**
-1. Run `npm run e2e:complete` → dashboard opens at http://localhost:3000
-2. Watch both platforms execute tests in real-time
-3. Both video feeds display live (or near-live with 2-3s latency)
-4. Dashboard shows progress: passing tests count increasing
-5. Final report shows:
-   - ✅ Android: 50+/50+ PASS
-   - ✅ iOS: 50+/50+ PASS
-   - ✅ ML Features: 15/15 PASS
-   - ✅ Core Flows: 10/10 PASS
-   - ✅ Edge Cases: 10/10 PASS
-6. Videos available for review in docs/e2e/videos/
+**Output:**
+```
+[e2e-parallel] Starting tests on both platforms...
+[android] Running 13 tests...
+[ios] Running 12 tests...
+[android] ✅ Test 1/13: api-health... PASS
+[ios] ✅ Test 1/12: api-health... PASS
+...
+[android] ✅ Completed: 13/13 PASS
+[ios] ✅ Completed: 12/12 PASS
+[e2e-parallel] All tests passed! ✅
+```
 
 ---
 
-## Migration & Implementation Plan
+## Part 6: Phase 1 Success Criteria
 
-**Phase 1: Foundation — Shared Test Library (Days 1-2)**
-- Create scripts/lib/e2e-test-actions.mjs with core abstractions
-- Export helpers for Android and iOS
-- Add logging and error handling utilities
-- Verify library works with current tests
+**Current state (Phase 1 baseline):**
+- Android: 13 tests, 62% pass rate (8 passing, 5 failing)
+- iOS: 12 tests, 83% pass rate (10 passing, 1 failing, 1 warning)
 
-**Phase 2: Core Test Refactoring (Days 2-4)**
-- Refactor Android e2e-adb.mjs to use new fillField() + timing patterns
-- Refactor iOS .maestro/ flows to remove hideKeyboard + standardize selectors
-- Run core 25 tests (13 Android + 12 iOS) → verify 100% pass rate
-- Document any platform-specific quirks
+**Target state (Phase 1 completion):**
+- Android: 13 tests, 100% pass rate (all 13 passing)
+- iOS: 12 tests, 100% pass rate (all 12 passing)
+- CLI: Single command runs both platforms in parallel
 
-**Phase 3: Expand Test Coverage (Days 4-6)**
-- Add ML feature tests (visual search, voice search, LLM reasoning)
-- Add edge case tests (error states, validation, persistence)
-- Add comprehensive commerce flow tests
-- Target: 50+ tests per platform
-- Run all tests → verify 100% pass rate
+**Phase 1 Success Verification:**
+1. Run `npm run e2e:parallel` command
+2. Both Android and iOS tests start simultaneously
+3. Console output shows real-time progress
+4. Final summary shows:
+   - ✅ Android: 13/13 PASS
+   - ✅ iOS: 12/12 PASS
+5. Exit code 0 (success)
+6. Can run multiple times with 100% consistency
 
-**Phase 4: Dashboard & Orchestration (Days 6-8)**
-- Build e2e-dashboard/server.js (Express backend + Socket.io)
-- Build dashboard UI (React, video feeds, progress tracking)
-- Implement video recording integration (Android + iOS parallel)
-- Create e2e-orchestrator.mjs (parallel test execution)
-- Create CLI entry point: npm run e2e:complete
-
-**Phase 5: Integration & Polish (Days 8-10)**
-- Connect dashboard to test orchestrator
-- Verify real-time updates work
-- Test video recording and playback
-- Run full e2e:complete flow end-to-end
-- Generate comprehensive report and artifacts
-
-**Phase 6: Documentation & Delivery (Days 10-12)**
-- Write README for using e2e:complete
-- Document test structure and how to add new tests
-- Create example test flows
-- Final verification: 100% pass rate on both platforms
+**Phase 2+ (Future work, out of Phase 1 scope):**
+- Expand test coverage (ML features, edge cases, etc.)
+- Add real-time dashboard with video monitoring
+- Advanced reporting and artifacts
 
 ---
 
-## Summary
+## Phase 1 Implementation Plan
 
-This design builds a **complete E2E automation suite** with three major components:
+**Task 1: Create Shared Test Library (1-2 days)**
+- Create `scripts/lib/e2e-test-actions.mjs` with core abstractions
+- Implement: fillField(), tapElement(), waitForElement(), verifyVisible()
+- Add error handling and diagnostic logging
+- Test with current Android tests
 
-### 1. Robust Test Framework Foundation
-- **Shared test library** (e2e-test-actions.mjs) with unified abstractions for both platforms
-- **Fixed root causes:**
-  - ✅ Android email/password confusion → hideKeyboardAfter() + timing (500-600-800ms)
-  - ✅ iOS simulator crashes → removed hideKeyboard command
-  - ✅ Fragile selectors → testID-based pattern
-- **Result:** 25 core tests at 100% pass rate (13 Android + 12 iOS)
+**Task 2: Refactor Android Scripts (1-2 days)**
+- Update `scripts/e2e-adb.mjs` fillTestId() with improved sequencing
+- Fix `loginIfNeeded()` with hideKeyboardAfter() + timing
+- Verify both email and password fields get correct values
+- Run Android tests → achieve 100% pass rate
 
-### 2. Comprehensive Test Coverage Expansion
-- **ML Features:** 15+ tests covering visual search, voice search, LLM reasoning
-- **Commerce Flows:** 10+ tests for discovery, search, filtering, checkout
-- **Edge Cases:** 10+ tests for errors, validation, persistence
-- **Target:** 50+ tests per platform, 100 total tests, all passing consistently
+**Task 3: Refactor iOS/Maestro Scripts (1 day)**
+- Update `.maestro/shared/login-only.yaml` — remove hideKeyboard
+- Update `.maestro/demo-app-flow.yaml` — all testID-based selectors
+- Run iOS tests → achieve 100% pass rate
 
-### 3. Real-Time Automation Dashboard
-- **Web UI** (http://localhost:3000) showing live test progress
-- **Parallel video feeds** — Android emulator + iOS simulator side-by-side
-- **Real-time metrics** — pass count, fail count, test timeline
-- **Single command trigger** — `npm run e2e:complete`
+**Task 4: CLI Orchestration (1 day)**
+- Create `scripts/e2e-parallel.mjs` entry point
+- Add npm script: `npm run e2e:parallel`
+- Implement parallel execution of Android + iOS tests
+- Aggregate and display results
 
-### Key Capabilities
-1. User clicks or runs one command: `npm run e2e:complete`
-2. Dashboard opens showing both emulator/simulator feeds
-3. Tests run in parallel on both platforms
-4. User watches ALL functionality + ML features execute automatically
-5. Final report shows 100% pass rate with video artifacts for review
+**Task 5: Verification & Hardening (1 day)**
+- Run full test suite 3-5 times → confirm 100% consistency
+- Fix any remaining flakes
+- Document any workarounds needed
 
-### Success Definition
-- ✅ 100+ comprehensive E2E tests (both platforms)
-- ✅ 100% pass rate consistently
-- ✅ Real-time dashboard with parallel video monitoring
-- ✅ Single CLI command to trigger complete automation
-- ✅ User can watch end-to-end testing happen in real-time
+**Timeline:** ~5-7 days for Phase 1 completion
+
+---
+
+## Summary — Phase 1: Core Automation Scripts
+
+This design focuses on **Phase 1: fixing the automation scripts** to achieve 100% pass rate on both platforms with a simple CLI command.
+
+### Phase 1 Deliverables
+
+**1. Shared Test Library** (`scripts/lib/e2e-test-actions.mjs`)
+- Unified abstractions for both platforms
+- Robust field operations with keyboard management
+- Error handling with detailed diagnostics
+
+**2. Fixed Android Scripts** (`scripts/e2e-adb.mjs`)
+- ✅ Email/password field confusion → hideKeyboardAfter() + timing (500-600-800ms)
+- ✅ Improved keyboard state management
+- ✅ Field value verification before submission
+- Result: 13/13 tests at 100% pass rate
+
+**3. Fixed iOS/Maestro Scripts** (`.maestro/` flows)
+- ✅ Simulator crashes → removed hideKeyboard command
+- ✅ Standardized testID-based selectors
+- ✅ Proper text selection (doubleTapOn + eraseText pattern)
+- Result: 12/12 tests at 100% pass rate
+
+**4. CLI Orchestration** (`scripts/e2e-parallel.mjs`)
+- Single command: `npm run e2e:parallel`
+- Runs both platforms in parallel
+- Aggregates results
+- Exit code reflects success/failure
+
+### Phase 1 Success Criteria
+- ✅ Android: 13/13 tests passing (100%)
+- ✅ iOS: 12/12 tests passing (100%)
+- ✅ Consistent pass rate across multiple runs
+- ✅ Single CLI command to run everything
+- ✅ No app code changes
+
+### Future Phases (Phase 2+, out of scope)
+- **Phase 2:** Expand test coverage (ML features, edge cases, comprehensive commerce flows)
+- **Phase 3:** Real-time dashboard with video monitoring and reporting
