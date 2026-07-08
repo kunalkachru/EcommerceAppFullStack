@@ -1,4 +1,4 @@
-appId: org.reactjs.native.example.EcommerceAppFullStack
+appId: com.ecommerceappfullstack
 ---
 # Android-specific login flow
 # Uses explicit field taps for proper form field isolation on Android

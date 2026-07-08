@@ -28,7 +28,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 
 // Environment setup
-const APP_ID = "org.reactjs.native.example.EcommerceAppFullStack";
+const APP_ID = "com.ecommerceappfullstack";
 const PACKAGE = APP_ID;
 const ADB = "adb";
 const MAESTRO = "maestro";

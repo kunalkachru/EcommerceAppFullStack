@@ -1,4 +1,4 @@
-appId: org.reactjs.native.example.EcommerceAppFullStack
+appId: com.ecommerceappfullstack
 ---
 # Android-specific ML/AI features testing
 # Tests voice search and LLM reasoning with OpenAI API
