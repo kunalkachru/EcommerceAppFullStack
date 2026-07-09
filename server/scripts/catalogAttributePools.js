@@ -1,19 +1,26 @@
 const CATEGORY_TARGETS = [
   { key: "mens-clothing", label: "Men's Clothing", department: "fashion", audience: "men", targetCount: 20, hasSizes: true, sizeType: "apparel", materialsRequired: true },
-  { key: "womens-clothing", label: "Women's Clothing", department: "fashion", audience: "women", targetCount: 20, hasSizes: true, sizeType: "apparel", materialsRequired: true },
+  { key: "womens-clothing", label: "Women's Clothing", department: "fashion", audience: "women", targetCount: 19, hasSizes: true, sizeType: "apparel", materialsRequired: true },
   { key: "footwear", label: "Footwear", department: "fashion", audience: "unisex", targetCount: 20, hasSizes: true, sizeType: "shoe", materialsRequired: true },
-  { key: "electronics", label: "Electronics", department: "tech", audience: "unisex", targetCount: 22, hasSizes: false, sizeType: null, materialsRequired: true },
-  { key: "beauty-fragrances", label: "Beauty & Fragrances", department: "beauty", audience: "unisex", targetCount: 22, hasSizes: false, sizeType: null, materialsRequired: false },
-  { key: "jewelry", label: "Jewelry", department: "accessories", audience: "unisex", targetCount: 12, hasSizes: false, sizeType: null, materialsRequired: true },
-  { key: "home-kitchen", label: "Home & Kitchen", department: "home", audience: "unisex", targetCount: 24, hasSizes: false, sizeType: null, materialsRequired: true },
-  { key: "groceries", label: "Groceries", department: "essentials", audience: "unisex", targetCount: 10, hasSizes: false, sizeType: null, materialsRequired: false },
-  { key: "sports-fitness", label: "Sports & Fitness", department: "lifestyle", audience: "unisex", targetCount: 12, hasSizes: false, sizeType: null, materialsRequired: false },
-  { key: "bags-accessories", label: "Bags & Accessories", department: "fashion", audience: "unisex", targetCount: 16, hasSizes: false, sizeType: null, materialsRequired: true },
+  { key: "electronics", label: "Electronics", department: "tech", audience: "unisex", targetCount: 25, hasSizes: false, sizeType: null, materialsRequired: true },
+  { key: "beauty-fragrances", label: "Beauty & Fragrances", department: "beauty", audience: "unisex", targetCount: 18, hasSizes: false, sizeType: null, materialsRequired: false },
+  { key: "jewelry", label: "Jewelry", department: "accessories", audience: "unisex", targetCount: 7, hasSizes: false, sizeType: null, materialsRequired: true },
+  { key: "home-kitchen", label: "Home & Kitchen", department: "home", audience: "unisex", targetCount: 27, hasSizes: false, sizeType: null, materialsRequired: true },
+  { key: "groceries", label: "Groceries", department: "essentials", audience: "unisex", targetCount: 13, hasSizes: false, sizeType: null, materialsRequired: false },
+  { key: "sports-fitness", label: "Sports & Fitness", department: "lifestyle", audience: "unisex", targetCount: 15, hasSizes: false, sizeType: null, materialsRequired: false },
+  { key: "bags-accessories", label: "Bags & Accessories", department: "fashion", audience: "unisex", targetCount: 12, hasSizes: false, sizeType: null, materialsRequired: true },
   { key: "watches", label: "Watches", department: "accessories", audience: "unisex", targetCount: 10, hasSizes: false, sizeType: null, materialsRequired: true },
-  { key: "automotive", label: "Automotive", department: "specialty", audience: "unisex", targetCount: 12, hasSizes: false, sizeType: null, materialsRequired: true },
+  { key: "automotive", label: "Automotive", department: "specialty", audience: "unisex", targetCount: 10, hasSizes: false, sizeType: null, materialsRequired: true },
 ];
 
-// Total: 20+20+20+22+22+12+24+10+12+16+10+12 = 200
+// Total: 20+19+20+25+18+7+27+13+15+12+10+10 = 196
+// Targets were rebalanced during Task 1.2 after empirically confirming real,
+// de-duplicated source-data ceilings via dummyjson's main + category-specific
+// endpoints (see selectCatalogProducts.mjs's SUPPLEMENTARY_SOURCES). jewelry,
+// beauty-fragrances, bags-accessories, automotive, and womens-clothing were
+// capped at their real supply; electronics, home-kitchen, groceries, and
+// sports-fitness (all with abundant real supply) absorbed the difference.
+// Every product in the catalog is backed by real source data -- none invented.
 
 const COLOR_PALETTE = [
   "black", "white", "brown", "navy", "gray", "beige",
