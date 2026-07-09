@@ -6,7 +6,7 @@ function okJson(body) {
   };
 }
 
-describe("server catalogService", () => {
+describe("catalogLiveSource", () => {
   beforeEach(() => {
     jest.resetModules();
     global.fetch = jest.fn();
@@ -57,9 +57,8 @@ describe("server catalogService", () => {
         ])
       );
 
-    const service = require("../server/src/catalogService");
-    const products = await service.fetchCatalog({ force: true });
-    const meta = service.getCatalogMeta();
+    const { fetchLiveCatalog } = require("../server/src/catalogLiveSource");
+    const { products, meta } = await fetchLiveCatalog();
 
     expect(products.length).toBeGreaterThanOrEqual(350);
     expect(meta.offline).toBe(false);
@@ -74,10 +73,10 @@ describe("server catalogService", () => {
   });
 
   it("prefers a tracked server-root snapshot path before local-only artifacts", () => {
-    const service = require("../server/src/catalogService");
+    const { SNAPSHOT_CANDIDATE_PATHS } = require("../server/src/catalogLiveSource");
 
-    expect(service.SNAPSHOT_CANDIDATE_PATHS[0]).toMatch(/server[\/\\]catalog-snapshot\.json$/);
-    expect(service.SNAPSHOT_CANDIDATE_PATHS).toEqual(
+    expect(SNAPSHOT_CANDIDATE_PATHS[0]).toMatch(/server[\/\\]catalog-snapshot\.json$/);
+    expect(SNAPSHOT_CANDIDATE_PATHS).toEqual(
       expect.arrayContaining([
         expect.stringMatching(/src[\/\\]data[\/\\]catalog-fallback\.json$/),
       ])

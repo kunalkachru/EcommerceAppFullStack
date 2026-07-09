@@ -2,11 +2,19 @@
 /**
  * Fetch merged catalog and write server/data/catalog-snapshot.json for offline fallback.
  * Usage: node scripts/snapshot-catalog.mjs
+ *
+ * This script's sole purpose is refreshing the dormant live-fetch snapshot
+ * (see server/src/catalogLiveSource.js), so it always forces CATALOG_MODE=live
+ * regardless of the app's default (CATALOG_MODE=static as of the static
+ * catalog cutover) -- otherwise it would silently re-dump the static catalog
+ * back into its own fallback file.
  */
 import { writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createRequire } from "node:module";
+
+process.env.CATALOG_MODE = "live";
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
