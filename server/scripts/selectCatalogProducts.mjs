@@ -108,6 +108,8 @@ function score(product) {
 // (see its image path), not "electronics".
 const CATEGORY_OVERRIDES = {
   "dj-71": "home-kitchen",
+  "dj-28": "groceries",
+  "dj-36": "groceries",
 };
 
 function targetCategoryFor(product) {

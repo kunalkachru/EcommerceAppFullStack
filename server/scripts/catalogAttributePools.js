@@ -3,9 +3,9 @@ const CATEGORY_TARGETS = [
   { key: "womens-clothing", label: "Women's Clothing", department: "fashion", audience: "women", targetCount: 19, hasSizes: true, sizeType: "apparel", materialsRequired: true },
   { key: "footwear", label: "Footwear", department: "fashion", audience: "unisex", targetCount: 20, hasSizes: true, sizeType: "shoe", materialsRequired: true },
   { key: "electronics", label: "Electronics", department: "tech", audience: "unisex", targetCount: 25, hasSizes: false, sizeType: null, materialsRequired: true },
-  { key: "beauty-fragrances", label: "Beauty & Fragrances", department: "beauty", audience: "unisex", targetCount: 18, hasSizes: false, sizeType: null, materialsRequired: false },
+  { key: "beauty-fragrances", label: "Beauty & Fragrances", department: "beauty", audience: "unisex", targetCount: 16, hasSizes: false, sizeType: null, materialsRequired: false },
   { key: "jewelry", label: "Jewelry", department: "accessories", audience: "unisex", targetCount: 7, hasSizes: false, sizeType: null, materialsRequired: true },
-  { key: "home-kitchen", label: "Home & Kitchen", department: "home", audience: "unisex", targetCount: 27, hasSizes: false, sizeType: null, materialsRequired: true },
+  { key: "home-kitchen", label: "Home & Kitchen", department: "home", audience: "unisex", targetCount: 29, hasSizes: false, sizeType: null, materialsRequired: true },
   { key: "groceries", label: "Groceries", department: "essentials", audience: "unisex", targetCount: 13, hasSizes: false, sizeType: null, materialsRequired: false },
   { key: "sports-fitness", label: "Sports & Fitness", department: "lifestyle", audience: "unisex", targetCount: 15, hasSizes: false, sizeType: null, materialsRequired: false },
   { key: "bags-accessories", label: "Bags & Accessories", department: "fashion", audience: "unisex", targetCount: 12, hasSizes: false, sizeType: null, materialsRequired: true },
@@ -13,13 +13,18 @@ const CATEGORY_TARGETS = [
   { key: "automotive", label: "Automotive", department: "specialty", audience: "unisex", targetCount: 10, hasSizes: false, sizeType: null, materialsRequired: true },
 ];
 
-// Total: 20+19+20+25+18+7+27+13+15+12+10+10 = 196
+// Total: 20+19+20+25+16+7+29+13+15+12+10+10 = 196
 // Targets were rebalanced during Task 1.2 after empirically confirming real,
 // de-duplicated source-data ceilings via dummyjson's main + category-specific
 // endpoints (see selectCatalogProducts.mjs's SUPPLEMENTARY_SOURCES). jewelry,
 // beauty-fragrances, bags-accessories, automotive, and womens-clothing were
 // capped at their real supply; electronics, home-kitchen, groceries, and
 // sports-fitness (all with abundant real supply) absorbed the difference.
+// beauty-fragrances was capped a second time (18->16) after discovering two
+// snapshot items ("Ice Cream", "Protein Powder") were legacy-mis-tagged as
+// beauty when they're real groceries items (see CATEGORY_OVERRIDES in
+// selectCatalogProducts.mjs); the 2-item difference moved to home-kitchen,
+// which has the largest real-supply headroom (47 candidates for 27 slots).
 // Every product in the catalog is backed by real source data -- none invented.
 
 const COLOR_PALETTE = [
