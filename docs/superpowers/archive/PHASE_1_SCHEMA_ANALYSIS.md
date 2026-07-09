@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `docs/superpowers/specs/2026-07-09-static-product-catalog-design.md` — this is the analysis that *led* to discovering the live-fetch architecture; its actual schema findings (§ current product schema, missing fields) fed directly into the new spec's §4.2. Kept for historical context only.
+
 # Phase 1: Schema Analysis Report
 
 **Date**: July 9, 2026

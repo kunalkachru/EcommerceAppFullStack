@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `docs/superpowers/specs/2026-07-09-static-product-catalog-design.md` — this plan assumed the catalog was static data that could be hand-edited in JSON, before we discovered it's live-fetched and re-normalized hourly (any hand-edit gets silently overwritten). Kept for historical context only.
+
 # Master Implementation Plan: Multi-Parameter Search & Product Catalog Enhancement
 **Status**: IN PROGRESS | **Start Date**: July 9, 2026 | **Target Completion**: July 22-25, 2026
 

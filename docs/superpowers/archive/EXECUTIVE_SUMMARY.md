@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `docs/superpowers/specs/2026-07-09-static-product-catalog-design.md` — written before we discovered the catalog is live-fetched/re-normalized hourly. Kept for historical context only.
+
 # Executive Summary: Multi-Parameter Search & Product Catalog Analysis
 **Date**: July 9, 2026 | **Status**: Analysis Complete, Ready for Implementation
 

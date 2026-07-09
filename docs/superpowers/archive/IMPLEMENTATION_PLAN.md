@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `docs/superpowers/specs/2026-07-09-static-product-catalog-design.md` — written before we discovered the catalog is live-fetched/re-normalized hourly, not static JSON. Kept for historical context only.
+
 # Implementation Plan: Multi-Parameter Search & Product Catalog Enhancement
 **Timeline**: 2-3 weeks | **Platforms**: Android & iOS (simultaneous)
 

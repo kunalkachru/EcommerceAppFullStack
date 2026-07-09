@@ -1,3 +1,5 @@
+> **SUPERSEDED** by `docs/superpowers/specs/2026-07-09-static-product-catalog-design.md` — the recommendations here (hand-edit `catalog-snapshot.json`) don't survive the live hourly re-fetch/re-normalize cycle discovered afterward. The problem diagnosis itself (empty colors/materials, no size/spec concept) is still accurate and useful historical context — only the proposed fix is outdated.
+
 # Diagnostic Report: Multi-Parameter Search & Product Catalog Issues
 **Date**: July 9, 2026 | **Status**: Critical Issues Identified
 
