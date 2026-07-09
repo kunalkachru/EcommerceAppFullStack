@@ -147,14 +147,21 @@ Return ONLY valid JSON (no markdown) with this shape:
   "priceMin": number,
   "priceMax": number | null,
   "productTypes": ["shoes", "jacket", etc],
+  "size": "XL" | "32" | "9" | null,
+  "specifications": ["waterproof", "wireless", "bluetooth", etc],
   "summary": "short human-readable summary"
 }
 Rules:
 - Infer gender from words like women/womens/ladies/girls vs men/mens/boys.
-- Map footwear requests to categories like womens-shoes, mens-shoes, shoesk when relevant.
+- Map footwear requests to the category "footwear"; clothing to "mens-clothing" or
+  "womens-clothing" when relevant.
 - priceMax null means no upper limit. priceMin defaults to 0.
 - keywords should include product type + gender + color/material when mentioned.
-- searchText should be a rich phrase for embedding search, e.g. "women's casual shoes sneakers sandals".`;
+- searchText should be a rich phrase for embedding search, e.g. "women's casual shoes sneakers sandals".
+- size: infer even from indirect phrasing (e.g. "roomy fit" implies a larger size is wanted — still return
+  the explicit size token like "XL" only if a concrete size is stated or strongly implied; otherwise null).
+- specifications: infer product properties even from indirect phrasing (e.g. "won't smudge in the rain"
+  implies "waterproof"; "no cables" implies "wireless"). Use short lowercase tokens.`;
 
 async function callLlm(rawQuery, clientOptions = {}) {
   const { apiKey, baseUrl, model } = resolveLlmConfig(clientOptions);
@@ -246,6 +253,14 @@ function normalizeLlmIntent(rawQuery, llm) {
     [gender, ...llmProductTypes, ...rule.keywords].filter(Boolean).join(" ") ||
     rawQuery;
 
+  const size = llm.size ? String(llm.size).toUpperCase() : rule.size;
+  const specifications = [
+    ...(Array.isArray(llm.specifications) ? llm.specifications : []),
+    ...rule.specifications,
+  ]
+    .map((s) => String(s).toLowerCase().trim())
+    .filter(Boolean);
+
   return {
     rawQuery,
     searchText,
@@ -256,6 +271,8 @@ function normalizeLlmIntent(rawQuery, llm) {
     keywords: [...new Set(keywords)],
     gender,
     productTypes: llmProductTypes.length ? llmProductTypes : rule.productTypes,
+    size,
+    specifications: [...new Set(specifications)],
     summary: llm.summary || rule.summary,
     source: "llm",
   };
