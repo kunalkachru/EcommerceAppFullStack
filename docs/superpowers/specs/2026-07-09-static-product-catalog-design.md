@@ -84,8 +84,8 @@ Attributes stay as **product-level arrays** (a product simply lists which colors
 1. **Source pool**: Reuse the existing `server/catalog-snapshot.json` (384 products already fetched from the three live sources) as the candidate pool — real titles, photos, prices, descriptions already exist here.
 2. **Selection**: A script selects ~180-220 products spanning 10-12 target categories (clothing men's/women's, footwear, electronics, beauty, jewelry, home, groceries, sports, bags/accessories, watches, fragrances, automotive), favoring entries with the best existing image/description quality, roughly balanced per category.
 3. **Image localization**: Download each selected product's existing (already-licensed-for-demo-use) CDN images into `assets/products/<slug>/1.jpg …`, 3-4 images per product, resized/compressed to a sane web resolution. Target repo footprint: ~60-80MB.
-4. **AI-assisted attribute generation**: For each selected product, call the OpenAI API with the real title/description/category and ask it to produce realistic `colors`, `materials`, `sizes` (where applicable), `specifications`, and an optionally-polished description — leveraging general knowledge/inference rather than only literal word-matching, since the goal is a genuinely rich, "production grade" dataset.
-5. **Automated validation pass**: A deterministic script checks every product has ≥1 color, ≥1 material where applicable, sizes present for clothing/footwear categories, and at least one specification where the category defines a pool. Any product failing validation is flagged and re-generated or manually fixed before the file is considered final. This is the safety net against AI inconsistency/hallucination — nothing ships without passing this gate.
+4. **Attribute generation (authored directly during implementation, no external API)**: For each selected product, realistic `colors`, `materials`, `sizes` (where applicable), `specifications`, and a polished description are generated directly as part of implementing this plan — using the real title/description/category as grounding and general product knowledge to infer realistic values, the same way a human catalog editor would, just done by the implementing agent in one pass across the whole catalog for consistency. This is a **one-time authoring task**, not a runtime capability, so it does not call the OpenAI API — there's no reason to add network dependency, cost, or rate limits to something that only needs to happen once, up front, with full context already in hand. (Contrast with §4.6, where OpenAI *is* used — that's understanding a live shopper's query after the app has shipped, which genuinely has to happen at request time.)
+5. **Automated validation pass**: A deterministic script checks every product has ≥1 color, ≥1 material where applicable, sizes present for clothing/footwear categories, and at least one specification where the category defines a pool. Any product failing validation is flagged and fixed before the file is considered final. This is the safety net against inconsistency — nothing ships without passing this gate.
 
 ### 4.5 Test-image gallery (for image-search E2E testing)
 
@@ -148,7 +148,7 @@ If any gate fails, work stops and the failure is fixed before proceeding — no 
 
 | Risk | Mitigation |
 |---|---|
-| AI-generated attributes are inconsistent or occasionally wrong | Automated validation gate (§4.4 step 5) before file is considered final; spot-check sample |
+| Authored attributes are inconsistent or occasionally wrong | Automated validation gate (§4.4 step 5) before file is considered final; spot-check sample |
 | Repo grows too large with local images | Target ~180-220 products, compressed web-resolution images, estimate ~60-80MB |
 | Removing live-fetch breaks something depending on it | Code relocated not deleted; `CATALOG_MODE=live` re-activates it; regression-tested before cutover |
 | CLIP/photo search silently breaks after image swap | Explicit rebuild step + gate before it's considered done |
@@ -172,4 +172,4 @@ If any gate fails, work stops and the failure is fixed before proceeding — no 
 
 - Exact category list and per-category product counts (target ~180-220 total).
 - Exact specification vocabulary per category (to be enumerated during implementation).
-- Whether OpenAI-generated descriptions replace or supplement the original source descriptions (recommend: supplement/polish, keep original facts).
+- Whether authored descriptions replace or supplement the original source descriptions (recommend: supplement/polish, keep original facts).
