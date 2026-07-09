@@ -4,7 +4,7 @@
 
 **Goal:** Replace the live-fetched, attribute-sparse product catalog with a static, self-contained, fully-attributed catalog (~200 products), and extend the search pipeline so multi-parameter queries ("brown size XL trousers", "wireless headphones under $50", "waterproof makeup") return correct, relevant results — with zero regression on Android or iOS.
 
-**Architecture:** A new `server/data/catalog-static.json` becomes the sole runtime data source (mode-switchable, live-fetch code preserved but dormant). Search stays on its existing CLIP-embedding + lexical-candidate + constraint-boost pipeline (`naturalSearch.js` → `searchTextCatalog.js`/`searchSemanticFirst` → `semanticTextReranker.js`), extended to understand and score against `sizes`/`specifications`/`colors`/`materials` as structured fields instead of raw-text substring matching only.
+**Architecture:** A new `server/catalog-static.json` becomes the sole runtime data source (mode-switchable, live-fetch code preserved but dormant). Search stays on its existing CLIP-embedding + lexical-candidate + constraint-boost pipeline (`naturalSearch.js` → `searchTextCatalog.js`/`searchSemanticFirst` → `semanticTextReranker.js`), extended to understand and score against `sizes`/`specifications`/`colors`/`materials` as structured fields instead of raw-text substring matching only.
 
 **Tech Stack:** Node.js/Express server, MiniSearch (lexical), `@huggingface/transformers` CLIP embeddings, React Native client, Maestro E2E (Android + iOS), Jest.
 
@@ -276,7 +276,7 @@ git commit -m "feat: Phase 1.2 - Select ~200 candidate products from existing sn
 **Files:**
 - Create: `server/scripts/authorCatalogAttributes.mjs`
 - Consumes: `server/data/catalog-selection.json` (Task 1.2 output), `server/scripts/catalogAttributePools.js` (Task 1.1)
-- Produces: `server/data/catalog-static.json` (the authoritative catalog — final schema per design spec §4.2)
+- Produces: `server/catalog-static.json` (the authoritative catalog — final schema per design spec §4.2)
 
 **Interfaces:**
 - Produces: array of product objects each with `id, title, description, brand, category, categoryLabel, department, subcategory, audience, price, currency, priceTier, images, colors, materials, sizes, specifications, tags, keywords, sku, inventoryCount, availability, rating` — this exact field set is consumed by every later task (catalogService.js, reranker, lexical index, client filter).
@@ -300,7 +300,7 @@ import {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SELECTION_PATH = join(__dirname, "..", "data", "catalog-selection.json");
-const OUTPUT_PATH = join(__dirname, "..", "data", "catalog-static.json");
+const OUTPUT_PATH = join(__dirname, "..", "catalog-static.json");
 
 function slugify(value) {
   return String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -425,12 +425,12 @@ Do this directly in the file — it is real implementation work, not a placehold
 - [ ] **Step 3: Run the authoring script**
 
 Run: `node server/scripts/authorCatalogAttributes.mjs`
-Expected: `Authored 200 products -> .../server/data/catalog-static.json` (no "Missing authored attributes" error — if one is thrown, go back to Step 2 for that product id).
+Expected: `Authored 200 products -> .../server/catalog-static.json` (no "Missing authored attributes" error — if one is thrown, go back to Step 2 for that product id).
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add server/scripts/authorCatalogAttributes.mjs server/data/catalog-static.json
+git add server/scripts/authorCatalogAttributes.mjs server/catalog-static.json
 git commit -m "feat: Phase 1.3 - Author complete attributes for all static catalog products"
 ```
 
@@ -440,11 +440,11 @@ git commit -m "feat: Phase 1.3 - Author complete attributes for all static catal
 
 **Files:**
 - Create: `server/scripts/downloadCatalogImages.mjs`
-- Modify: `server/data/catalog-static.json` (fills in the `images` array left empty by Task 1.3)
+- Modify: `server/catalog-static.json` (fills in the `images` array left empty by Task 1.3)
 - Creates: `assets/products/<slug>/1.jpg`, `2.jpg`, ... (repo root `assets/` directory, new)
 
 **Interfaces:**
-- Consumes: `server/data/catalog-selection.json` (original `images` URLs, keyed by product `id`), `server/data/catalog-static.json` (products to update).
+- Consumes: `server/data/catalog-selection.json` (original `images` URLs, keyed by product `id`), `server/catalog-static.json` (products to update).
 - Produces: local JPEG files under `assets/products/<slug>/`, and rewrites each product's `images` field in `catalog-static.json` to repo-relative paths (e.g. `"assets/products/essence-mascara-lash-princess/1.jpg"`).
 
 - [ ] **Step 1: Write the image download script**
@@ -458,7 +458,7 @@ import { dirname, join } from "node:path";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
 const SELECTION_PATH = join(__dirname, "..", "data", "catalog-selection.json");
-const STATIC_PATH = join(__dirname, "..", "data", "catalog-static.json");
+const STATIC_PATH = join(__dirname, "..", "catalog-static.json");
 const ASSETS_ROOT = join(REPO_ROOT, "assets", "products");
 const MAX_IMAGES_PER_PRODUCT = 4;
 
@@ -524,7 +524,7 @@ Expected: roughly 40-90MB. If significantly over 90MB, re-run with a lower `MAX_
 - [ ] **Step 4: Commit**
 
 ```bash
-git add assets/products/ server/data/catalog-static.json server/scripts/downloadCatalogImages.mjs
+git add assets/products/ server/catalog-static.json server/scripts/downloadCatalogImages.mjs
 git commit -m "feat: Phase 1.4 - Download and localize catalog product images"
 ```
 
@@ -537,14 +537,14 @@ git commit -m "feat: Phase 1.4 - Download and localize catalog product images"
 - Create: `__tests__/catalogStaticValidation.test.js`
 
 **Interfaces:**
-- Consumes: `server/data/catalog-static.json`.
+- Consumes: `server/catalog-static.json`.
 - Produces: exit code 0 (pass) / 1 (fail) for CLI use, and a Jest suite for CI use — both check the same rules.
 
 - [ ] **Step 1: Write the failing test**
 
 ```js
 // __tests__/catalogStaticValidation.test.js
-const catalog = require("../server/data/catalog-static.json");
+const catalog = require("../server/catalog-static.json");
 const { CATEGORY_TARGETS } = require("../server/scripts/catalogAttributePools.js");
 
 describe("catalog-static.json completeness", () => {
@@ -633,7 +633,7 @@ git commit -m "feat: Phase 1.5 - Add automated validation gate for static catalo
 ## PHASE 1 GATE
 
 - [ ] `npm run validate:catalog` passes.
-- [ ] `server/data/catalog-static.json` has 180-220 products across exactly the 12 categories.
+- [ ] `server/catalog-static.json` has 180-220 products across exactly the 12 categories.
 - [ ] `assets/products/` contains local images for every product, no remote URLs remain in `catalog-static.json`.
 - [ ] Repo size increase for `assets/products/` is within ~40-90MB.
 
@@ -650,7 +650,7 @@ git commit -m "feat: Phase 1.5 - Add automated validation gate for static catalo
 - Creates: `test-assets/image-search-samples/<category-key>/sample-1.jpg` (+ `sample-2.jpg` for the 3 largest categories), `test-assets/image-search-samples/manifest.json`
 
 **Interfaces:**
-- Consumes: `server/data/catalog-static.json` (post Phase 1).
+- Consumes: `server/catalog-static.json` (post Phase 1).
 - Produces: `test-assets/image-search-samples/manifest.json` — `[{ file: "mens-clothing/sample-1.jpg", productId, productTitle, category }]`, consumed by Task 6.1's Maestro flows and Task 6.2's assertions.
 
 - [ ] **Step 1: Write the gallery-builder script**
@@ -664,7 +664,7 @@ import { CATEGORY_TARGETS } from "./catalogAttributePools.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
-const STATIC_PATH = join(__dirname, "..", "data", "catalog-static.json");
+const STATIC_PATH = join(__dirname, "..", "catalog-static.json");
 const GALLERY_ROOT = join(REPO_ROOT, "test-assets", "image-search-samples");
 
 function main() {
@@ -918,7 +918,7 @@ module.exports = { fetchLiveCatalog, MIN_TARGET, SNAPSHOT_CANDIDATE_PATHS };
 // server/src/catalogService.js
 /**
  * Product catalog source. Defaults to the static, self-contained catalog
- * (server/data/catalog-static.json). Set CATALOG_MODE=live to re-activate
+ * (server/catalog-static.json). Set CATALOG_MODE=live to re-activate
  * the original live third-party fetch (see catalogLiveSource.js) — kept
  * fully functional but dormant by default.
  */
@@ -926,7 +926,7 @@ const path = require("path");
 const fs = require("fs");
 
 const CATALOG_TTL_MS = 60 * 60 * 1000;
-const STATIC_CATALOG_PATH = path.join(__dirname, "..", "data", "catalog-static.json");
+const STATIC_CATALOG_PATH = path.join(__dirname, "..", "catalog-static.json");
 
 let catalog = [];
 let catalogLoadedAt = 0;
@@ -1033,7 +1033,7 @@ git commit -m "feat: Phase 3.1 - Relocate live-fetch to catalogLiveSource.js, de
 - Modify: `src/data/catalog-fallback.json` (regenerated, not hand-edited)
 
 **Interfaces:**
-- Consumes: `server/data/catalog-static.json`.
+- Consumes: `server/catalog-static.json`.
 - Produces: `src/data/catalog-fallback.json` with the identical `products` array (same shape the existing test suite and RN client already expect).
 
 - [ ] **Step 1: Write the sync script**
@@ -1046,7 +1046,7 @@ import { dirname, join } from "node:path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..");
-const STATIC_PATH = join(__dirname, "..", "data", "catalog-static.json");
+const STATIC_PATH = join(__dirname, "..", "catalog-static.json");
 const FALLBACK_PATH = join(REPO_ROOT, "src", "data", "catalog-fallback.json");
 
 function main() {
@@ -1138,7 +1138,7 @@ const fs = require("fs");
 
 describe("visualSearch local image support (smoke)", () => {
   it("resolves a local catalog image path to an existing file", () => {
-    const catalog = require("../server/data/catalog-static.json");
+    const catalog = require("../server/catalog-static.json");
     const sample = catalog.products.find((p) => p.images?.length);
     expect(sample).toBeTruthy();
     const absolute = path.join(__dirname, "..", sample.images[0]);
@@ -1168,7 +1168,7 @@ git commit -m "feat: Phase 4.1 - Support local file paths in CLIP image embeddin
 - Modify: `server/data/clip-embeddings.json` (regenerated — this is a build artifact, safe to fully overwrite)
 
 **Interfaces:**
-- Consumes: `server/src/visualSearch.js`'s existing `warmVisualSearchIndex` export (confirmed present via the `index.js` import list read earlier), `server/data/catalog-static.json`.
+- Consumes: `server/src/visualSearch.js`'s existing `warmVisualSearchIndex` export (confirmed present via the `index.js` import list read earlier), `server/catalog-static.json`.
 
 Note: `visualSearch.js`, like every other file under `server/src/`, is CommonJS (`require`/`module.exports`), not ESM. This script is written as plain `.js` with `require()` to match — do not use `.mjs`/`import` here (unlike the Phase 1/2 authoring scripts, which only import the simple object-literal `catalogAttributePools.js` config where ESM/CJS interop is safe; `visualSearch.js` is a large, complex module where that interop is not guaranteed).
 
@@ -2043,14 +2043,14 @@ git commit -m "feat: Phase 6.2 - Seed iOS simulator gallery and update photo-sea
 - Modify: `.maestro/android/ml-multiparameter-search.yaml` (currently has generic assertions written before the catalog existed — Task 1.5's data now lets us assert exact expected titles/attributes)
 
 **Interfaces:**
-- Consumes: `server/data/catalog-static.json` to pick real, known test cases (e.g. an actual product that is brown, size XL, category mens-clothing).
+- Consumes: `server/catalog-static.json` to pick real, known test cases (e.g. an actual product that is brown, size XL, category mens-clothing).
 
 - [ ] **Step 1: Pick 3 concrete, known-good test queries from the real static catalog**
 
 Run:
 ```bash
 node -e "
-const c = require('./server/data/catalog-static.json');
+const c = require('./server/catalog-static.json');
 const p = c.products.find(p => p.category==='mens-clothing' && p.colors.includes('brown') && p.sizes.includes('XL'));
 console.log('Brown XL mens-clothing example:', p?.title, p?.id);
 const e = c.products.find(p => p.category==='electronics' && p.specifications?.wireless === true && p.price < 50);
