@@ -101,7 +101,17 @@ function score(product) {
   return s;
 }
 
+// One-off corrections for legacy snapshot mis-normalization (product.category
+// was already renormalized incorrectly by the old catalogMetadata.js pipeline,
+// same class of bug as the sunglasses->shoes case handled via supplementary
+// sources above). dj-71's real dummyjson category is "kitchen-accessories"
+// (see its image path), not "electronics".
+const CATEGORY_OVERRIDES = {
+  "dj-71": "home-kitchen",
+};
+
 function targetCategoryFor(product) {
+  if (CATEGORY_OVERRIDES[product.id]) return CATEGORY_OVERRIDES[product.id];
   const raw = String(product.category || "").toLowerCase();
   let mapped = SOURCE_CATEGORY_MAP[raw];
   if (mapped === "mens-clothing" && raw === "clothes") {
