@@ -5266,7 +5266,7 @@
       "materials": [],
       "sizes": [],
       "specifications": {
-        "waterproof": false,
+        "waterproof": true,
         "longLasting": true,
         "crueltyFree": true
       },

@@ -132,7 +132,7 @@ const AUTHORED_ATTRIBUTES = {
   "dj-126": { colors: ["black", "blue"], materials: ["plastic", "glass"], specifications: { wireless: true, bluetooth: true, batteryLife: "15 hours" } },
 
   // ---------- beauty-fragrances (16) ----------
-  "dj-1": { colors: ["black"], materials: [], specifications: { waterproof: false, longLasting: true, crueltyFree: true } },
+  "dj-1": { colors: ["black"], materials: [], specifications: { waterproof: true, longLasting: true, crueltyFree: true } },
   "dj-2": { colors: ["beige", "brown"], materials: [], specifications: { longLasting: true, crueltyFree: false } },
   "dj-3": { colors: ["beige"], materials: [], specifications: { longLasting: true, hypoallergenic: true } },
   "dj-4": { colors: ["red"], materials: [], specifications: { longLasting: true, crueltyFree: false } },

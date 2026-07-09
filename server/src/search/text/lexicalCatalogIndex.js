@@ -1,6 +1,17 @@
 const MiniSearch = require("minisearch");
 const { normalizeSearchQuery } = require("../intent/queryNormalizer");
 
+// Catalog specification keys are camelCase (e.g. "dishwasherSafe"), but user
+// queries are space-separated ("dishwasher safe"). MiniSearch's default
+// tokenizer doesn't split camelCase, so indexing the raw key would only
+// prefix-match the first half of a multi-word spec. Split into words so
+// "dishwasher safe" indexes as two searchable tokens.
+function splitCamelCase(key) {
+  return String(key)
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .toLowerCase();
+}
+
 function buildSearchDocument(product) {
   return {
     id: String(product.id),
@@ -13,7 +24,10 @@ function buildSearchDocument(product) {
     materials: Array.isArray(product.materials) ? product.materials.join(" ") : "",
     sizes: Array.isArray(product.sizes) ? product.sizes.join(" ") : "",
     specifications: product.specifications
-      ? Object.keys(product.specifications).filter((k) => product.specifications[k] === true).join(" ")
+      ? Object.keys(product.specifications)
+          .filter((k) => product.specifications[k] === true)
+          .map(splitCamelCase)
+          .join(" ")
       : "",
   };
 }
