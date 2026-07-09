@@ -14,7 +14,12 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/blue-black-check-shirt/1.webp",
+        "assets/products/blue-black-check-shirt/2.webp",
+        "assets/products/blue-black-check-shirt/3.webp",
+        "assets/products/blue-black-check-shirt/4.webp"
+      ],
       "colors": [
         "blue",
         "black"
@@ -74,7 +79,12 @@
       "price": 24.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/gigabyte-aorus-men-tshirt/1.webp",
+        "assets/products/gigabyte-aorus-men-tshirt/2.webp",
+        "assets/products/gigabyte-aorus-men-tshirt/3.webp",
+        "assets/products/gigabyte-aorus-men-tshirt/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -131,7 +141,12 @@
       "price": 34.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/man-plaid-shirt/1.webp",
+        "assets/products/man-plaid-shirt/2.webp",
+        "assets/products/man-plaid-shirt/3.webp",
+        "assets/products/man-plaid-shirt/4.webp"
+      ],
       "colors": [
         "red",
         "black",
@@ -195,7 +210,12 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/man-short-sleeve-shirt/1.webp",
+        "assets/products/man-short-sleeve-shirt/2.webp",
+        "assets/products/man-short-sleeve-shirt/3.webp",
+        "assets/products/man-short-sleeve-shirt/4.webp"
+      ],
       "colors": [
         "white",
         "blue"
@@ -254,7 +274,12 @@
       "price": 27.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/men-check-shirt/1.webp",
+        "assets/products/men-check-shirt/2.webp",
+        "assets/products/men-check-shirt/3.webp",
+        "assets/products/men-check-shirt/4.webp"
+      ],
       "colors": [
         "blue",
         "white"
@@ -313,7 +338,9 @@
       "price": 22.3,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/mens-casual-premium-slim-fit-t-shirts/1.png"
+      ],
       "colors": [
         "black",
         "gray",
@@ -377,7 +404,9 @@
       "price": 55.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/mens-cotton-jacket/1.png"
+      ],
       "colors": [
         "navy",
         "black"
@@ -439,7 +468,9 @@
       "price": 15.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/mens-casual-slim-fit/1.png"
+      ],
       "colors": [
         "white",
         "blue"
@@ -498,7 +529,9 @@
       "price": 692,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/classic-heather-gray-hoodie/1.jpeg"
+      ],
       "colors": [
         "gray"
       ],
@@ -555,7 +588,9 @@
       "price": 90,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/classic-grey-hooded-sweatshirt/1.jpeg"
+      ],
       "colors": [
         "gray"
       ],
@@ -612,7 +647,9 @@
       "price": 79,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/classic-black-hooded-sweatshirt/1.jpeg"
+      ],
       "colors": [
         "black"
       ],
@@ -669,7 +706,9 @@
       "price": 79,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/classic-comfort-drawstring-joggers/1.jpeg"
+      ],
       "colors": [
         "gray",
         "black"
@@ -731,7 +770,9 @@
       "price": 98,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/classic-red-jogger-sweatpants/1.jpeg"
+      ],
       "colors": [
         "red"
       ],
@@ -789,7 +830,9 @@
       "price": 61,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/classic-navy-blue-baseball-cap/1.jpeg"
+      ],
       "colors": [
         "navy"
       ],
@@ -846,7 +889,9 @@
       "price": 86,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/classic-blue-baseball-cap/1.jpeg"
+      ],
       "colors": [
         "blue"
       ],
@@ -903,7 +948,9 @@
       "price": 35,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/classic-red-baseball-cap/1.jpeg"
+      ],
       "colors": [
         "red"
       ],
@@ -960,7 +1007,9 @@
       "price": 58,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/classic-black-baseball-cap/1.jpeg"
+      ],
       "colors": [
         "black"
       ],
@@ -1017,7 +1066,9 @@
       "price": 84,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/classic-olive-chino-shorts/1.jpeg"
+      ],
       "colors": [
         "olive"
       ],
@@ -1075,7 +1126,9 @@
       "price": 43,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/classic-high-waisted-athletic-shorts/1.jpeg"
+      ],
       "colors": [
         "black",
         "gray"
@@ -1135,7 +1188,9 @@
       "price": 39,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/classic-white-crew-neck-t-shirt/1.jpeg"
+      ],
       "colors": [
         "white"
       ],
@@ -1192,7 +1247,12 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/blue-frock/1.webp",
+        "assets/products/blue-frock/2.webp",
+        "assets/products/blue-frock/3.webp",
+        "assets/products/blue-frock/4.webp"
+      ],
       "colors": [
         "blue"
       ],
@@ -1249,7 +1309,12 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/girl-summer-dress/1.webp",
+        "assets/products/girl-summer-dress/2.webp",
+        "assets/products/girl-summer-dress/3.webp",
+        "assets/products/girl-summer-dress/4.webp"
+      ],
       "colors": [
         "yellow",
         "pink"
@@ -1308,7 +1373,12 @@
       "price": 34.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/gray-dress/1.webp",
+        "assets/products/gray-dress/2.webp",
+        "assets/products/gray-dress/3.webp",
+        "assets/products/gray-dress/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -1366,7 +1436,12 @@
       "price": 24.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/short-frock/1.webp",
+        "assets/products/short-frock/2.webp",
+        "assets/products/short-frock/3.webp",
+        "assets/products/short-frock/4.webp"
+      ],
       "colors": [
         "pink"
       ],
@@ -1423,7 +1498,12 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/tartan-dress/1.webp",
+        "assets/products/tartan-dress/2.webp",
+        "assets/products/tartan-dress/3.webp",
+        "assets/products/tartan-dress/4.webp"
+      ],
       "colors": [
         "red",
         "black"
@@ -1482,7 +1562,12 @@
       "price": 89.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/corset-leather-with-skirt/1.webp",
+        "assets/products/corset-leather-with-skirt/2.webp",
+        "assets/products/corset-leather-with-skirt/3.webp",
+        "assets/products/corset-leather-with-skirt/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -1530,7 +1615,12 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/corset-with-black-skirt/1.webp",
+        "assets/products/corset-with-black-skirt/2.webp",
+        "assets/products/corset-with-black-skirt/3.webp",
+        "assets/products/corset-with-black-skirt/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -1580,7 +1670,12 @@
       "price": 129.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/black-women-s-gown/1.webp",
+        "assets/products/black-women-s-gown/2.webp",
+        "assets/products/black-women-s-gown/3.webp",
+        "assets/products/black-women-s-gown/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -1627,7 +1722,12 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/dress-pea/1.webp",
+        "assets/products/dress-pea/2.webp",
+        "assets/products/dress-pea/3.webp",
+        "assets/products/dress-pea/4.webp"
+      ],
       "colors": [
         "green"
       ],
@@ -1674,7 +1774,12 @@
       "price": 179.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/marni-red-black-suit/1.webp",
+        "assets/products/marni-red-black-suit/2.webp",
+        "assets/products/marni-red-black-suit/3.webp",
+        "assets/products/marni-red-black-suit/4.webp"
+      ],
       "colors": [
         "red",
         "black"
@@ -1723,7 +1828,9 @@
       "price": 56.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/biylaclesen-women-s-3-in-1-snowboard-jacket-winter-coats/1.png"
+      ],
       "colors": [
         "black",
         "navy"
@@ -1783,7 +1890,9 @@
       "price": 29.95,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/lock-and-love-women-s-removable-hooded-faux-leather-moto-biker-jacket/1.png"
+      ],
       "colors": [
         "black"
       ],
@@ -1841,7 +1950,9 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/rain-jacket-women-windbreaker-striped-climbing-raincoats/1.png"
+      ],
       "colors": [
         "blue",
         "yellow"
@@ -1901,7 +2012,9 @@
       "price": 9.85,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/mbj-women-s-solid-short-sleeve-boat-neck-v/1.png"
+      ],
       "colors": [
         "black",
         "white"
@@ -1961,7 +2074,9 @@
       "price": 7.95,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/opna-women-s-short-sleeve-moisture/1.png"
+      ],
       "colors": [
         "gray",
         "black"
@@ -2021,7 +2136,9 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/danvouy-womens-t-shirt-casual-cotton-short/1.png"
+      ],
       "colors": [
         "white",
         "black"
@@ -2081,7 +2198,9 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/seabreeze-blue-rain-jacket/1.png"
+      ],
       "colors": [
         "blue"
       ],
@@ -2139,7 +2258,9 @@
       "price": 54.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/alpine-blue-packable-windbreaker/1.png"
+      ],
       "colors": [
         "blue"
       ],
@@ -2197,7 +2318,9 @@
       "price": 59.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/harbor-blue-hooded-coat/1.png"
+      ],
       "colors": [
         "blue"
       ],
@@ -2257,7 +2380,12 @@
       "price": 149.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/nike-air-jordan-1-red-and-black/1.webp",
+        "assets/products/nike-air-jordan-1-red-and-black/2.webp",
+        "assets/products/nike-air-jordan-1-red-and-black/3.webp",
+        "assets/products/nike-air-jordan-1-red-and-black/4.webp"
+      ],
       "colors": [
         "red",
         "black"
@@ -2320,7 +2448,12 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/nike-baseball-cleats/1.webp",
+        "assets/products/nike-baseball-cleats/2.webp",
+        "assets/products/nike-baseball-cleats/3.webp",
+        "assets/products/nike-baseball-cleats/4.webp"
+      ],
       "colors": [
         "black",
         "white"
@@ -2382,7 +2515,12 @@
       "price": 89.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/puma-future-rider-trainers/1.webp",
+        "assets/products/puma-future-rider-trainers/2.webp",
+        "assets/products/puma-future-rider-trainers/3.webp",
+        "assets/products/puma-future-rider-trainers/4.webp"
+      ],
       "colors": [
         "white",
         "gray"
@@ -2444,7 +2582,12 @@
       "price": 119.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/sports-sneakers-off-white-red/1.webp",
+        "assets/products/sports-sneakers-off-white-red/2.webp",
+        "assets/products/sports-sneakers-off-white-red/3.webp",
+        "assets/products/sports-sneakers-off-white-red/4.webp"
+      ],
       "colors": [
         "white",
         "red"
@@ -2506,7 +2649,12 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/black-brown-slipper/1.webp",
+        "assets/products/black-brown-slipper/2.webp",
+        "assets/products/black-brown-slipper/3.webp",
+        "assets/products/black-brown-slipper/4.webp"
+      ],
       "colors": [
         "black",
         "brown"
@@ -2566,7 +2714,12 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/calvin-klein-heel-shoes/1.webp",
+        "assets/products/calvin-klein-heel-shoes/2.webp",
+        "assets/products/calvin-klein-heel-shoes/3.webp",
+        "assets/products/calvin-klein-heel-shoes/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -2624,7 +2777,12 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/golden-shoes-woman/1.webp",
+        "assets/products/golden-shoes-woman/2.webp",
+        "assets/products/golden-shoes-woman/3.webp",
+        "assets/products/golden-shoes-woman/4.webp"
+      ],
       "colors": [
         "yellow"
       ],
@@ -2682,7 +2840,12 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/pampi-shoes/1.webp",
+        "assets/products/pampi-shoes/2.webp",
+        "assets/products/pampi-shoes/3.webp",
+        "assets/products/pampi-shoes/4.webp"
+      ],
       "colors": [
         "tan"
       ],
@@ -2742,7 +2905,12 @@
       "price": 34.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/red-shoes/1.webp",
+        "assets/products/red-shoes/2.webp",
+        "assets/products/red-shoes/3.webp",
+        "assets/products/red-shoes/4.webp"
+      ],
       "colors": [
         "red"
       ],
@@ -2800,7 +2968,12 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/riviera-women-sandals/1.webp",
+        "assets/products/riviera-women-sandals/2.webp",
+        "assets/products/riviera-women-sandals/3.webp",
+        "assets/products/riviera-women-sandals/4.webp"
+      ],
       "colors": [
         "tan",
         "white"
@@ -2861,7 +3034,12 @@
       "price": 44.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/urban-step-women-sneakers/1.webp",
+        "assets/products/urban-step-women-sneakers/2.webp",
+        "assets/products/urban-step-women-sneakers/3.webp",
+        "assets/products/urban-step-women-sneakers/4.webp"
+      ],
       "colors": [
         "white",
         "gray"
@@ -2921,7 +3099,12 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/everyday-women-running-shoes/1.webp",
+        "assets/products/everyday-women-running-shoes/2.webp",
+        "assets/products/everyday-women-running-shoes/3.webp",
+        "assets/products/everyday-women-running-shoes/4.webp"
+      ],
       "colors": [
         "black",
         "gray"
@@ -2984,7 +3167,9 @@
       "price": 39,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/futuristic-holographic-soccer-cleats/1.jpeg"
+      ],
       "colors": [
         "white",
         "blue"
@@ -3044,7 +3229,9 @@
       "price": 39,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/rainbow-glitter-high-heels/1.jpeg"
+      ],
       "colors": [
         "pink",
         "yellow"
@@ -3104,7 +3291,9 @@
       "price": 33,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/chic-summer-denim-espadrille-sandals/1.jpeg"
+      ],
       "colors": [
         "blue",
         "tan"
@@ -3165,7 +3354,9 @@
       "price": 27,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/vibrant-runners-bold-orange-blue-sneakers/1.jpeg"
+      ],
       "colors": [
         "red",
         "blue"
@@ -3228,7 +3419,9 @@
       "price": 84,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/vibrant-pink-classic-sneakers/1.jpeg"
+      ],
       "colors": [
         "pink"
       ],
@@ -3288,7 +3481,9 @@
       "price": 68,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/futuristic-silver-and-gold-high-top-sneaker/1.jpeg"
+      ],
       "colors": [
         "gray",
         "yellow"
@@ -3348,7 +3543,9 @@
       "price": 36,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/futuristic-chic-high-heel-boots/1.jpeg"
+      ],
       "colors": [
         "black"
       ],
@@ -3406,7 +3603,9 @@
       "price": 53,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/elegant-patent-leather-peep-toe-pumps-with-gold-tone-heel/1.jpeg"
+      ],
       "colors": [
         "burgundy"
       ],
@@ -3464,7 +3663,12 @@
       "price": 1999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/apple-macbook-pro-14-inch-space-grey/1.webp",
+        "assets/products/apple-macbook-pro-14-inch-space-grey/2.webp",
+        "assets/products/apple-macbook-pro-14-inch-space-grey/3.webp",
+        "assets/products/apple-macbook-pro-14-inch-space-grey/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -3516,7 +3720,12 @@
       "price": 1799.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/asus-zenbook-pro-dual-screen-laptop/1.webp",
+        "assets/products/asus-zenbook-pro-dual-screen-laptop/2.webp",
+        "assets/products/asus-zenbook-pro-dual-screen-laptop/3.webp",
+        "assets/products/asus-zenbook-pro-dual-screen-laptop/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -3568,7 +3777,12 @@
       "price": 1399.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/huawei-matebook-x-pro/1.webp",
+        "assets/products/huawei-matebook-x-pro/2.webp",
+        "assets/products/huawei-matebook-x-pro/3.webp",
+        "assets/products/huawei-matebook-x-pro/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -3622,7 +3836,12 @@
       "price": 1099.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/lenovo-yoga-920/1.webp",
+        "assets/products/lenovo-yoga-920/2.webp",
+        "assets/products/lenovo-yoga-920/3.webp",
+        "assets/products/lenovo-yoga-920/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -3674,7 +3893,12 @@
       "price": 1499.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/new-dell-xps-13-9300-laptop/1.webp",
+        "assets/products/new-dell-xps-13-9300-laptop/2.webp",
+        "assets/products/new-dell-xps-13-9300-laptop/3.webp",
+        "assets/products/new-dell-xps-13-9300-laptop/4.webp"
+      ],
       "colors": [
         "white",
         "gray"
@@ -3728,7 +3952,11 @@
       "price": 99.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/amazon-echo-plus/1.webp",
+        "assets/products/amazon-echo-plus/2.webp",
+        "assets/products/amazon-echo-plus/3.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -3780,7 +4008,12 @@
       "price": 129.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/apple-airpods/1.webp",
+        "assets/products/apple-airpods/2.webp",
+        "assets/products/apple-airpods/3.webp",
+        "assets/products/apple-airpods/4.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -3832,7 +4065,10 @@
       "price": 549.99,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/apple-airpods-max-silver/1.webp",
+        "assets/products/apple-airpods-max-silver/2.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -3886,7 +4122,10 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/apple-airpower-wireless-charger/1.webp",
+        "assets/products/apple-airpower-wireless-charger/2.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -3937,7 +4176,10 @@
       "price": 99.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/apple-homepod-mini-cosmic-grey/1.webp",
+        "assets/products/apple-homepod-mini-cosmic-grey/2.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -3988,7 +4230,11 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/apple-iphone-charger/1.webp",
+        "assets/products/apple-iphone-charger/2.webp",
+        "assets/products/apple-iphone-charger/3.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -4039,7 +4285,11 @@
       "price": 99.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/apple-magsafe-battery-pack/1.webp",
+        "assets/products/apple-magsafe-battery-pack/2.webp",
+        "assets/products/apple-magsafe-battery-pack/3.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -4090,7 +4340,12 @@
       "price": 349.99,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/apple-watch-series-4-gold/1.webp",
+        "assets/products/apple-watch-series-4-gold/2.webp",
+        "assets/products/apple-watch-series-4-gold/3.webp",
+        "assets/products/apple-watch-series-4-gold/4.webp"
+      ],
       "colors": [
         "yellow"
       ],
@@ -4143,7 +4398,10 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/beats-flex-wireless-earphones/1.webp",
+        "assets/products/beats-flex-wireless-earphones/2.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -4195,7 +4453,12 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/iphone-12-silicone-case-with-magsafe-plum/1.webp",
+        "assets/products/iphone-12-silicone-case-with-magsafe-plum/2.webp",
+        "assets/products/iphone-12-silicone-case-with-magsafe-plum/3.webp",
+        "assets/products/iphone-12-silicone-case-with-magsafe-plum/4.webp"
+      ],
       "colors": [
         "burgundy"
       ],
@@ -4245,7 +4508,11 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/monopod/1.webp",
+        "assets/products/monopod/2.webp",
+        "assets/products/monopod/3.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -4295,7 +4562,10 @@
       "price": 14.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/selfie-lamp-with-iphone/1.webp",
+        "assets/products/selfie-lamp-with-iphone/2.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -4345,7 +4615,10 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/selfie-stick-monopod/1.webp",
+        "assets/products/selfie-stick-monopod/2.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -4396,7 +4669,10 @@
       "price": 499.99,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/tv-studio-camera-pedestal/1.webp",
+        "assets/products/tv-studio-camera-pedestal/2.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -4446,7 +4722,12 @@
       "price": 199.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/iphone-5s/1.webp",
+        "assets/products/iphone-5s/2.webp",
+        "assets/products/iphone-5s/3.webp",
+        "assets/products/iphone-5s/4.webp"
+      ],
       "colors": [
         "white",
         "black"
@@ -4502,7 +4783,12 @@
       "price": 299.99,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/iphone-6/1.webp",
+        "assets/products/iphone-6/2.webp",
+        "assets/products/iphone-6/3.webp",
+        "assets/products/iphone-6/4.webp"
+      ],
       "colors": [
         "gray",
         "white"
@@ -4558,7 +4844,12 @@
       "price": 1099.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/iphone-13-pro/1.webp",
+        "assets/products/iphone-13-pro/2.webp",
+        "assets/products/iphone-13-pro/3.webp",
+        "assets/products/iphone-13-pro/4.webp"
+      ],
       "colors": [
         "gray",
         "blue"
@@ -4615,7 +4906,12 @@
       "price": 899.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/iphone-x/1.webp",
+        "assets/products/iphone-x/2.webp",
+        "assets/products/iphone-x/3.webp",
+        "assets/products/iphone-x/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -4670,7 +4966,12 @@
       "price": 249.99,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/oppo-a57/1.webp",
+        "assets/products/oppo-a57/2.webp",
+        "assets/products/oppo-a57/3.webp",
+        "assets/products/oppo-a57/4.webp"
+      ],
       "colors": [
         "black",
         "blue"
@@ -4726,7 +5027,12 @@
       "price": 399.99,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/oppo-f19-pro-plus/1.webp",
+        "assets/products/oppo-f19-pro-plus/2.webp",
+        "assets/products/oppo-f19-pro-plus/3.webp",
+        "assets/products/oppo-f19-pro-plus/4.webp"
+      ],
       "colors": [
         "black",
         "blue"
@@ -4782,7 +5088,10 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/essence-mascara-lash-princess/1.webp",
+        "assets/products/essence-mascara-lash-princess/2.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -4831,7 +5140,10 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/eyeshadow-palette-with-mirror/1.webp",
+        "assets/products/eyeshadow-palette-with-mirror/2.webp"
+      ],
       "colors": [
         "beige",
         "brown"
@@ -4881,7 +5193,10 @@
       "price": 14.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/powder-canister/1.webp",
+        "assets/products/powder-canister/2.webp"
+      ],
       "colors": [
         "beige"
       ],
@@ -4929,7 +5244,10 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/red-lipstick/1.webp",
+        "assets/products/red-lipstick/2.webp"
+      ],
       "colors": [
         "red"
       ],
@@ -4977,7 +5295,10 @@
       "price": 8.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/red-nail-polish/1.webp",
+        "assets/products/red-nail-polish/2.webp"
+      ],
       "colors": [
         "red"
       ],
@@ -5024,7 +5345,12 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/calvin-klein-ck-one/1.webp",
+        "assets/products/calvin-klein-ck-one/2.webp",
+        "assets/products/calvin-klein-ck-one/3.webp",
+        "assets/products/calvin-klein-ck-one/4.webp"
+      ],
       "colors": [
         "blue"
       ],
@@ -5072,7 +5398,12 @@
       "price": 129.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/chanel-coco-noir-eau-de/1.webp",
+        "assets/products/chanel-coco-noir-eau-de/2.webp",
+        "assets/products/chanel-coco-noir-eau-de/3.webp",
+        "assets/products/chanel-coco-noir-eau-de/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -5119,7 +5450,12 @@
       "price": 89.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/dior-j-adore/1.webp",
+        "assets/products/dior-j-adore/2.webp",
+        "assets/products/dior-j-adore/3.webp",
+        "assets/products/dior-j-adore/4.webp"
+      ],
       "colors": [
         "yellow"
       ],
@@ -5166,7 +5502,12 @@
       "price": 69.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/dolce-shine-eau-de/1.webp",
+        "assets/products/dolce-shine-eau-de/2.webp",
+        "assets/products/dolce-shine-eau-de/3.webp",
+        "assets/products/dolce-shine-eau-de/4.webp"
+      ],
       "colors": [
         "yellow"
       ],
@@ -5213,7 +5554,12 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/gucci-bloom-eau-de/1.webp",
+        "assets/products/gucci-bloom-eau-de/2.webp",
+        "assets/products/gucci-bloom-eau-de/3.webp",
+        "assets/products/gucci-bloom-eau-de/4.webp"
+      ],
       "colors": [
         "pink"
       ],
@@ -5260,7 +5606,12 @@
       "price": 64.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/soft-rose-day-fragrance/1.webp",
+        "assets/products/soft-rose-day-fragrance/2.webp",
+        "assets/products/soft-rose-day-fragrance/3.webp",
+        "assets/products/soft-rose-day-fragrance/4.webp"
+      ],
       "colors": [
         "pink"
       ],
@@ -5307,7 +5658,12 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/maison-citrus-bloom-eau-de-parfum/1.webp",
+        "assets/products/maison-citrus-bloom-eau-de-parfum/2.webp",
+        "assets/products/maison-citrus-bloom-eau-de-parfum/3.webp",
+        "assets/products/maison-citrus-bloom-eau-de-parfum/4.webp"
+      ],
       "colors": [
         "yellow"
       ],
@@ -5354,7 +5710,11 @@
       "price": 8.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/attitude-super-leaves-hand-soap/1.webp",
+        "assets/products/attitude-super-leaves-hand-soap/2.webp",
+        "assets/products/attitude-super-leaves-hand-soap/3.webp"
+      ],
       "colors": [
         "green"
       ],
@@ -5392,7 +5752,11 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/olay-ultra-moisture-shea-butter-body-wash/1.webp",
+        "assets/products/olay-ultra-moisture-shea-butter-body-wash/2.webp",
+        "assets/products/olay-ultra-moisture-shea-butter-body-wash/3.webp"
+      ],
       "colors": [
         "beige"
       ],
@@ -5429,7 +5793,11 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/vaseline-men-body-and-face-lotion/1.webp",
+        "assets/products/vaseline-men-body-and-face-lotion/2.webp",
+        "assets/products/vaseline-men-body-and-face-lotion/3.webp"
+      ],
       "colors": [
         "blue"
       ],
@@ -5466,7 +5834,9 @@
       "price": 73,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/radiant-citrus-eau-de-parfum/1.jpg"
+      ],
       "colors": [
         "yellow"
       ],
@@ -5513,7 +5883,11 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/green-crystal-earring/1.webp",
+        "assets/products/green-crystal-earring/2.webp",
+        "assets/products/green-crystal-earring/3.webp"
+      ],
       "colors": [
         "green"
       ],
@@ -5553,7 +5927,11 @@
       "price": 24.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/green-oval-earring/1.webp",
+        "assets/products/green-oval-earring/2.webp",
+        "assets/products/green-oval-earring/3.webp"
+      ],
       "colors": [
         "green"
       ],
@@ -5593,7 +5971,11 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/tropical-earring/1.webp",
+        "assets/products/tropical-earring/2.webp",
+        "assets/products/tropical-earring/3.webp"
+      ],
       "colors": [
         "green",
         "yellow"
@@ -5635,7 +6017,9 @@
       "price": 695,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/john-hardy-women-s-legends-naga-gold-silver-dragon-station-chain-bracelet/1.png"
+      ],
       "colors": [
         "yellow",
         "gray"
@@ -5689,7 +6073,9 @@
       "price": 168,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/solid-gold-petite-micropave/1.png"
+      ],
       "colors": [
         "yellow"
       ],
@@ -5739,7 +6125,9 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/white-gold-plated-princess/1.png"
+      ],
       "colors": [
         "white"
       ],
@@ -5789,7 +6177,9 @@
       "price": 10.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/pierced-owl-rose-gold-plated-stainless-steel-double/1.png"
+      ],
       "colors": [
         "pink"
       ],
@@ -5839,7 +6229,12 @@
       "price": 1899.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/annibale-colombo-bed/1.webp",
+        "assets/products/annibale-colombo-bed/2.webp",
+        "assets/products/annibale-colombo-bed/3.webp",
+        "assets/products/annibale-colombo-bed/4.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -5887,7 +6282,12 @@
       "price": 2499.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/annibale-colombo-sofa/1.webp",
+        "assets/products/annibale-colombo-sofa/2.webp",
+        "assets/products/annibale-colombo-sofa/3.webp",
+        "assets/products/annibale-colombo-sofa/4.webp"
+      ],
       "colors": [
         "beige"
       ],
@@ -5935,7 +6335,12 @@
       "price": 299.99,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/bedside-table-african-cherry/1.webp",
+        "assets/products/bedside-table-african-cherry/2.webp",
+        "assets/products/bedside-table-african-cherry/3.webp",
+        "assets/products/bedside-table-african-cherry/4.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -5983,7 +6388,12 @@
       "price": 499.99,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/knoll-saarinen-executive-conference-chair/1.webp",
+        "assets/products/knoll-saarinen-executive-conference-chair/2.webp",
+        "assets/products/knoll-saarinen-executive-conference-chair/3.webp",
+        "assets/products/knoll-saarinen-executive-conference-chair/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -6033,7 +6443,12 @@
       "price": 799.99,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/wooden-bathroom-sink-with-mirror/1.webp",
+        "assets/products/wooden-bathroom-sink-with-mirror/2.webp",
+        "assets/products/wooden-bathroom-sink-with-mirror/3.webp",
+        "assets/products/wooden-bathroom-sink-with-mirror/4.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -6083,7 +6498,12 @@
       "price": 59.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/decoration-swing/1.webp",
+        "assets/products/decoration-swing/2.webp",
+        "assets/products/decoration-swing/3.webp",
+        "assets/products/decoration-swing/4.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -6131,7 +6551,10 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/family-tree-photo-frame/1.webp",
+        "assets/products/family-tree-photo-frame/2.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -6179,7 +6602,12 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/house-showpiece-plant/1.webp",
+        "assets/products/house-showpiece-plant/2.webp",
+        "assets/products/house-showpiece-plant/3.webp",
+        "assets/products/house-showpiece-plant/4.webp"
+      ],
       "colors": [
         "green"
       ],
@@ -6227,7 +6655,12 @@
       "price": 14.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/plant-pot/1.webp",
+        "assets/products/plant-pot/2.webp",
+        "assets/products/plant-pot/3.webp",
+        "assets/products/plant-pot/4.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -6275,7 +6708,10 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/table-lamp/1.webp",
+        "assets/products/table-lamp/2.webp"
+      ],
       "colors": [
         "beige"
       ],
@@ -6323,7 +6759,10 @@
       "price": 7.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/bamboo-spatula/1.webp",
+        "assets/products/bamboo-spatula/2.webp"
+      ],
       "colors": [
         "tan"
       ],
@@ -6373,7 +6812,11 @@
       "price": 5.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/black-aluminium-cup/1.webp",
+        "assets/products/black-aluminium-cup/2.webp",
+        "assets/products/black-aluminium-cup/3.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -6423,7 +6866,10 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/black-whisk/1.webp",
+        "assets/products/black-whisk/2.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -6473,7 +6919,12 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/boxed-blender/1.webp",
+        "assets/products/boxed-blender/2.webp",
+        "assets/products/boxed-blender/3.webp",
+        "assets/products/boxed-blender/4.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -6525,7 +6976,10 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/carbon-steel-wok/1.webp",
+        "assets/products/carbon-steel-wok/2.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -6576,7 +7030,10 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/chopping-board/1.webp",
+        "assets/products/chopping-board/2.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -6626,7 +7083,10 @@
       "price": 8.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/citrus-squeezer-yellow/1.webp",
+        "assets/products/citrus-squeezer-yellow/2.webp"
+      ],
       "colors": [
         "yellow"
       ],
@@ -6676,7 +7136,10 @@
       "price": 6.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/egg-slicer/1.webp",
+        "assets/products/egg-slicer/2.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -6726,7 +7189,12 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/electric-stove/1.webp",
+        "assets/products/electric-stove/2.webp",
+        "assets/products/electric-stove/3.webp",
+        "assets/products/electric-stove/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -6774,7 +7242,10 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/fine-mesh-strainer/1.webp",
+        "assets/products/fine-mesh-strainer/2.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -6824,7 +7295,10 @@
       "price": 3.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/fork/1.webp",
+        "assets/products/fork/2.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -6874,7 +7348,10 @@
       "price": 4.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/glass/1.webp",
+        "assets/products/glass/2.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -6925,7 +7402,10 @@
       "price": 10.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/grater-black/1.webp",
+        "assets/products/grater-black/2.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -6975,7 +7455,10 @@
       "price": 34.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/hand-blender/1.webp",
+        "assets/products/hand-blender/2.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -7027,7 +7510,10 @@
       "price": 5.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/ice-cube-tray/1.webp",
+        "assets/products/ice-cube-tray/2.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -7077,7 +7563,10 @@
       "price": 7.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/kitchen-sieve/1.webp",
+        "assets/products/kitchen-sieve/2.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -7127,7 +7616,10 @@
       "price": 14.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/knife/1.webp",
+        "assets/products/knife/2.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -7177,7 +7669,10 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/lunch-box/1.webp",
+        "assets/products/lunch-box/2.webp"
+      ],
       "colors": [
         "blue"
       ],
@@ -7228,7 +7723,12 @@
       "price": 89.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/microwave-oven/1.webp",
+        "assets/products/microwave-oven/2.webp",
+        "assets/products/microwave-oven/3.webp",
+        "assets/products/microwave-oven/4.webp"
+      ],
       "colors": [
         "black",
         "white"
@@ -7280,7 +7780,10 @@
       "price": 1.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/apple/1.webp",
+        "assets/products/apple/2.webp"
+      ],
       "colors": [
         "red",
         "green"
@@ -7330,7 +7833,10 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/beef-steak/1.webp",
+        "assets/products/beef-steak/2.webp"
+      ],
       "colors": [
         "red"
       ],
@@ -7378,7 +7884,10 @@
       "price": 4.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/cooking-oil/1.webp",
+        "assets/products/cooking-oil/2.webp"
+      ],
       "colors": [
         "yellow"
       ],
@@ -7426,7 +7935,10 @@
       "price": 1.49,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/cucumber/1.webp",
+        "assets/products/cucumber/2.webp"
+      ],
       "colors": [
         "green"
       ],
@@ -7474,7 +7986,10 @@
       "price": 10.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/dog-food/1.webp",
+        "assets/products/dog-food/2.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -7522,7 +8037,10 @@
       "price": 1.29,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/green-bell-pepper/1.webp",
+        "assets/products/green-bell-pepper/2.webp"
+      ],
       "colors": [
         "green"
       ],
@@ -7570,7 +8088,10 @@
       "price": 6.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/honey-jar/1.webp",
+        "assets/products/honey-jar/2.webp"
+      ],
       "colors": [
         "yellow"
       ],
@@ -7618,7 +8139,12 @@
       "price": 5.49,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/ice-cream/1.webp",
+        "assets/products/ice-cream/2.webp",
+        "assets/products/ice-cream/3.webp",
+        "assets/products/ice-cream/4.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -7666,7 +8192,10 @@
       "price": 2.49,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/kiwi/1.webp",
+        "assets/products/kiwi/2.webp"
+      ],
       "colors": [
         "green"
       ],
@@ -7714,7 +8243,10 @@
       "price": 0.79,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/lemon/1.webp",
+        "assets/products/lemon/2.webp"
+      ],
       "colors": [
         "yellow"
       ],
@@ -7762,7 +8294,10 @@
       "price": 4.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/mulberry/1.webp",
+        "assets/products/mulberry/2.webp"
+      ],
       "colors": [
         "burgundy"
       ],
@@ -7810,7 +8345,10 @@
       "price": 7.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/nescafe-coffee/1.webp",
+        "assets/products/nescafe-coffee/2.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -7858,7 +8396,10 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/protein-powder/1.webp",
+        "assets/products/protein-powder/2.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -7906,7 +8447,10 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/american-football/1.webp",
+        "assets/products/american-football/2.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -7951,7 +8495,10 @@
       "price": 8.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/baseball-ball/1.webp",
+        "assets/products/baseball-ball/2.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -7996,7 +8543,12 @@
       "price": 24.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/baseball-glove/1.webp",
+        "assets/products/baseball-glove/2.webp",
+        "assets/products/baseball-glove/3.webp",
+        "assets/products/baseball-glove/4.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -8043,7 +8595,10 @@
       "price": 14.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/basketball/1.webp",
+        "assets/products/basketball/2.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -8088,7 +8643,10 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/basketball-rim/1.webp",
+        "assets/products/basketball-rim/2.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -8133,7 +8691,10 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/cricket-ball/1.webp",
+        "assets/products/cricket-ball/2.webp"
+      ],
       "colors": [
         "red"
       ],
@@ -8178,7 +8739,10 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/cricket-bat/1.webp",
+        "assets/products/cricket-bat/2.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -8223,7 +8787,12 @@
       "price": 44.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/cricket-helmet/1.webp",
+        "assets/products/cricket-helmet/2.webp",
+        "assets/products/cricket-helmet/3.webp",
+        "assets/products/cricket-helmet/4.webp"
+      ],
       "colors": [
         "white",
         "black"
@@ -8272,7 +8841,10 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/cricket-wicket/1.webp",
+        "assets/products/cricket-wicket/2.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -8317,7 +8889,10 @@
       "price": 5.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/feather-shuttlecock/1.webp",
+        "assets/products/feather-shuttlecock/2.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -8362,7 +8937,10 @@
       "price": 17.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/football/1.webp",
+        "assets/products/football/2.webp"
+      ],
       "colors": [
         "black",
         "white"
@@ -8409,7 +8987,10 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/golf-ball/1.webp",
+        "assets/products/golf-ball/2.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -8454,7 +9035,10 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/iron-golf/1.webp",
+        "assets/products/iron-golf/2.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -8499,7 +9083,10 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/metal-baseball-bat/1.webp",
+        "assets/products/metal-baseball-bat/2.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -8544,7 +9131,10 @@
       "price": 6.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/tennis-ball/1.webp",
+        "assets/products/tennis-ball/2.webp"
+      ],
       "colors": [
         "yellow"
       ],
@@ -8589,7 +9179,11 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/blue-women-s-handbag/1.webp",
+        "assets/products/blue-women-s-handbag/2.webp",
+        "assets/products/blue-women-s-handbag/3.webp"
+      ],
       "colors": [
         "blue"
       ],
@@ -8629,7 +9223,11 @@
       "price": 129.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/heshe-women-s-leather-bag/1.webp",
+        "assets/products/heshe-women-s-leather-bag/2.webp",
+        "assets/products/heshe-women-s-leather-bag/3.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -8669,7 +9267,11 @@
       "price": 599.99,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/prada-women-bag/1.webp",
+        "assets/products/prada-women-bag/2.webp",
+        "assets/products/prada-women-bag/3.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -8709,7 +9311,11 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/white-faux-leather-backpack/1.webp",
+        "assets/products/white-faux-leather-backpack/2.webp",
+        "assets/products/white-faux-leather-backpack/3.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -8749,7 +9355,11 @@
       "price": 59.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/women-handbag-black/1.webp",
+        "assets/products/women-handbag-black/2.webp",
+        "assets/products/women-handbag-black/3.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -8789,7 +9399,11 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/black-sun-glasses/1.webp",
+        "assets/products/black-sun-glasses/2.webp",
+        "assets/products/black-sun-glasses/3.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -8829,7 +9443,11 @@
       "price": 24.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/classic-sun-glasses/1.webp",
+        "assets/products/classic-sun-glasses/2.webp",
+        "assets/products/classic-sun-glasses/3.webp"
+      ],
       "colors": [
         "beige"
       ],
@@ -8869,7 +9487,11 @@
       "price": 34.99,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/green-and-black-glasses/1.webp",
+        "assets/products/green-and-black-glasses/2.webp",
+        "assets/products/green-and-black-glasses/3.webp"
+      ],
       "colors": [
         "green",
         "black"
@@ -8911,7 +9533,11 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/party-glasses/1.webp",
+        "assets/products/party-glasses/2.webp",
+        "assets/products/party-glasses/3.webp"
+      ],
       "colors": [
         "pink"
       ],
@@ -8951,7 +9577,11 @@
       "price": 22.99,
       "currency": "USD",
       "priceTier": "entry",
-      "images": [],
+      "images": [
+        "assets/products/sunglasses/1.webp",
+        "assets/products/sunglasses/2.webp",
+        "assets/products/sunglasses/3.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -8991,7 +9621,9 @@
       "price": 48,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/sleek-olive-green-hardshell-carry-on-luggage/1.jpg"
+      ],
       "colors": [
         "olive"
       ],
@@ -9042,7 +9674,9 @@
       "price": 61,
       "currency": "USD",
       "priceTier": "budget",
-      "images": [],
+      "images": [
+        "assets/products/chic-transparent-fashion-handbag/1.jpg"
+      ],
       "colors": [
         "white"
       ],
@@ -9093,7 +9727,12 @@
       "price": 89.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/brown-leather-belt-watch/1.webp",
+        "assets/products/brown-leather-belt-watch/2.webp",
+        "assets/products/brown-leather-belt-watch/3.webp",
+        "assets/products/brown-leather-belt-watch/4.webp"
+      ],
       "colors": [
         "brown"
       ],
@@ -9143,7 +9782,12 @@
       "price": 1499.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/longines-master-collection/1.webp",
+        "assets/products/longines-master-collection/2.webp",
+        "assets/products/longines-master-collection/3.webp",
+        "assets/products/longines-master-collection/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -9193,7 +9837,12 @@
       "price": 8999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/rolex-cellini-date-black-dial/1.webp",
+        "assets/products/rolex-cellini-date-black-dial/2.webp",
+        "assets/products/rolex-cellini-date-black-dial/3.webp",
+        "assets/products/rolex-cellini-date-black-dial/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -9243,7 +9892,12 @@
       "price": 12999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/rolex-cellini-moonphase/1.webp",
+        "assets/products/rolex-cellini-moonphase/2.webp",
+        "assets/products/rolex-cellini-moonphase/3.webp",
+        "assets/products/rolex-cellini-moonphase/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -9293,7 +9947,12 @@
       "price": 10999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/rolex-datejust/1.webp",
+        "assets/products/rolex-datejust/2.webp",
+        "assets/products/rolex-datejust/3.webp",
+        "assets/products/rolex-datejust/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -9343,7 +10002,12 @@
       "price": 13999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/rolex-submariner-watch/1.webp",
+        "assets/products/rolex-submariner-watch/2.webp",
+        "assets/products/rolex-submariner-watch/3.webp",
+        "assets/products/rolex-submariner-watch/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -9393,7 +10057,12 @@
       "price": 4999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/iwc-ingenieur-automatic-steel/1.webp",
+        "assets/products/iwc-ingenieur-automatic-steel/2.webp",
+        "assets/products/iwc-ingenieur-automatic-steel/3.webp",
+        "assets/products/iwc-ingenieur-automatic-steel/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -9443,7 +10112,12 @@
       "price": 10999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/rolex-datejust-women/1.webp",
+        "assets/products/rolex-datejust-women/2.webp",
+        "assets/products/rolex-datejust-women/3.webp",
+        "assets/products/rolex-datejust-women/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -9493,7 +10167,12 @@
       "price": 799.99,
       "currency": "USD",
       "priceTier": "premium",
-      "images": [],
+      "images": [
+        "assets/products/watch-gold-for-women/1.webp",
+        "assets/products/watch-gold-for-women/2.webp",
+        "assets/products/watch-gold-for-women/3.webp",
+        "assets/products/watch-gold-for-women/4.webp"
+      ],
       "colors": [
         "yellow"
       ],
@@ -9543,7 +10222,12 @@
       "price": 129.99,
       "currency": "USD",
       "priceTier": "mid",
-      "images": [],
+      "images": [
+        "assets/products/women-s-wrist-watch/1.webp",
+        "assets/products/women-s-wrist-watch/2.webp",
+        "assets/products/women-s-wrist-watch/3.webp",
+        "assets/products/women-s-wrist-watch/4.webp"
+      ],
       "colors": [
         "gray",
         "pink"
@@ -9596,7 +10280,12 @@
       "price": 32999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/charger-sxt-rwd/1.webp",
+        "assets/products/charger-sxt-rwd/2.webp",
+        "assets/products/charger-sxt-rwd/3.webp",
+        "assets/products/charger-sxt-rwd/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -9637,7 +10326,12 @@
       "price": 24999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/dodge-hornet-gt-plus/1.webp",
+        "assets/products/dodge-hornet-gt-plus/2.webp",
+        "assets/products/dodge-hornet-gt-plus/3.webp",
+        "assets/products/dodge-hornet-gt-plus/4.webp"
+      ],
       "colors": [
         "red"
       ],
@@ -9678,7 +10372,12 @@
       "price": 28999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/300-touring/1.webp",
+        "assets/products/300-touring/2.webp",
+        "assets/products/300-touring/3.webp",
+        "assets/products/300-touring/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -9718,7 +10417,12 @@
       "price": 36999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/durango-sxt-rwd/1.webp",
+        "assets/products/durango-sxt-rwd/2.webp",
+        "assets/products/durango-sxt-rwd/3.webp",
+        "assets/products/durango-sxt-rwd/4.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -9758,7 +10462,12 @@
       "price": 31999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/pacifica-touring/1.webp",
+        "assets/products/pacifica-touring/2.webp",
+        "assets/products/pacifica-touring/3.webp",
+        "assets/products/pacifica-touring/4.webp"
+      ],
       "colors": [
         "gray"
       ],
@@ -9798,7 +10507,12 @@
       "price": 3999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/generic-motorcycle/1.webp",
+        "assets/products/generic-motorcycle/2.webp",
+        "assets/products/generic-motorcycle/3.webp",
+        "assets/products/generic-motorcycle/4.webp"
+      ],
       "colors": [
         "black"
       ],
@@ -9837,7 +10551,12 @@
       "price": 8999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/kawasaki-z800/1.webp",
+        "assets/products/kawasaki-z800/2.webp",
+        "assets/products/kawasaki-z800/3.webp",
+        "assets/products/kawasaki-z800/4.webp"
+      ],
       "colors": [
         "green"
       ],
@@ -9877,7 +10596,12 @@
       "price": 14999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/motogp-ci-h1/1.webp",
+        "assets/products/motogp-ci-h1/2.webp",
+        "assets/products/motogp-ci-h1/3.webp",
+        "assets/products/motogp-ci-h1/4.webp"
+      ],
       "colors": [
         "red"
       ],
@@ -9917,7 +10641,12 @@
       "price": 2999.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/scooter-motorcycle/1.webp",
+        "assets/products/scooter-motorcycle/2.webp",
+        "assets/products/scooter-motorcycle/3.webp",
+        "assets/products/scooter-motorcycle/4.webp"
+      ],
       "colors": [
         "white"
       ],
@@ -9957,7 +10686,12 @@
       "price": 7499.99,
       "currency": "USD",
       "priceTier": "luxury",
-      "images": [],
+      "images": [
+        "assets/products/sportbike-motorcycle/1.webp",
+        "assets/products/sportbike-motorcycle/2.webp",
+        "assets/products/sportbike-motorcycle/3.webp",
+        "assets/products/sportbike-motorcycle/4.webp"
+      ],
       "colors": [
         "black"
       ],
