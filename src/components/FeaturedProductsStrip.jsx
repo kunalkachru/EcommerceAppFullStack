@@ -22,7 +22,7 @@ const FeaturedProductsStrip = () => (
       {featured.map((product) => (
         <View key={product.id} style={styles.card}>
           <Image
-            source={{ uri: product.image }}
+            source={{ uri: product.image || product.images?.[0] }}
             style={styles.image}
             resizeMode="contain"
           />

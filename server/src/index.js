@@ -144,7 +144,7 @@ function authMiddleware(req, res, next) {
 }
 
 const app = express();
-app.use(helmet());
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(cors());
 app.use(express.json({ limit: "12mb" }));
 app.use(morgan((tokens, req, res) => {
@@ -160,6 +160,42 @@ app.use(morgan((tokens, req, res) => {
     "ms",
   ].join(" ");
 }));
+
+// Serve the static catalog's local product images (server/catalog-static.json
+// stores repo-relative paths like "assets/products/<slug>/1.jpg").
+app.use("/assets", express.static(path.join(__dirname, "..", "..", "assets")));
+
+/**
+ * The static catalog stores product images as repo-relative paths, not full
+ * URLs (CATALOG_MODE=live products still carry absolute https:// URLs from
+ * their source APIs and pass through unchanged). Every response gets a
+ * generic recursive rewrite instead of patching each endpoint individually --
+ * this covers catalog list/detail, visual-search matches/similar, and any
+ * cart/order snapshot that embeds a product image, without needing to track
+ * down every call site by hand.
+ */
+function absolutizeAssetPaths(value, baseUrl) {
+  if (typeof value === "string") {
+    return /^assets\//.test(value) ? `${baseUrl}/${value}` : value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => absolutizeAssetPaths(item, baseUrl));
+  }
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [key, val] of Object.entries(value)) {
+      out[key] = absolutizeAssetPaths(val, baseUrl);
+    }
+    return out;
+  }
+  return value;
+}
+
+app.use((req, res, next) => {
+  const originalJson = res.json.bind(res);
+  res.json = (body) => originalJson(absolutizeAssetPaths(body, `${req.protocol}://${req.get("host")}`));
+  next();
+});
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

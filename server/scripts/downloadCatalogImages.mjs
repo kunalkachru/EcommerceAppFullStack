@@ -56,6 +56,11 @@ async function main() {
       continue;
     }
     product.images = localPaths;
+    // Legacy schema parity: the live-fetch pipeline always set a singular
+    // `image` field (thumbnail), and several existing client components
+    // (cart, order history, similar-products strip, home visual-search
+    // matches) read `product.image` directly rather than `images[0]`.
+    product.image = localPaths[0];
     done += 1;
     if (done % 20 === 0) console.log(`... ${done}/${staticCatalog.products.length}`);
   }

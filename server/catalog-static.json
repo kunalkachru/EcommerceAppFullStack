@@ -65,7 +65,8 @@
       "inventoryCount": 34,
       "availability": "in_stock",
       "rating": 3.64,
-      "slug": "blue-black-check-shirt"
+      "slug": "blue-black-check-shirt",
+      "image": "assets/products/blue-black-check-shirt/1.webp"
     },
     {
       "id": "dj-84",
@@ -128,7 +129,8 @@
       "inventoryCount": 37,
       "availability": "in_stock",
       "rating": 3.18,
-      "slug": "gigabyte-aorus-men-tshirt"
+      "slug": "gigabyte-aorus-men-tshirt",
+      "image": "assets/products/gigabyte-aorus-men-tshirt/1.webp"
     },
     {
       "id": "dj-85",
@@ -198,7 +200,8 @@
       "inventoryCount": 27,
       "availability": "in_stock",
       "rating": 3.46,
-      "slug": "man-plaid-shirt"
+      "slug": "man-plaid-shirt",
+      "image": "assets/products/man-plaid-shirt/1.webp"
     },
     {
       "id": "dj-86",
@@ -263,7 +266,8 @@
       "inventoryCount": 34,
       "availability": "in_stock",
       "rating": 2.9,
-      "slug": "man-short-sleeve-shirt"
+      "slug": "man-short-sleeve-shirt",
+      "image": "assets/products/man-short-sleeve-shirt/1.webp"
     },
     {
       "id": "dj-87",
@@ -328,7 +332,8 @@
       "inventoryCount": 27,
       "availability": "in_stock",
       "rating": 2.72,
-      "slug": "men-check-shirt"
+      "slug": "men-check-shirt",
+      "image": "assets/products/men-check-shirt/1.webp"
     },
     {
       "id": "fs-2",
@@ -395,7 +400,8 @@
       "inventoryCount": 49,
       "availability": "in_stock",
       "rating": 4.1,
-      "slug": "mens-casual-premium-slim-fit-t-shirts"
+      "slug": "mens-casual-premium-slim-fit-t-shirts",
+      "image": "assets/products/mens-casual-premium-slim-fit-t-shirts/1.png"
     },
     {
       "id": "fs-3",
@@ -460,7 +466,8 @@
       "inventoryCount": 30,
       "availability": "in_stock",
       "rating": 4.7,
-      "slug": "mens-cotton-jacket"
+      "slug": "mens-cotton-jacket",
+      "image": "assets/products/mens-cotton-jacket/1.png"
     },
     {
       "id": "fs-4",
@@ -522,7 +529,8 @@
       "inventoryCount": 32,
       "availability": "in_stock",
       "rating": 2.1,
-      "slug": "mens-casual-slim-fit"
+      "slug": "mens-casual-slim-fit",
+      "image": "assets/products/mens-casual-slim-fit/1.png"
     },
     {
       "id": "es-3",
@@ -582,7 +590,8 @@
       "inventoryCount": 39,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-heather-gray-hoodie"
+      "slug": "classic-heather-gray-hoodie",
+      "image": "assets/products/classic-heather-gray-hoodie/1.jpeg"
     },
     {
       "id": "es-4",
@@ -642,7 +651,8 @@
       "inventoryCount": 42,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-grey-hooded-sweatshirt"
+      "slug": "classic-grey-hooded-sweatshirt",
+      "image": "assets/products/classic-grey-hooded-sweatshirt/1.jpeg"
     },
     {
       "id": "es-5",
@@ -702,7 +712,8 @@
       "inventoryCount": 43,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-black-hooded-sweatshirt"
+      "slug": "classic-black-hooded-sweatshirt",
+      "image": "assets/products/classic-black-hooded-sweatshirt/1.jpeg"
     },
     {
       "id": "es-7",
@@ -767,7 +778,8 @@
       "inventoryCount": 46,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-comfort-drawstring-joggers"
+      "slug": "classic-comfort-drawstring-joggers",
+      "image": "assets/products/classic-comfort-drawstring-joggers/1.jpeg"
     },
     {
       "id": "es-8",
@@ -828,7 +840,8 @@
       "inventoryCount": 41,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-red-jogger-sweatpants"
+      "slug": "classic-red-jogger-sweatpants",
+      "image": "assets/products/classic-red-jogger-sweatpants/1.jpeg"
     },
     {
       "id": "es-9",
@@ -888,7 +901,8 @@
       "inventoryCount": 42,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-navy-blue-baseball-cap"
+      "slug": "classic-navy-blue-baseball-cap",
+      "image": "assets/products/classic-navy-blue-baseball-cap/1.jpeg"
     },
     {
       "id": "es-10",
@@ -948,7 +962,8 @@
       "inventoryCount": 37,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-blue-baseball-cap"
+      "slug": "classic-blue-baseball-cap",
+      "image": "assets/products/classic-blue-baseball-cap/1.jpeg"
     },
     {
       "id": "es-11",
@@ -1008,7 +1023,8 @@
       "inventoryCount": 36,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-red-baseball-cap"
+      "slug": "classic-red-baseball-cap",
+      "image": "assets/products/classic-red-baseball-cap/1.jpeg"
     },
     {
       "id": "es-12",
@@ -1068,7 +1084,8 @@
       "inventoryCount": 38,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-black-baseball-cap"
+      "slug": "classic-black-baseball-cap",
+      "image": "assets/products/classic-black-baseball-cap/1.jpeg"
     },
     {
       "id": "es-13",
@@ -1129,7 +1146,8 @@
       "inventoryCount": 38,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-olive-chino-shorts"
+      "slug": "classic-olive-chino-shorts",
+      "image": "assets/products/classic-olive-chino-shorts/1.jpeg"
     },
     {
       "id": "es-14",
@@ -1192,7 +1210,8 @@
       "inventoryCount": 48,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-high-waisted-athletic-shorts"
+      "slug": "classic-high-waisted-athletic-shorts",
+      "image": "assets/products/classic-high-waisted-athletic-shorts/1.jpeg"
     },
     {
       "id": "es-15",
@@ -1252,7 +1271,8 @@
       "inventoryCount": 43,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "classic-white-crew-neck-t-shirt"
+      "slug": "classic-white-crew-neck-t-shirt",
+      "image": "assets/products/classic-white-crew-neck-t-shirt/1.jpeg"
     },
     {
       "id": "dj-162",
@@ -1315,7 +1335,8 @@
       "inventoryCount": 22,
       "availability": "in_stock",
       "rating": 4.17,
-      "slug": "blue-frock"
+      "slug": "blue-frock",
+      "image": "assets/products/blue-frock/1.webp"
     },
     {
       "id": "dj-163",
@@ -1380,7 +1401,8 @@
       "inventoryCount": 29,
       "availability": "in_stock",
       "rating": 4.77,
-      "slug": "girl-summer-dress"
+      "slug": "girl-summer-dress",
+      "image": "assets/products/girl-summer-dress/1.webp"
     },
     {
       "id": "dj-164",
@@ -1444,7 +1466,8 @@
       "inventoryCount": 22,
       "availability": "in_stock",
       "rating": 2.72,
-      "slug": "gray-dress"
+      "slug": "gray-dress",
+      "image": "assets/products/gray-dress/1.webp"
     },
     {
       "id": "dj-165",
@@ -1507,7 +1530,8 @@
       "inventoryCount": 23,
       "availability": "in_stock",
       "rating": 3.23,
-      "slug": "short-frock"
+      "slug": "short-frock",
+      "image": "assets/products/short-frock/1.webp"
     },
     {
       "id": "dj-166",
@@ -1572,7 +1596,8 @@
       "inventoryCount": 24,
       "availability": "in_stock",
       "rating": 4.05,
-      "slug": "tartan-dress"
+      "slug": "tartan-dress",
+      "image": "assets/products/tartan-dress/1.webp"
     },
     {
       "id": "dj-178",
@@ -1626,7 +1651,8 @@
       "inventoryCount": 37,
       "availability": "in_stock",
       "rating": 3.05,
-      "slug": "corset-leather-with-skirt"
+      "slug": "corset-leather-with-skirt",
+      "image": "assets/products/corset-leather-with-skirt/1.webp"
     },
     {
       "id": "dj-179",
@@ -1682,7 +1708,8 @@
       "inventoryCount": 35,
       "availability": "in_stock",
       "rating": 4.52,
-      "slug": "corset-with-black-skirt"
+      "slug": "corset-with-black-skirt",
+      "image": "assets/products/corset-with-black-skirt/1.webp"
     },
     {
       "id": "dj-177",
@@ -1735,7 +1762,8 @@
       "inventoryCount": 30,
       "availability": "in_stock",
       "rating": 3.64,
-      "slug": "black-women-s-gown"
+      "slug": "black-women-s-gown",
+      "image": "assets/products/black-women-s-gown/1.webp"
     },
     {
       "id": "dj-180",
@@ -1788,7 +1816,8 @@
       "inventoryCount": 21,
       "availability": "in_stock",
       "rating": 4.88,
-      "slug": "dress-pea"
+      "slug": "dress-pea",
+      "image": "assets/products/dress-pea/1.webp"
     },
     {
       "id": "dj-181",
@@ -1843,7 +1872,8 @@
       "inventoryCount": 32,
       "availability": "in_stock",
       "rating": 4.48,
-      "slug": "marni-red-black-suit"
+      "slug": "marni-red-black-suit",
+      "image": "assets/products/marni-red-black-suit/1.webp"
     },
     {
       "id": "fs-15",
@@ -1906,7 +1936,8 @@
       "inventoryCount": 28,
       "availability": "in_stock",
       "rating": 2.6,
-      "slug": "biylaclesen-women-s-3-in-1-snowboard-jacket-winter-coats"
+      "slug": "biylaclesen-women-s-3-in-1-snowboard-jacket-winter-coats",
+      "image": "assets/products/biylaclesen-women-s-3-in-1-snowboard-jacket-winter-coats/1.png"
     },
     {
       "id": "fs-16",
@@ -1967,7 +1998,8 @@
       "inventoryCount": 41,
       "availability": "in_stock",
       "rating": 2.9,
-      "slug": "lock-and-love-women-s-removable-hooded-faux-leather-moto-biker-jacket"
+      "slug": "lock-and-love-women-s-removable-hooded-faux-leather-moto-biker-jacket",
+      "image": "assets/products/lock-and-love-women-s-removable-hooded-faux-leather-moto-biker-jacket/1.png"
     },
     {
       "id": "fs-17",
@@ -2030,7 +2062,8 @@
       "inventoryCount": 28,
       "availability": "in_stock",
       "rating": 3.8,
-      "slug": "rain-jacket-women-windbreaker-striped-climbing-raincoats"
+      "slug": "rain-jacket-women-windbreaker-striped-climbing-raincoats",
+      "image": "assets/products/rain-jacket-women-windbreaker-striped-climbing-raincoats/1.png"
     },
     {
       "id": "fs-18",
@@ -2093,7 +2126,8 @@
       "inventoryCount": 14,
       "availability": "in_stock",
       "rating": 4.7,
-      "slug": "mbj-women-s-solid-short-sleeve-boat-neck-v"
+      "slug": "mbj-women-s-solid-short-sleeve-boat-neck-v",
+      "image": "assets/products/mbj-women-s-solid-short-sleeve-boat-neck-v/1.png"
     },
     {
       "id": "fs-19",
@@ -2156,7 +2190,8 @@
       "inventoryCount": 46,
       "availability": "in_stock",
       "rating": 4.5,
-      "slug": "opna-women-s-short-sleeve-moisture"
+      "slug": "opna-women-s-short-sleeve-moisture",
+      "image": "assets/products/opna-women-s-short-sleeve-moisture/1.png"
     },
     {
       "id": "fs-20",
@@ -2219,7 +2254,8 @@
       "inventoryCount": 14,
       "availability": "in_stock",
       "rating": 3.6,
-      "slug": "danvouy-womens-t-shirt-casual-cotton-short"
+      "slug": "danvouy-womens-t-shirt-casual-cotton-short",
+      "image": "assets/products/danvouy-womens-t-shirt-casual-cotton-short/1.png"
     },
     {
       "id": "demo-jacket-blue-49",
@@ -2280,7 +2316,8 @@
       "inventoryCount": 38,
       "availability": "in_stock",
       "rating": 4.4,
-      "slug": "seabreeze-blue-rain-jacket"
+      "slug": "seabreeze-blue-rain-jacket",
+      "image": "assets/products/seabreeze-blue-rain-jacket/1.png"
     },
     {
       "id": "demo-jacket-blue-54",
@@ -2341,7 +2378,8 @@
       "inventoryCount": 44,
       "availability": "in_stock",
       "rating": 4.3,
-      "slug": "alpine-blue-packable-windbreaker"
+      "slug": "alpine-blue-packable-windbreaker",
+      "image": "assets/products/alpine-blue-packable-windbreaker/1.png"
     },
     {
       "id": "demo-jacket-blue-59",
@@ -2404,7 +2442,8 @@
       "inventoryCount": 35,
       "availability": "in_stock",
       "rating": 4.1,
-      "slug": "harbor-blue-hooded-coat"
+      "slug": "harbor-blue-hooded-coat",
+      "image": "assets/products/harbor-blue-hooded-coat/1.png"
     },
     {
       "id": "dj-88",
@@ -2473,7 +2512,8 @@
       "inventoryCount": 43,
       "availability": "in_stock",
       "rating": 4.77,
-      "slug": "nike-air-jordan-1-red-and-black"
+      "slug": "nike-air-jordan-1-red-and-black",
+      "image": "assets/products/nike-air-jordan-1-red-and-black/1.webp"
     },
     {
       "id": "dj-89",
@@ -2541,7 +2581,8 @@
       "inventoryCount": 32,
       "availability": "in_stock",
       "rating": 3.88,
-      "slug": "nike-baseball-cleats"
+      "slug": "nike-baseball-cleats",
+      "image": "assets/products/nike-baseball-cleats/1.webp"
     },
     {
       "id": "dj-90",
@@ -2609,7 +2650,8 @@
       "inventoryCount": 38,
       "availability": "in_stock",
       "rating": 4.9,
-      "slug": "puma-future-rider-trainers"
+      "slug": "puma-future-rider-trainers",
+      "image": "assets/products/puma-future-rider-trainers/1.webp"
     },
     {
       "id": "dj-91",
@@ -2677,7 +2719,8 @@
       "inventoryCount": 41,
       "availability": "in_stock",
       "rating": 4.77,
-      "slug": "sports-sneakers-off-white-red"
+      "slug": "sports-sneakers-off-white-red",
+      "image": "assets/products/sports-sneakers-off-white-red/1.webp"
     },
     {
       "id": "dj-185",
@@ -2743,7 +2786,8 @@
       "inventoryCount": 31,
       "availability": "in_stock",
       "rating": 2.53,
-      "slug": "black-brown-slipper"
+      "slug": "black-brown-slipper",
+      "image": "assets/products/black-brown-slipper/1.webp"
     },
     {
       "id": "dj-186",
@@ -2807,7 +2851,8 @@
       "inventoryCount": 35,
       "availability": "in_stock",
       "rating": 4.92,
-      "slug": "calvin-klein-heel-shoes"
+      "slug": "calvin-klein-heel-shoes",
+      "image": "assets/products/calvin-klein-heel-shoes/1.webp"
     },
     {
       "id": "dj-187",
@@ -2871,7 +2916,8 @@
       "inventoryCount": 30,
       "availability": "in_stock",
       "rating": 3.26,
-      "slug": "golden-shoes-woman"
+      "slug": "golden-shoes-woman",
+      "image": "assets/products/golden-shoes-woman/1.webp"
     },
     {
       "id": "dj-188",
@@ -2937,7 +2983,8 @@
       "inventoryCount": 23,
       "availability": "in_stock",
       "rating": 3.05,
-      "slug": "pampi-shoes"
+      "slug": "pampi-shoes",
+      "image": "assets/products/pampi-shoes/1.webp"
     },
     {
       "id": "dj-189",
@@ -3001,7 +3048,8 @@
       "inventoryCount": 21,
       "availability": "in_stock",
       "rating": 3.25,
-      "slug": "red-shoes"
+      "slug": "red-shoes",
+      "image": "assets/products/red-shoes/1.webp"
     },
     {
       "id": "demo-shoes-women-39",
@@ -3068,7 +3116,8 @@
       "inventoryCount": 33,
       "availability": "in_stock",
       "rating": 4.1,
-      "slug": "riviera-women-sandals"
+      "slug": "riviera-women-sandals",
+      "image": "assets/products/riviera-women-sandals/1.webp"
     },
     {
       "id": "demo-shoes-women-44",
@@ -3134,7 +3183,8 @@
       "inventoryCount": 37,
       "availability": "in_stock",
       "rating": 4.4,
-      "slug": "urban-step-women-sneakers"
+      "slug": "urban-step-women-sneakers",
+      "image": "assets/products/urban-step-women-sneakers/1.webp"
     },
     {
       "id": "demo-shoes-women-49",
@@ -3203,7 +3253,8 @@
       "inventoryCount": 40,
       "availability": "in_stock",
       "rating": 4.3,
-      "slug": "everyday-women-running-shoes"
+      "slug": "everyday-women-running-shoes",
+      "image": "assets/products/everyday-women-running-shoes/1.webp"
     },
     {
       "id": "es-35",
@@ -3266,7 +3317,8 @@
       "inventoryCount": 48,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "futuristic-holographic-soccer-cleats"
+      "slug": "futuristic-holographic-soccer-cleats",
+      "image": "assets/products/futuristic-holographic-soccer-cleats/1.jpeg"
     },
     {
       "id": "es-36",
@@ -3329,7 +3381,8 @@
       "inventoryCount": 38,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "rainbow-glitter-high-heels"
+      "slug": "rainbow-glitter-high-heels",
+      "image": "assets/products/rainbow-glitter-high-heels/1.jpeg"
     },
     {
       "id": "es-37",
@@ -3393,7 +3446,8 @@
       "inventoryCount": 48,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "chic-summer-denim-espadrille-sandals"
+      "slug": "chic-summer-denim-espadrille-sandals",
+      "image": "assets/products/chic-summer-denim-espadrille-sandals/1.jpeg"
     },
     {
       "id": "es-38",
@@ -3459,7 +3513,8 @@
       "inventoryCount": 13,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "vibrant-runners-bold-orange-blue-sneakers"
+      "slug": "vibrant-runners-bold-orange-blue-sneakers",
+      "image": "assets/products/vibrant-runners-bold-orange-blue-sneakers/1.jpeg"
     },
     {
       "id": "es-39",
@@ -3522,7 +3577,8 @@
       "inventoryCount": 41,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "vibrant-pink-classic-sneakers"
+      "slug": "vibrant-pink-classic-sneakers",
+      "image": "assets/products/vibrant-pink-classic-sneakers/1.jpeg"
     },
     {
       "id": "es-40",
@@ -3585,7 +3641,8 @@
       "inventoryCount": 15,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "futuristic-silver-and-gold-high-top-sneaker"
+      "slug": "futuristic-silver-and-gold-high-top-sneaker",
+      "image": "assets/products/futuristic-silver-and-gold-high-top-sneaker/1.jpeg"
     },
     {
       "id": "es-41",
@@ -3646,7 +3703,8 @@
       "inventoryCount": 43,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "futuristic-chic-high-heel-boots"
+      "slug": "futuristic-chic-high-heel-boots",
+      "image": "assets/products/futuristic-chic-high-heel-boots/1.jpeg"
     },
     {
       "id": "es-42",
@@ -3707,7 +3765,8 @@
       "inventoryCount": 29,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "elegant-patent-leather-peep-toe-pumps-with-gold-tone-heel"
+      "slug": "elegant-patent-leather-peep-toe-pumps-with-gold-tone-heel",
+      "image": "assets/products/elegant-patent-leather-peep-toe-pumps-with-gold-tone-heel/1.jpeg"
     },
     {
       "id": "dj-78",
@@ -3765,7 +3824,8 @@
       "inventoryCount": 48,
       "availability": "in_stock",
       "rating": 3.65,
-      "slug": "apple-macbook-pro-14-inch-space-grey"
+      "slug": "apple-macbook-pro-14-inch-space-grey",
+      "image": "assets/products/apple-macbook-pro-14-inch-space-grey/1.webp"
     },
     {
       "id": "dj-79",
@@ -3823,7 +3883,8 @@
       "inventoryCount": 47,
       "availability": "in_stock",
       "rating": 3.95,
-      "slug": "asus-zenbook-pro-dual-screen-laptop"
+      "slug": "asus-zenbook-pro-dual-screen-laptop",
+      "image": "assets/products/asus-zenbook-pro-dual-screen-laptop/1.webp"
     },
     {
       "id": "dj-80",
@@ -3883,7 +3944,8 @@
       "inventoryCount": 33,
       "availability": "in_stock",
       "rating": 4.98,
-      "slug": "huawei-matebook-x-pro"
+      "slug": "huawei-matebook-x-pro",
+      "image": "assets/products/huawei-matebook-x-pro/1.webp"
     },
     {
       "id": "dj-81",
@@ -3941,7 +4003,8 @@
       "inventoryCount": 27,
       "availability": "in_stock",
       "rating": 2.86,
-      "slug": "lenovo-yoga-920"
+      "slug": "lenovo-yoga-920",
+      "image": "assets/products/lenovo-yoga-920/1.webp"
     },
     {
       "id": "dj-82",
@@ -4001,7 +4064,8 @@
       "inventoryCount": 39,
       "availability": "in_stock",
       "rating": 2.67,
-      "slug": "new-dell-xps-13-9300-laptop"
+      "slug": "new-dell-xps-13-9300-laptop",
+      "image": "assets/products/new-dell-xps-13-9300-laptop/1.webp"
     },
     {
       "id": "dj-99",
@@ -4058,7 +4122,8 @@
       "inventoryCount": 28,
       "availability": "in_stock",
       "rating": 4.99,
-      "slug": "amazon-echo-plus"
+      "slug": "amazon-echo-plus",
+      "image": "assets/products/amazon-echo-plus/1.webp"
     },
     {
       "id": "dj-100",
@@ -4116,7 +4181,8 @@
       "inventoryCount": 25,
       "availability": "in_stock",
       "rating": 4.15,
-      "slug": "apple-airpods"
+      "slug": "apple-airpods",
+      "image": "assets/products/apple-airpods/1.webp"
     },
     {
       "id": "dj-101",
@@ -4174,7 +4240,8 @@
       "inventoryCount": 36,
       "availability": "in_stock",
       "rating": 3.47,
-      "slug": "apple-airpods-max-silver"
+      "slug": "apple-airpods-max-silver",
+      "image": "assets/products/apple-airpods-max-silver/1.webp"
     },
     {
       "id": "dj-102",
@@ -4229,7 +4296,8 @@
       "inventoryCount": 43,
       "availability": "in_stock",
       "rating": 3.68,
-      "slug": "apple-airpower-wireless-charger"
+      "slug": "apple-airpower-wireless-charger",
+      "image": "assets/products/apple-airpower-wireless-charger/1.webp"
     },
     {
       "id": "dj-103",
@@ -4284,7 +4352,8 @@
       "inventoryCount": 42,
       "availability": "in_stock",
       "rating": 4.62,
-      "slug": "apple-homepod-mini-cosmic-grey"
+      "slug": "apple-homepod-mini-cosmic-grey",
+      "image": "assets/products/apple-homepod-mini-cosmic-grey/1.webp"
     },
     {
       "id": "dj-104",
@@ -4340,7 +4409,8 @@
       "inventoryCount": 32,
       "availability": "in_stock",
       "rating": 4.15,
-      "slug": "apple-iphone-charger"
+      "slug": "apple-iphone-charger",
+      "image": "assets/products/apple-iphone-charger/1.webp"
     },
     {
       "id": "dj-105",
@@ -4396,7 +4466,8 @@
       "inventoryCount": 38,
       "availability": "in_stock",
       "rating": 3.62,
-      "slug": "apple-magsafe-battery-pack"
+      "slug": "apple-magsafe-battery-pack",
+      "image": "assets/products/apple-magsafe-battery-pack/1.webp"
     },
     {
       "id": "dj-106",
@@ -4455,7 +4526,8 @@
       "inventoryCount": 37,
       "availability": "in_stock",
       "rating": 2.74,
-      "slug": "apple-watch-series-4-gold"
+      "slug": "apple-watch-series-4-gold",
+      "image": "assets/products/apple-watch-series-4-gold/1.webp"
     },
     {
       "id": "dj-107",
@@ -4511,7 +4583,8 @@
       "inventoryCount": 41,
       "availability": "in_stock",
       "rating": 4.24,
-      "slug": "beats-flex-wireless-earphones"
+      "slug": "beats-flex-wireless-earphones",
+      "image": "assets/products/beats-flex-wireless-earphones/1.webp"
     },
     {
       "id": "dj-108",
@@ -4567,7 +4640,8 @@
       "inventoryCount": 13,
       "availability": "in_stock",
       "rating": 3.62,
-      "slug": "iphone-12-silicone-case-with-magsafe-plum"
+      "slug": "iphone-12-silicone-case-with-magsafe-plum",
+      "image": "assets/products/iphone-12-silicone-case-with-magsafe-plum/1.webp"
     },
     {
       "id": "dj-109",
@@ -4622,7 +4696,8 @@
       "inventoryCount": 19,
       "availability": "in_stock",
       "rating": 4.43,
-      "slug": "monopod"
+      "slug": "monopod",
+      "image": "assets/products/monopod/1.webp"
     },
     {
       "id": "dj-110",
@@ -4676,7 +4751,8 @@
       "inventoryCount": 35,
       "availability": "in_stock",
       "rating": 3.55,
-      "slug": "selfie-lamp-with-iphone"
+      "slug": "selfie-lamp-with-iphone",
+      "image": "assets/products/selfie-lamp-with-iphone/1.webp"
     },
     {
       "id": "dj-111",
@@ -4731,7 +4807,8 @@
       "inventoryCount": 32,
       "availability": "in_stock",
       "rating": 3.88,
-      "slug": "selfie-stick-monopod"
+      "slug": "selfie-stick-monopod",
+      "image": "assets/products/selfie-stick-monopod/1.webp"
     },
     {
       "id": "dj-112",
@@ -4785,7 +4862,8 @@
       "inventoryCount": 37,
       "availability": "in_stock",
       "rating": 2.78,
-      "slug": "tv-studio-camera-pedestal"
+      "slug": "tv-studio-camera-pedestal",
+      "image": "assets/products/tv-studio-camera-pedestal/1.webp"
     },
     {
       "id": "dj-121",
@@ -4847,7 +4925,8 @@
       "inventoryCount": 21,
       "availability": "in_stock",
       "rating": 2.83,
-      "slug": "iphone-5s"
+      "slug": "iphone-5s",
+      "image": "assets/products/iphone-5s/1.webp"
     },
     {
       "id": "dj-122",
@@ -4909,7 +4988,8 @@
       "inventoryCount": 20,
       "availability": "in_stock",
       "rating": 3.41,
-      "slug": "iphone-6"
+      "slug": "iphone-6",
+      "image": "assets/products/iphone-6/1.webp"
     },
     {
       "id": "dj-123",
@@ -4972,7 +5052,8 @@
       "inventoryCount": 25,
       "availability": "in_stock",
       "rating": 4.12,
-      "slug": "iphone-13-pro"
+      "slug": "iphone-13-pro",
+      "image": "assets/products/iphone-13-pro/1.webp"
     },
     {
       "id": "dj-124",
@@ -5033,7 +5114,8 @@
       "inventoryCount": 20,
       "availability": "in_stock",
       "rating": 2.51,
-      "slug": "iphone-x"
+      "slug": "iphone-x",
+      "image": "assets/products/iphone-x/1.webp"
     },
     {
       "id": "dj-125",
@@ -5095,7 +5177,8 @@
       "inventoryCount": 20,
       "availability": "in_stock",
       "rating": 3.94,
-      "slug": "oppo-a57"
+      "slug": "oppo-a57",
+      "image": "assets/products/oppo-a57/1.webp"
     },
     {
       "id": "dj-126",
@@ -5157,7 +5240,8 @@
       "inventoryCount": 29,
       "availability": "in_stock",
       "rating": 3.51,
-      "slug": "oppo-f19-pro-plus"
+      "slug": "oppo-f19-pro-plus",
+      "image": "assets/products/oppo-f19-pro-plus/1.webp"
     },
     {
       "id": "dj-1",
@@ -5210,7 +5294,8 @@
       "inventoryCount": 41,
       "availability": "in_stock",
       "rating": 2.56,
-      "slug": "essence-mascara-lash-princess"
+      "slug": "essence-mascara-lash-princess",
+      "image": "assets/products/essence-mascara-lash-princess/1.webp"
     },
     {
       "id": "dj-2",
@@ -5264,7 +5349,8 @@
       "inventoryCount": 41,
       "availability": "in_stock",
       "rating": 2.86,
-      "slug": "eyeshadow-palette-with-mirror"
+      "slug": "eyeshadow-palette-with-mirror",
+      "image": "assets/products/eyeshadow-palette-with-mirror/1.webp"
     },
     {
       "id": "dj-3",
@@ -5316,7 +5402,8 @@
       "inventoryCount": 27,
       "availability": "in_stock",
       "rating": 4.64,
-      "slug": "powder-canister"
+      "slug": "powder-canister",
+      "image": "assets/products/powder-canister/1.webp"
     },
     {
       "id": "dj-4",
@@ -5368,7 +5455,8 @@
       "inventoryCount": 24,
       "availability": "in_stock",
       "rating": 4.36,
-      "slug": "red-lipstick"
+      "slug": "red-lipstick",
+      "image": "assets/products/red-lipstick/1.webp"
     },
     {
       "id": "dj-5",
@@ -5419,7 +5507,8 @@
       "inventoryCount": 27,
       "availability": "in_stock",
       "rating": 4.32,
-      "slug": "red-nail-polish"
+      "slug": "red-nail-polish",
+      "image": "assets/products/red-nail-polish/1.webp"
     },
     {
       "id": "dj-6",
@@ -5473,7 +5562,8 @@
       "inventoryCount": 31,
       "availability": "in_stock",
       "rating": 4.37,
-      "slug": "calvin-klein-ck-one"
+      "slug": "calvin-klein-ck-one",
+      "image": "assets/products/calvin-klein-ck-one/1.webp"
     },
     {
       "id": "dj-7",
@@ -5526,7 +5616,8 @@
       "inventoryCount": 35,
       "availability": "in_stock",
       "rating": 4.26,
-      "slug": "chanel-coco-noir-eau-de"
+      "slug": "chanel-coco-noir-eau-de",
+      "image": "assets/products/chanel-coco-noir-eau-de/1.webp"
     },
     {
       "id": "dj-8",
@@ -5579,7 +5670,8 @@
       "inventoryCount": 24,
       "availability": "in_stock",
       "rating": 3.8,
-      "slug": "dior-j-adore"
+      "slug": "dior-j-adore",
+      "image": "assets/products/dior-j-adore/1.webp"
     },
     {
       "id": "dj-9",
@@ -5632,7 +5724,8 @@
       "inventoryCount": 30,
       "availability": "in_stock",
       "rating": 3.96,
-      "slug": "dolce-shine-eau-de"
+      "slug": "dolce-shine-eau-de",
+      "image": "assets/products/dolce-shine-eau-de/1.webp"
     },
     {
       "id": "dj-10",
@@ -5685,7 +5778,8 @@
       "inventoryCount": 30,
       "availability": "in_stock",
       "rating": 2.74,
-      "slug": "gucci-bloom-eau-de"
+      "slug": "gucci-bloom-eau-de",
+      "image": "assets/products/gucci-bloom-eau-de/1.webp"
     },
     {
       "id": "demo-fragrance-64",
@@ -5738,7 +5832,8 @@
       "inventoryCount": 35,
       "availability": "in_stock",
       "rating": 4.2,
-      "slug": "soft-rose-day-fragrance"
+      "slug": "soft-rose-day-fragrance",
+      "image": "assets/products/soft-rose-day-fragrance/1.webp"
     },
     {
       "id": "demo-fragrance-79",
@@ -5791,7 +5886,8 @@
       "inventoryCount": 45,
       "availability": "in_stock",
       "rating": 4.5,
-      "slug": "maison-citrus-bloom-eau-de-parfum"
+      "slug": "maison-citrus-bloom-eau-de-parfum",
+      "image": "assets/products/maison-citrus-bloom-eau-de-parfum/1.webp"
     },
     {
       "id": "dj-118",
@@ -5834,7 +5930,8 @@
       "inventoryCount": 43,
       "availability": "in_stock",
       "rating": 3.19,
-      "slug": "attitude-super-leaves-hand-soap"
+      "slug": "attitude-super-leaves-hand-soap",
+      "image": "assets/products/attitude-super-leaves-hand-soap/1.webp"
     },
     {
       "id": "dj-119",
@@ -5876,7 +5973,8 @@
       "inventoryCount": 13,
       "availability": "in_stock",
       "rating": 4.51,
-      "slug": "olay-ultra-moisture-shea-butter-body-wash"
+      "slug": "olay-ultra-moisture-shea-butter-body-wash",
+      "image": "assets/products/olay-ultra-moisture-shea-butter-body-wash/1.webp"
     },
     {
       "id": "dj-120",
@@ -5918,7 +6016,8 @@
       "inventoryCount": 45,
       "availability": "in_stock",
       "rating": 3.16,
-      "slug": "vaseline-men-body-and-face-lotion"
+      "slug": "vaseline-men-body-and-face-lotion",
+      "image": "assets/products/vaseline-men-body-and-face-lotion/1.webp"
     },
     {
       "id": "es-47",
@@ -5968,7 +6067,8 @@
       "inventoryCount": 40,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "radiant-citrus-eau-de-parfum"
+      "slug": "radiant-citrus-eau-de-parfum",
+      "image": "assets/products/radiant-citrus-eau-de-parfum/1.jpg"
     },
     {
       "id": "dj-182",
@@ -6013,7 +6113,8 @@
       "inventoryCount": 33,
       "availability": "in_stock",
       "rating": 3.96,
-      "slug": "green-crystal-earring"
+      "slug": "green-crystal-earring",
+      "image": "assets/products/green-crystal-earring/1.webp"
     },
     {
       "id": "dj-183",
@@ -6058,7 +6159,8 @@
       "inventoryCount": 30,
       "availability": "in_stock",
       "rating": 3.57,
-      "slug": "green-oval-earring"
+      "slug": "green-oval-earring",
+      "image": "assets/products/green-oval-earring/1.webp"
     },
     {
       "id": "dj-184",
@@ -6105,7 +6207,8 @@
       "inventoryCount": 28,
       "availability": "in_stock",
       "rating": 4.4,
-      "slug": "tropical-earring"
+      "slug": "tropical-earring",
+      "image": "assets/products/tropical-earring/1.webp"
     },
     {
       "id": "fs-5",
@@ -6162,7 +6265,8 @@
       "inventoryCount": 45,
       "availability": "in_stock",
       "rating": 4.6,
-      "slug": "john-hardy-women-s-legends-naga-gold-silver-dragon-station-chain-bracelet"
+      "slug": "john-hardy-women-s-legends-naga-gold-silver-dragon-station-chain-bracelet",
+      "image": "assets/products/john-hardy-women-s-legends-naga-gold-silver-dragon-station-chain-bracelet/1.png"
     },
     {
       "id": "fs-6",
@@ -6215,7 +6319,8 @@
       "inventoryCount": 39,
       "availability": "in_stock",
       "rating": 3.9,
-      "slug": "solid-gold-petite-micropave"
+      "slug": "solid-gold-petite-micropave",
+      "image": "assets/products/solid-gold-petite-micropave/1.png"
     },
     {
       "id": "fs-7",
@@ -6268,7 +6373,8 @@
       "inventoryCount": 38,
       "availability": "in_stock",
       "rating": 3,
-      "slug": "white-gold-plated-princess"
+      "slug": "white-gold-plated-princess",
+      "image": "assets/products/white-gold-plated-princess/1.png"
     },
     {
       "id": "fs-8",
@@ -6321,7 +6427,8 @@
       "inventoryCount": 23,
       "availability": "in_stock",
       "rating": 1.9,
-      "slug": "pierced-owl-rose-gold-plated-stainless-steel-double"
+      "slug": "pierced-owl-rose-gold-plated-stainless-steel-double",
+      "image": "assets/products/pierced-owl-rose-gold-plated-stainless-steel-double/1.png"
     },
     {
       "id": "dj-11",
@@ -6375,7 +6482,8 @@
       "inventoryCount": 32,
       "availability": "in_stock",
       "rating": 4.77,
-      "slug": "annibale-colombo-bed"
+      "slug": "annibale-colombo-bed",
+      "image": "assets/products/annibale-colombo-bed/1.webp"
     },
     {
       "id": "dj-12",
@@ -6429,7 +6537,8 @@
       "inventoryCount": 33,
       "availability": "in_stock",
       "rating": 3.92,
-      "slug": "annibale-colombo-sofa"
+      "slug": "annibale-colombo-sofa",
+      "image": "assets/products/annibale-colombo-sofa/1.webp"
     },
     {
       "id": "dj-13",
@@ -6483,7 +6592,8 @@
       "inventoryCount": 40,
       "availability": "in_stock",
       "rating": 2.87,
-      "slug": "bedside-table-african-cherry"
+      "slug": "bedside-table-african-cherry",
+      "image": "assets/products/bedside-table-african-cherry/1.webp"
     },
     {
       "id": "dj-14",
@@ -6539,7 +6649,8 @@
       "inventoryCount": 13,
       "availability": "in_stock",
       "rating": 4.88,
-      "slug": "knoll-saarinen-executive-conference-chair"
+      "slug": "knoll-saarinen-executive-conference-chair",
+      "image": "assets/products/knoll-saarinen-executive-conference-chair/1.webp"
     },
     {
       "id": "dj-15",
@@ -6595,7 +6706,8 @@
       "inventoryCount": 44,
       "availability": "in_stock",
       "rating": 3.59,
-      "slug": "wooden-bathroom-sink-with-mirror"
+      "slug": "wooden-bathroom-sink-with-mirror",
+      "image": "assets/products/wooden-bathroom-sink-with-mirror/1.webp"
     },
     {
       "id": "dj-43",
@@ -6649,7 +6761,8 @@
       "inventoryCount": 28,
       "availability": "in_stock",
       "rating": 3.16,
-      "slug": "decoration-swing"
+      "slug": "decoration-swing",
+      "image": "assets/products/decoration-swing/1.webp"
     },
     {
       "id": "dj-44",
@@ -6701,7 +6814,8 @@
       "inventoryCount": 35,
       "availability": "in_stock",
       "rating": 4.53,
-      "slug": "family-tree-photo-frame"
+      "slug": "family-tree-photo-frame",
+      "image": "assets/products/family-tree-photo-frame/1.webp"
     },
     {
       "id": "dj-45",
@@ -6755,7 +6869,8 @@
       "inventoryCount": 33,
       "availability": "in_stock",
       "rating": 4.67,
-      "slug": "house-showpiece-plant"
+      "slug": "house-showpiece-plant",
+      "image": "assets/products/house-showpiece-plant/1.webp"
     },
     {
       "id": "dj-46",
@@ -6809,7 +6924,8 @@
       "inventoryCount": 21,
       "availability": "in_stock",
       "rating": 3.01,
-      "slug": "plant-pot"
+      "slug": "plant-pot",
+      "image": "assets/products/plant-pot/1.webp"
     },
     {
       "id": "dj-47",
@@ -6861,7 +6977,8 @@
       "inventoryCount": 22,
       "availability": "in_stock",
       "rating": 3.55,
-      "slug": "table-lamp"
+      "slug": "table-lamp",
+      "image": "assets/products/table-lamp/1.webp"
     },
     {
       "id": "dj-48",
@@ -6915,7 +7032,8 @@
       "inventoryCount": 26,
       "availability": "in_stock",
       "rating": 3.27,
-      "slug": "bamboo-spatula"
+      "slug": "bamboo-spatula",
+      "image": "assets/products/bamboo-spatula/1.webp"
     },
     {
       "id": "dj-49",
@@ -6970,7 +7088,8 @@
       "inventoryCount": 31,
       "availability": "in_stock",
       "rating": 4.46,
-      "slug": "black-aluminium-cup"
+      "slug": "black-aluminium-cup",
+      "image": "assets/products/black-aluminium-cup/1.webp"
     },
     {
       "id": "dj-50",
@@ -7024,7 +7143,8 @@
       "inventoryCount": 23,
       "availability": "in_stock",
       "rating": 3.9,
-      "slug": "black-whisk"
+      "slug": "black-whisk",
+      "image": "assets/products/black-whisk/1.webp"
     },
     {
       "id": "dj-51",
@@ -7082,7 +7202,8 @@
       "inventoryCount": 25,
       "availability": "in_stock",
       "rating": 4.56,
-      "slug": "boxed-blender"
+      "slug": "boxed-blender",
+      "image": "assets/products/boxed-blender/1.webp"
     },
     {
       "id": "dj-52",
@@ -7137,7 +7258,8 @@
       "inventoryCount": 28,
       "availability": "in_stock",
       "rating": 4.05,
-      "slug": "carbon-steel-wok"
+      "slug": "carbon-steel-wok",
+      "image": "assets/products/carbon-steel-wok/1.webp"
     },
     {
       "id": "dj-53",
@@ -7191,7 +7313,8 @@
       "inventoryCount": 26,
       "availability": "in_stock",
       "rating": 3.7,
-      "slug": "chopping-board"
+      "slug": "chopping-board",
+      "image": "assets/products/chopping-board/1.webp"
     },
     {
       "id": "dj-54",
@@ -7245,7 +7368,8 @@
       "inventoryCount": 34,
       "availability": "in_stock",
       "rating": 4.63,
-      "slug": "citrus-squeezer-yellow"
+      "slug": "citrus-squeezer-yellow",
+      "image": "assets/products/citrus-squeezer-yellow/1.webp"
     },
     {
       "id": "dj-55",
@@ -7299,7 +7423,8 @@
       "inventoryCount": 22,
       "availability": "in_stock",
       "rating": 3.09,
-      "slug": "egg-slicer"
+      "slug": "egg-slicer",
+      "image": "assets/products/egg-slicer/1.webp"
     },
     {
       "id": "dj-56",
@@ -7353,7 +7478,8 @@
       "inventoryCount": 26,
       "availability": "in_stock",
       "rating": 4.11,
-      "slug": "electric-stove"
+      "slug": "electric-stove",
+      "image": "assets/products/electric-stove/1.webp"
     },
     {
       "id": "dj-57",
@@ -7407,7 +7533,8 @@
       "inventoryCount": 30,
       "availability": "in_stock",
       "rating": 3.04,
-      "slug": "fine-mesh-strainer"
+      "slug": "fine-mesh-strainer",
+      "image": "assets/products/fine-mesh-strainer/1.webp"
     },
     {
       "id": "dj-58",
@@ -7461,7 +7588,8 @@
       "inventoryCount": 16,
       "availability": "in_stock",
       "rating": 3.11,
-      "slug": "fork"
+      "slug": "fork",
+      "image": "assets/products/fork/1.webp"
     },
     {
       "id": "dj-59",
@@ -7516,7 +7644,8 @@
       "inventoryCount": 17,
       "availability": "in_stock",
       "rating": 4.02,
-      "slug": "glass"
+      "slug": "glass",
+      "image": "assets/products/glass/1.webp"
     },
     {
       "id": "dj-60",
@@ -7570,7 +7699,8 @@
       "inventoryCount": 24,
       "availability": "in_stock",
       "rating": 3.21,
-      "slug": "grater-black"
+      "slug": "grater-black",
+      "image": "assets/products/grater-black/1.webp"
     },
     {
       "id": "dj-61",
@@ -7626,7 +7756,8 @@
       "inventoryCount": 24,
       "availability": "in_stock",
       "rating": 3.86,
-      "slug": "hand-blender"
+      "slug": "hand-blender",
+      "image": "assets/products/hand-blender/1.webp"
     },
     {
       "id": "dj-62",
@@ -7680,7 +7811,8 @@
       "inventoryCount": 25,
       "availability": "in_stock",
       "rating": 4.71,
-      "slug": "ice-cube-tray"
+      "slug": "ice-cube-tray",
+      "image": "assets/products/ice-cube-tray/1.webp"
     },
     {
       "id": "dj-63",
@@ -7734,7 +7866,8 @@
       "inventoryCount": 25,
       "availability": "in_stock",
       "rating": 3.09,
-      "slug": "kitchen-sieve"
+      "slug": "kitchen-sieve",
+      "image": "assets/products/kitchen-sieve/1.webp"
     },
     {
       "id": "dj-64",
@@ -7788,7 +7921,8 @@
       "inventoryCount": 17,
       "availability": "in_stock",
       "rating": 3.26,
-      "slug": "knife"
+      "slug": "knife",
+      "image": "assets/products/knife/1.webp"
     },
     {
       "id": "dj-65",
@@ -7843,7 +7977,8 @@
       "inventoryCount": 21,
       "availability": "in_stock",
       "rating": 4.93,
-      "slug": "lunch-box"
+      "slug": "lunch-box",
+      "image": "assets/products/lunch-box/1.webp"
     },
     {
       "id": "dj-66",
@@ -7901,7 +8036,8 @@
       "inventoryCount": 26,
       "availability": "in_stock",
       "rating": 4.82,
-      "slug": "microwave-oven"
+      "slug": "microwave-oven",
+      "image": "assets/products/microwave-oven/1.webp"
     },
     {
       "id": "dj-16",
@@ -7955,7 +8091,8 @@
       "inventoryCount": 17,
       "availability": "in_stock",
       "rating": 4.19,
-      "slug": "apple"
+      "slug": "apple",
+      "image": "assets/products/apple/1.webp"
     },
     {
       "id": "dj-17",
@@ -8007,7 +8144,8 @@
       "inventoryCount": 22,
       "availability": "in_stock",
       "rating": 4.47,
-      "slug": "beef-steak"
+      "slug": "beef-steak",
+      "image": "assets/products/beef-steak/1.webp"
     },
     {
       "id": "dj-20",
@@ -8059,7 +8197,8 @@
       "inventoryCount": 23,
       "availability": "in_stock",
       "rating": 4.8,
-      "slug": "cooking-oil"
+      "slug": "cooking-oil",
+      "image": "assets/products/cooking-oil/1.webp"
     },
     {
       "id": "dj-21",
@@ -8111,7 +8250,8 @@
       "inventoryCount": 20,
       "availability": "in_stock",
       "rating": 4.07,
-      "slug": "cucumber"
+      "slug": "cucumber",
+      "image": "assets/products/cucumber/1.webp"
     },
     {
       "id": "dj-22",
@@ -8163,7 +8303,8 @@
       "inventoryCount": 20,
       "availability": "in_stock",
       "rating": 4.55,
-      "slug": "dog-food"
+      "slug": "dog-food",
+      "image": "assets/products/dog-food/1.webp"
     },
     {
       "id": "dj-25",
@@ -8215,7 +8356,8 @@
       "inventoryCount": 29,
       "availability": "in_stock",
       "rating": 3.25,
-      "slug": "green-bell-pepper"
+      "slug": "green-bell-pepper",
+      "image": "assets/products/green-bell-pepper/1.webp"
     },
     {
       "id": "dj-27",
@@ -8267,7 +8409,8 @@
       "inventoryCount": 21,
       "availability": "in_stock",
       "rating": 3.97,
-      "slug": "honey-jar"
+      "slug": "honey-jar",
+      "image": "assets/products/honey-jar/1.webp"
     },
     {
       "id": "dj-28",
@@ -8321,7 +8464,8 @@
       "inventoryCount": 21,
       "availability": "in_stock",
       "rating": 3.39,
-      "slug": "ice-cream"
+      "slug": "ice-cream",
+      "image": "assets/products/ice-cream/1.webp"
     },
     {
       "id": "dj-30",
@@ -8373,7 +8517,8 @@
       "inventoryCount": 16,
       "availability": "in_stock",
       "rating": 4.93,
-      "slug": "kiwi"
+      "slug": "kiwi",
+      "image": "assets/products/kiwi/1.webp"
     },
     {
       "id": "dj-31",
@@ -8425,7 +8570,8 @@
       "inventoryCount": 17,
       "availability": "in_stock",
       "rating": 3.53,
-      "slug": "lemon"
+      "slug": "lemon",
+      "image": "assets/products/lemon/1.webp"
     },
     {
       "id": "dj-33",
@@ -8477,7 +8623,8 @@
       "inventoryCount": 20,
       "availability": "in_stock",
       "rating": 4.95,
-      "slug": "mulberry"
+      "slug": "mulberry",
+      "image": "assets/products/mulberry/1.webp"
     },
     {
       "id": "dj-34",
@@ -8529,7 +8676,8 @@
       "inventoryCount": 26,
       "availability": "in_stock",
       "rating": 4.82,
-      "slug": "nescafe-coffee"
+      "slug": "nescafe-coffee",
+      "image": "assets/products/nescafe-coffee/1.webp"
     },
     {
       "id": "dj-36",
@@ -8581,7 +8729,8 @@
       "inventoryCount": 26,
       "availability": "in_stock",
       "rating": 4.18,
-      "slug": "protein-powder"
+      "slug": "protein-powder",
+      "image": "assets/products/protein-powder/1.webp"
     },
     {
       "id": "dj-137",
@@ -8630,7 +8779,8 @@
       "inventoryCount": 29,
       "availability": "in_stock",
       "rating": 4.91,
-      "slug": "american-football"
+      "slug": "american-football",
+      "image": "assets/products/american-football/1.webp"
     },
     {
       "id": "dj-138",
@@ -8679,7 +8829,8 @@
       "inventoryCount": 25,
       "availability": "in_stock",
       "rating": 2.57,
-      "slug": "baseball-ball"
+      "slug": "baseball-ball",
+      "image": "assets/products/baseball-ball/1.webp"
     },
     {
       "id": "dj-139",
@@ -8732,7 +8883,8 @@
       "inventoryCount": 26,
       "availability": "in_stock",
       "rating": 3.96,
-      "slug": "baseball-glove"
+      "slug": "baseball-glove",
+      "image": "assets/products/baseball-glove/1.webp"
     },
     {
       "id": "dj-140",
@@ -8781,7 +8933,8 @@
       "inventoryCount": 22,
       "availability": "in_stock",
       "rating": 4.66,
-      "slug": "basketball"
+      "slug": "basketball",
+      "image": "assets/products/basketball/1.webp"
     },
     {
       "id": "dj-141",
@@ -8830,7 +8983,8 @@
       "inventoryCount": 26,
       "availability": "in_stock",
       "rating": 4.6,
-      "slug": "basketball-rim"
+      "slug": "basketball-rim",
+      "image": "assets/products/basketball-rim/1.webp"
     },
     {
       "id": "dj-142",
@@ -8879,7 +9033,8 @@
       "inventoryCount": 24,
       "availability": "in_stock",
       "rating": 3.53,
-      "slug": "cricket-ball"
+      "slug": "cricket-ball",
+      "image": "assets/products/cricket-ball/1.webp"
     },
     {
       "id": "dj-143",
@@ -8928,7 +9083,8 @@
       "inventoryCount": 23,
       "availability": "in_stock",
       "rating": 3.17,
-      "slug": "cricket-bat"
+      "slug": "cricket-bat",
+      "image": "assets/products/cricket-bat/1.webp"
     },
     {
       "id": "dj-144",
@@ -8983,7 +9139,8 @@
       "inventoryCount": 26,
       "availability": "in_stock",
       "rating": 4.69,
-      "slug": "cricket-helmet"
+      "slug": "cricket-helmet",
+      "image": "assets/products/cricket-helmet/1.webp"
     },
     {
       "id": "dj-145",
@@ -9032,7 +9189,8 @@
       "inventoryCount": 26,
       "availability": "in_stock",
       "rating": 4.73,
-      "slug": "cricket-wicket"
+      "slug": "cricket-wicket",
+      "image": "assets/products/cricket-wicket/1.webp"
     },
     {
       "id": "dj-146",
@@ -9081,7 +9239,8 @@
       "inventoryCount": 31,
       "availability": "in_stock",
       "rating": 2.85,
-      "slug": "feather-shuttlecock"
+      "slug": "feather-shuttlecock",
+      "image": "assets/products/feather-shuttlecock/1.webp"
     },
     {
       "id": "dj-147",
@@ -9132,7 +9291,8 @@
       "inventoryCount": 20,
       "availability": "in_stock",
       "rating": 3.28,
-      "slug": "football"
+      "slug": "football",
+      "image": "assets/products/football/1.webp"
     },
     {
       "id": "dj-148",
@@ -9181,7 +9341,8 @@
       "inventoryCount": 21,
       "availability": "in_stock",
       "rating": 4.3,
-      "slug": "golf-ball"
+      "slug": "golf-ball",
+      "image": "assets/products/golf-ball/1.webp"
     },
     {
       "id": "dj-149",
@@ -9230,7 +9391,8 @@
       "inventoryCount": 21,
       "availability": "in_stock",
       "rating": 4.41,
-      "slug": "iron-golf"
+      "slug": "iron-golf",
+      "image": "assets/products/iron-golf/1.webp"
     },
     {
       "id": "dj-150",
@@ -9279,7 +9441,8 @@
       "inventoryCount": 30,
       "availability": "in_stock",
       "rating": 4.66,
-      "slug": "metal-baseball-bat"
+      "slug": "metal-baseball-bat",
+      "image": "assets/products/metal-baseball-bat/1.webp"
     },
     {
       "id": "dj-151",
@@ -9328,7 +9491,8 @@
       "inventoryCount": 23,
       "availability": "in_stock",
       "rating": 4.06,
-      "slug": "tennis-ball"
+      "slug": "tennis-ball",
+      "image": "assets/products/tennis-ball/1.webp"
     },
     {
       "id": "dj-172",
@@ -9373,7 +9537,8 @@
       "inventoryCount": 32,
       "availability": "in_stock",
       "rating": 2.92,
-      "slug": "blue-women-s-handbag"
+      "slug": "blue-women-s-handbag",
+      "image": "assets/products/blue-women-s-handbag/1.webp"
     },
     {
       "id": "dj-173",
@@ -9418,7 +9583,8 @@
       "inventoryCount": 37,
       "availability": "in_stock",
       "rating": 4.92,
-      "slug": "heshe-women-s-leather-bag"
+      "slug": "heshe-women-s-leather-bag",
+      "image": "assets/products/heshe-women-s-leather-bag/1.webp"
     },
     {
       "id": "dj-174",
@@ -9463,7 +9629,8 @@
       "inventoryCount": 27,
       "availability": "in_stock",
       "rating": 2.71,
-      "slug": "prada-women-bag"
+      "slug": "prada-women-bag",
+      "image": "assets/products/prada-women-bag/1.webp"
     },
     {
       "id": "dj-175",
@@ -9508,7 +9675,8 @@
       "inventoryCount": 39,
       "availability": "in_stock",
       "rating": 3.36,
-      "slug": "white-faux-leather-backpack"
+      "slug": "white-faux-leather-backpack",
+      "image": "assets/products/white-faux-leather-backpack/1.webp"
     },
     {
       "id": "dj-176",
@@ -9553,7 +9721,8 @@
       "inventoryCount": 31,
       "availability": "in_stock",
       "rating": 2.89,
-      "slug": "women-handbag-black"
+      "slug": "women-handbag-black",
+      "image": "assets/products/women-handbag-black/1.webp"
     },
     {
       "id": "dj-154",
@@ -9598,7 +9767,8 @@
       "inventoryCount": 29,
       "availability": "in_stock",
       "rating": 4.41,
-      "slug": "black-sun-glasses"
+      "slug": "black-sun-glasses",
+      "image": "assets/products/black-sun-glasses/1.webp"
     },
     {
       "id": "dj-155",
@@ -9643,7 +9813,8 @@
       "inventoryCount": 31,
       "availability": "in_stock",
       "rating": 3.86,
-      "slug": "classic-sun-glasses"
+      "slug": "classic-sun-glasses",
+      "image": "assets/products/classic-sun-glasses/1.webp"
     },
     {
       "id": "dj-156",
@@ -9690,7 +9861,8 @@
       "inventoryCount": 35,
       "availability": "in_stock",
       "rating": 4.55,
-      "slug": "green-and-black-glasses"
+      "slug": "green-and-black-glasses",
+      "image": "assets/products/green-and-black-glasses/1.webp"
     },
     {
       "id": "dj-157",
@@ -9735,7 +9907,8 @@
       "inventoryCount": 25,
       "availability": "in_stock",
       "rating": 2.79,
-      "slug": "party-glasses"
+      "slug": "party-glasses",
+      "image": "assets/products/party-glasses/1.webp"
     },
     {
       "id": "dj-158",
@@ -9780,7 +9953,8 @@
       "inventoryCount": 22,
       "availability": "in_stock",
       "rating": 3.02,
-      "slug": "sunglasses"
+      "slug": "sunglasses",
+      "image": "assets/products/sunglasses/1.webp"
     },
     {
       "id": "es-48",
@@ -9834,7 +10008,8 @@
       "inventoryCount": 16,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "sleek-olive-green-hardshell-carry-on-luggage"
+      "slug": "sleek-olive-green-hardshell-carry-on-luggage",
+      "image": "assets/products/sleek-olive-green-hardshell-carry-on-luggage/1.jpg"
     },
     {
       "id": "es-49",
@@ -9888,7 +10063,8 @@
       "inventoryCount": 44,
       "availability": "in_stock",
       "rating": 4,
-      "slug": "chic-transparent-fashion-handbag"
+      "slug": "chic-transparent-fashion-handbag",
+      "image": "assets/products/chic-transparent-fashion-handbag/1.jpg"
     },
     {
       "id": "dj-93",
@@ -9944,7 +10120,8 @@
       "inventoryCount": 36,
       "availability": "in_stock",
       "rating": 4.19,
-      "slug": "brown-leather-belt-watch"
+      "slug": "brown-leather-belt-watch",
+      "image": "assets/products/brown-leather-belt-watch/1.webp"
     },
     {
       "id": "dj-94",
@@ -10000,7 +10177,8 @@
       "inventoryCount": 38,
       "availability": "in_stock",
       "rating": 3.87,
-      "slug": "longines-master-collection"
+      "slug": "longines-master-collection",
+      "image": "assets/products/longines-master-collection/1.webp"
     },
     {
       "id": "dj-95",
@@ -10056,7 +10234,8 @@
       "inventoryCount": 41,
       "availability": "in_stock",
       "rating": 4.97,
-      "slug": "rolex-cellini-date-black-dial"
+      "slug": "rolex-cellini-date-black-dial",
+      "image": "assets/products/rolex-cellini-date-black-dial/1.webp"
     },
     {
       "id": "dj-96",
@@ -10112,7 +10291,8 @@
       "inventoryCount": 35,
       "availability": "in_stock",
       "rating": 2.58,
-      "slug": "rolex-cellini-moonphase"
+      "slug": "rolex-cellini-moonphase",
+      "image": "assets/products/rolex-cellini-moonphase/1.webp"
     },
     {
       "id": "dj-97",
@@ -10168,7 +10348,8 @@
       "inventoryCount": 26,
       "availability": "in_stock",
       "rating": 3.66,
-      "slug": "rolex-datejust"
+      "slug": "rolex-datejust",
+      "image": "assets/products/rolex-datejust/1.webp"
     },
     {
       "id": "dj-98",
@@ -10224,7 +10405,8 @@
       "inventoryCount": 34,
       "availability": "in_stock",
       "rating": 2.69,
-      "slug": "rolex-submariner-watch"
+      "slug": "rolex-submariner-watch",
+      "image": "assets/products/rolex-submariner-watch/1.webp"
     },
     {
       "id": "dj-190",
@@ -10280,7 +10462,8 @@
       "inventoryCount": 41,
       "availability": "in_stock",
       "rating": 2.93,
-      "slug": "iwc-ingenieur-automatic-steel"
+      "slug": "iwc-ingenieur-automatic-steel",
+      "image": "assets/products/iwc-ingenieur-automatic-steel/1.webp"
     },
     {
       "id": "dj-192",
@@ -10336,7 +10519,8 @@
       "inventoryCount": 32,
       "availability": "in_stock",
       "rating": 2.86,
-      "slug": "rolex-datejust-women"
+      "slug": "rolex-datejust-women",
+      "image": "assets/products/rolex-datejust-women/1.webp"
     },
     {
       "id": "dj-193",
@@ -10392,7 +10576,8 @@
       "inventoryCount": 32,
       "availability": "in_stock",
       "rating": 4.24,
-      "slug": "watch-gold-for-women"
+      "slug": "watch-gold-for-women",
+      "image": "assets/products/watch-gold-for-women/1.webp"
     },
     {
       "id": "dj-194",
@@ -10451,7 +10636,8 @@
       "inventoryCount": 31,
       "availability": "in_stock",
       "rating": 3.52,
-      "slug": "women-s-wrist-watch"
+      "slug": "women-s-wrist-watch",
+      "image": "assets/products/women-s-wrist-watch/1.webp"
     },
     {
       "id": "dj-168",
@@ -10498,7 +10684,8 @@
       "inventoryCount": 27,
       "availability": "in_stock",
       "rating": 2.58,
-      "slug": "charger-sxt-rwd"
+      "slug": "charger-sxt-rwd",
+      "image": "assets/products/charger-sxt-rwd/1.webp"
     },
     {
       "id": "dj-169",
@@ -10545,7 +10732,8 @@
       "inventoryCount": 32,
       "availability": "in_stock",
       "rating": 2.65,
-      "slug": "dodge-hornet-gt-plus"
+      "slug": "dodge-hornet-gt-plus",
+      "image": "assets/products/dodge-hornet-gt-plus/1.webp"
     },
     {
       "id": "dj-167",
@@ -10591,7 +10779,8 @@
       "inventoryCount": 23,
       "availability": "in_stock",
       "rating": 4.05,
-      "slug": "300-touring"
+      "slug": "300-touring",
+      "image": "assets/products/300-touring/1.webp"
     },
     {
       "id": "dj-170",
@@ -10637,7 +10826,8 @@
       "inventoryCount": 27,
       "availability": "in_stock",
       "rating": 4.07,
-      "slug": "durango-sxt-rwd"
+      "slug": "durango-sxt-rwd",
+      "image": "assets/products/durango-sxt-rwd/1.webp"
     },
     {
       "id": "dj-171",
@@ -10683,7 +10873,8 @@
       "inventoryCount": 28,
       "availability": "in_stock",
       "rating": 3.62,
-      "slug": "pacifica-touring"
+      "slug": "pacifica-touring",
+      "image": "assets/products/pacifica-touring/1.webp"
     },
     {
       "id": "dj-113",
@@ -10728,7 +10919,8 @@
       "inventoryCount": 30,
       "availability": "in_stock",
       "rating": 4.91,
-      "slug": "generic-motorcycle"
+      "slug": "generic-motorcycle",
+      "image": "assets/products/generic-motorcycle/1.webp"
     },
     {
       "id": "dj-114",
@@ -10774,7 +10966,8 @@
       "inventoryCount": 25,
       "availability": "in_stock",
       "rating": 3.98,
-      "slug": "kawasaki-z800"
+      "slug": "kawasaki-z800",
+      "image": "assets/products/kawasaki-z800/1.webp"
     },
     {
       "id": "dj-115",
@@ -10820,7 +11013,8 @@
       "inventoryCount": 24,
       "availability": "in_stock",
       "rating": 2.97,
-      "slug": "motogp-ci-h1"
+      "slug": "motogp-ci-h1",
+      "image": "assets/products/motogp-ci-h1/1.webp"
     },
     {
       "id": "dj-116",
@@ -10866,7 +11060,8 @@
       "inventoryCount": 30,
       "availability": "in_stock",
       "rating": 2.53,
-      "slug": "scooter-motorcycle"
+      "slug": "scooter-motorcycle",
+      "image": "assets/products/scooter-motorcycle/1.webp"
     },
     {
       "id": "dj-117",
@@ -10912,7 +11107,8 @@
       "inventoryCount": 32,
       "availability": "in_stock",
       "rating": 3.94,
-      "slug": "sportbike-motorcycle"
+      "slug": "sportbike-motorcycle",
+      "image": "assets/products/sportbike-motorcycle/1.webp"
     }
   ]
 }
