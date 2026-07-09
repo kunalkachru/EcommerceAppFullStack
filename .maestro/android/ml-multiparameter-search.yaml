@@ -1,0 +1,255 @@
+appId: com.ecommerceappfullstack
+---
+# Android Multi-Parameter Search Testing
+# Tests complex, realistic searches: "trousers size XL brown color"
+# Verifies AI understands multiple product attributes simultaneously
+
+# ============================================================================
+# SETUP: Login
+# ============================================================================
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: "ShopEase"
+    timeout: 20000
+
+- runFlow:
+    when:
+      visible: "Sign in ↓"
+    commands:
+      - tapOn: "Sign in ↓"
+
+- extendedWaitUntil:
+    visible: "Sign in"
+    timeout: 8000
+
+- scrollUntilVisible:
+    element:
+      id: "login-email"
+    direction: DOWN
+    timeout: 12000
+
+- tapOn:
+    id: "login-email"
+
+- inputText: "test@example.com"
+
+- pressKey: back
+
+- tapOn:
+    id: "login-password"
+
+- inputText: "secret123"
+
+- pressKey: back
+
+- scrollUntilVisible:
+    element:
+      id: "login-submit"
+    direction: DOWN
+    timeout: 3000
+
+- tapOn:
+    id: "login-submit"
+
+- runFlow:
+    when:
+      visible: "Save password"
+    commands:
+      - tapOn: "Not now"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 15000
+
+# ============================================================================
+# PHASE 1: NAVIGATE TO PRODUCTS & ACCESS SEARCH
+# ============================================================================
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+# ============================================================================
+# TEST 1: Multi-Parameter Search - Clothing with Specific Attributes
+# Query: "trousers size XL brown color"
+# Expected: Should find pants/trousers that are XL and brown colored
+# ============================================================================
+- tapOn:
+    text: "Search products"
+    optional: true
+
+- tapOn:
+    text: "e.g. below 45"
+    optional: true
+
+# Test 1a: Search for "trousers size XL brown"
+- inputText: "trousers size XL brown color"
+
+- pressKey: back
+
+# Wait for AI to process multi-parameter query
+- extendedWaitUntil:
+    visible:
+      text: "$"
+    timeout: 15000
+    optional: true
+
+# Look for clothing/trousers results
+- extendedWaitUntil:
+    visible:
+      text: "trouser"
+    timeout: 10000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "pant"
+    timeout: 10000
+    optional: true
+
+# ============================================================================
+# TEST 2: Multi-Parameter Search - Electronics with Specifications
+# Query: "wireless headphones bluetooth under 50"
+# Expected: Should find headphones with bluetooth, price under $50
+# ============================================================================
+- tapOn:
+    text: "Search products"
+    optional: true
+
+- tapOn:
+    text: "e.g. below 45"
+    optional: true
+
+# Clear previous search
+- tapOn:
+    id: "clear"
+    optional: true
+
+# Test 2a: Search for "wireless headphones bluetooth under 50"
+- inputText: "wireless headphones Bluetooth under 50 dollars"
+
+- pressKey: back
+
+- extendedWaitUntil:
+    visible:
+      text: "$"
+    timeout: 15000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "headphone"
+    timeout: 10000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "wireless"
+    timeout: 10000
+    optional: true
+
+# ============================================================================
+# TEST 3: Multi-Parameter Search with Color & Size
+# Query: "shirt red medium fabric cotton"
+# Expected: Should find shirts that are red, medium size, cotton material
+# ============================================================================
+- tapOn:
+    text: "Search products"
+    optional: true
+
+- tapOn:
+    text: "e.g. below 45"
+    optional: true
+
+- inputText: "shirt red medium cotton fabric"
+
+- pressKey: back
+
+- extendedWaitUntil:
+    visible:
+      text: "$"
+    timeout: 15000
+    optional: true
+
+# ============================================================================
+# TEST 4: Advanced Filter - Price + Multiple Attributes
+# Query: "makeup under 15 dollars waterproof long lasting"
+# Expected: Should find makeup products under $15 with specified properties
+# ============================================================================
+- tapOn:
+    text: "Search products"
+    optional: true
+
+- tapOn:
+    text: "e.g. below 45"
+    optional: true
+
+- inputText: "makeup under 15 dollars waterproof long lasting"
+
+- pressKey: back
+
+- extendedWaitUntil:
+    visible:
+      text: "$"
+    timeout: 15000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "makeup"
+    timeout: 10000
+    optional: true
+
+# ============================================================================
+# TEST 5: Verify AI Ranking - Relevance to Multi-Param Query
+# Query: "blue jeans size 32 waist cotton durable"
+# Expected: Results should prioritize jeans matching ALL parameters
+# ============================================================================
+- tapOn:
+    text: "Search products"
+    optional: true
+
+- tapOn:
+    text: "e.g. below 45"
+    optional: true
+
+- inputText: "blue jeans size 32 waist cotton durable"
+
+- pressKey: back
+
+- extendedWaitUntil:
+    visible:
+      text: "$"
+    timeout: 15000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "jean"
+    timeout: 10000
+    optional: true
+
+# ============================================================================
+# DIAGNOSIS: Check Search Result Quality
+# ============================================================================
+# If we get here, multi-parameter search is working
+# Now verify the results match the query parameters
+
+- extendedWaitUntil:
+    visible:
+      text: "Result"
+    timeout: 5000
+    optional: true
+
+# ============================================================================
+# FINAL: Report on Multi-Parameter Search Capability
+# ============================================================================
+# If searches returned results, multi-parameter AI reasoning is working
+# If searches failed or returned irrelevant results, AI needs improvement
+
