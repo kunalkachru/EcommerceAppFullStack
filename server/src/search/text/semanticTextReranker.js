@@ -98,8 +98,40 @@ function productTypeMatches(product, intent) {
   return getProductTypeMatchStrength(product, intent) > 0;
 }
 
+function sizeMatches(product, intent) {
+  if (!intent.size) return null; // no size requested -> no signal either way
+  const sizes = (product.sizes || []).map((s) => String(s).toUpperCase());
+  return sizes.includes(String(intent.size).toUpperCase());
+}
+
+function specificationMatches(product, intent) {
+  if (!intent.specifications?.length) return 0;
+  const specs = product.specifications || {};
+  const hits = intent.specifications.filter((key) => specs[key] === true).length;
+  return hits;
+}
+
+function structuredKeywordHits(product, intent) {
+  if (!intent.keywords?.length) return 0;
+  const colors = (product.colors || []).map((c) => c.toLowerCase());
+  const materials = (product.materials || []).map((m) => m.toLowerCase());
+  return intent.keywords.filter(
+    (k) => colors.includes(k.toLowerCase()) || materials.includes(k.toLowerCase())
+  ).length;
+}
+
 function refineRankedResults(ranked, intent) {
   let refined = [...ranked];
+
+  if (intent.size) {
+    const sized = refined.filter((row) => sizeMatches(row.product, intent) === true);
+    if (sized.length > 0) {
+      refined = sized;
+    }
+    // else: no product has this size among current candidates -> leave `refined`
+    // as-is (graceful fallback, consistent with the price-constraint pattern below,
+    // which also falls back to a sorted full set rather than empty).
+  }
 
   if (intent.productTypes?.length) {
     const strongTyped = refined.filter(
@@ -177,6 +209,16 @@ function constraintBoost(product, intent) {
     boost += Math.min(0.2, hits * 0.06);
   }
 
+  const sizeMatch = sizeMatches(product, intent);
+  if (sizeMatch === true) boost += 0.2;
+  if (sizeMatch === false) boost -= 0.2;
+
+  const specHits = specificationMatches(product, intent);
+  if (specHits > 0) boost += Math.min(0.15, specHits * 0.08);
+
+  const structuredHits = structuredKeywordHits(product, intent);
+  if (structuredHits > 0) boost += Math.min(0.1, structuredHits * 0.05);
+
   return Math.max(0, Math.min(1, boost));
 }
 
@@ -217,4 +259,6 @@ module.exports = {
   refineRankedResults,
   priceDistance,
   hasPriceConstraint,
+  sizeMatches,
+  specificationMatches,
 };
