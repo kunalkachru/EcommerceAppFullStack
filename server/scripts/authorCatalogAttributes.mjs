@@ -287,6 +287,7 @@ function authorProduct(product, target) {
     price: Number(product.price) || 0,
     currency: "USD",
     priceTier: priceTier(Number(product.price) || 0),
+    imageAlt: `${title} in ${target.label}`,
     images: [], // populated by Task 1.4 (downloadCatalogImages.mjs) after this file is written
     colors: authored.colors || [],
     materials: authored.materials || [],

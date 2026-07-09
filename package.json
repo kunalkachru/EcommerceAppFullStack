@@ -59,7 +59,8 @@
     "wait:record:android": "bash scripts/wait-and-record-android.sh",
     "test": "jest",
     "test:scripts": "node --test scripts/__tests__/*.test.mjs",
-    "validate:catalog": "node server/scripts/validateCatalogStatic.mjs"
+    "validate:catalog": "node server/scripts/validateCatalogStatic.mjs",
+    "sync:catalog-fallback": "node server/scripts/syncCatalogFallback.mjs"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^3.0.2",

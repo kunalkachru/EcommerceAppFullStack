@@ -14,6 +14,7 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Blue & Black Check Shirt in Men's Clothing",
       "images": [
         "assets/products/blue-black-check-shirt/1.webp",
         "assets/products/blue-black-check-shirt/2.webp",
@@ -79,6 +80,7 @@
       "price": 24.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Gigabyte Aorus Men Tshirt in Men's Clothing",
       "images": [
         "assets/products/gigabyte-aorus-men-tshirt/1.webp",
         "assets/products/gigabyte-aorus-men-tshirt/2.webp",
@@ -141,6 +143,7 @@
       "price": 34.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Man Plaid Shirt in Men's Clothing",
       "images": [
         "assets/products/man-plaid-shirt/1.webp",
         "assets/products/man-plaid-shirt/2.webp",
@@ -210,6 +213,7 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Man Short Sleeve Shirt in Men's Clothing",
       "images": [
         "assets/products/man-short-sleeve-shirt/1.webp",
         "assets/products/man-short-sleeve-shirt/2.webp",
@@ -274,6 +278,7 @@
       "price": 27.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Men Check Shirt in Men's Clothing",
       "images": [
         "assets/products/men-check-shirt/1.webp",
         "assets/products/men-check-shirt/2.webp",
@@ -338,6 +343,7 @@
       "price": 22.3,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Mens Casual Premium Slim Fit T-Shirts in Men's Clothing",
       "images": [
         "assets/products/mens-casual-premium-slim-fit-t-shirts/1.png"
       ],
@@ -404,6 +410,7 @@
       "price": 55.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Mens Cotton Jacket in Men's Clothing",
       "images": [
         "assets/products/mens-cotton-jacket/1.png"
       ],
@@ -468,6 +475,7 @@
       "price": 15.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Mens Casual Slim Fit in Men's Clothing",
       "images": [
         "assets/products/mens-casual-slim-fit/1.png"
       ],
@@ -529,6 +537,7 @@
       "price": 692,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "Classic Heather Gray Hoodie in Men's Clothing",
       "images": [
         "assets/products/classic-heather-gray-hoodie/1.jpeg"
       ],
@@ -588,6 +597,7 @@
       "price": 90,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Classic Grey Hooded Sweatshirt in Men's Clothing",
       "images": [
         "assets/products/classic-grey-hooded-sweatshirt/1.jpeg"
       ],
@@ -647,6 +657,7 @@
       "price": 79,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Classic Black Hooded Sweatshirt in Men's Clothing",
       "images": [
         "assets/products/classic-black-hooded-sweatshirt/1.jpeg"
       ],
@@ -706,6 +717,7 @@
       "price": 79,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Classic Comfort Drawstring Joggers in Men's Clothing",
       "images": [
         "assets/products/classic-comfort-drawstring-joggers/1.jpeg"
       ],
@@ -770,6 +782,7 @@
       "price": 98,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Classic Red Jogger Sweatpants in Men's Clothing",
       "images": [
         "assets/products/classic-red-jogger-sweatpants/1.jpeg"
       ],
@@ -830,6 +843,7 @@
       "price": 61,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Classic Navy Blue Baseball Cap in Men's Clothing",
       "images": [
         "assets/products/classic-navy-blue-baseball-cap/1.jpeg"
       ],
@@ -889,6 +903,7 @@
       "price": 86,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Classic Blue Baseball Cap in Men's Clothing",
       "images": [
         "assets/products/classic-blue-baseball-cap/1.jpeg"
       ],
@@ -948,6 +963,7 @@
       "price": 35,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Classic Red Baseball Cap in Men's Clothing",
       "images": [
         "assets/products/classic-red-baseball-cap/1.jpeg"
       ],
@@ -1007,6 +1023,7 @@
       "price": 58,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Classic Black Baseball Cap in Men's Clothing",
       "images": [
         "assets/products/classic-black-baseball-cap/1.jpeg"
       ],
@@ -1066,6 +1083,7 @@
       "price": 84,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Classic Olive Chino Shorts in Men's Clothing",
       "images": [
         "assets/products/classic-olive-chino-shorts/1.jpeg"
       ],
@@ -1126,6 +1144,7 @@
       "price": 43,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Classic High-Waisted Athletic Shorts in Men's Clothing",
       "images": [
         "assets/products/classic-high-waisted-athletic-shorts/1.jpeg"
       ],
@@ -1188,6 +1207,7 @@
       "price": 39,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Classic White Crew Neck T-Shirt in Men's Clothing",
       "images": [
         "assets/products/classic-white-crew-neck-t-shirt/1.jpeg"
       ],
@@ -1247,6 +1267,7 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Blue Frock in Women's Clothing",
       "images": [
         "assets/products/blue-frock/1.webp",
         "assets/products/blue-frock/2.webp",
@@ -1309,6 +1330,7 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Girl Summer Dress in Women's Clothing",
       "images": [
         "assets/products/girl-summer-dress/1.webp",
         "assets/products/girl-summer-dress/2.webp",
@@ -1373,6 +1395,7 @@
       "price": 34.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Gray Dress in Women's Clothing",
       "images": [
         "assets/products/gray-dress/1.webp",
         "assets/products/gray-dress/2.webp",
@@ -1436,6 +1459,7 @@
       "price": 24.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Short Frock in Women's Clothing",
       "images": [
         "assets/products/short-frock/1.webp",
         "assets/products/short-frock/2.webp",
@@ -1498,6 +1522,7 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Tartan Dress in Women's Clothing",
       "images": [
         "assets/products/tartan-dress/1.webp",
         "assets/products/tartan-dress/2.webp",
@@ -1562,6 +1587,7 @@
       "price": 89.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Corset Leather With Skirt in Women's Clothing",
       "images": [
         "assets/products/corset-leather-with-skirt/1.webp",
         "assets/products/corset-leather-with-skirt/2.webp",
@@ -1615,6 +1641,7 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Corset With Black Skirt in Women's Clothing",
       "images": [
         "assets/products/corset-with-black-skirt/1.webp",
         "assets/products/corset-with-black-skirt/2.webp",
@@ -1670,6 +1697,7 @@
       "price": 129.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Black Women's Gown in Women's Clothing",
       "images": [
         "assets/products/black-women-s-gown/1.webp",
         "assets/products/black-women-s-gown/2.webp",
@@ -1722,6 +1750,7 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Dress Pea in Women's Clothing",
       "images": [
         "assets/products/dress-pea/1.webp",
         "assets/products/dress-pea/2.webp",
@@ -1774,6 +1803,7 @@
       "price": 179.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Marni Red & Black Suit in Women's Clothing",
       "images": [
         "assets/products/marni-red-black-suit/1.webp",
         "assets/products/marni-red-black-suit/2.webp",
@@ -1828,6 +1858,7 @@
       "price": 56.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "BIYLACLESEN Women's 3-in-1 Snowboard Jacket Winter Coats in Women's Clothing",
       "images": [
         "assets/products/biylaclesen-women-s-3-in-1-snowboard-jacket-winter-coats/1.png"
       ],
@@ -1890,6 +1921,7 @@
       "price": 29.95,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Lock and Love Women's Removable Hooded Faux Leather Moto Biker Jacket in Women's Clothing",
       "images": [
         "assets/products/lock-and-love-women-s-removable-hooded-faux-leather-moto-biker-jacket/1.png"
       ],
@@ -1950,6 +1982,7 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Rain Jacket Women Windbreaker Striped Climbing Raincoats in Women's Clothing",
       "images": [
         "assets/products/rain-jacket-women-windbreaker-striped-climbing-raincoats/1.png"
       ],
@@ -2012,6 +2045,7 @@
       "price": 9.85,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "MBJ Women's Solid Short Sleeve Boat Neck V in Women's Clothing",
       "images": [
         "assets/products/mbj-women-s-solid-short-sleeve-boat-neck-v/1.png"
       ],
@@ -2074,6 +2108,7 @@
       "price": 7.95,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Opna Women's Short Sleeve Moisture in Women's Clothing",
       "images": [
         "assets/products/opna-women-s-short-sleeve-moisture/1.png"
       ],
@@ -2136,6 +2171,7 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "DANVOUY Womens T Shirt Casual Cotton Short in Women's Clothing",
       "images": [
         "assets/products/danvouy-womens-t-shirt-casual-cotton-short/1.png"
       ],
@@ -2198,6 +2234,7 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Seabreeze Blue Rain Jacket in Women's Clothing",
       "images": [
         "assets/products/seabreeze-blue-rain-jacket/1.png"
       ],
@@ -2258,6 +2295,7 @@
       "price": 54.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Alpine Blue Packable Windbreaker in Women's Clothing",
       "images": [
         "assets/products/alpine-blue-packable-windbreaker/1.png"
       ],
@@ -2318,6 +2356,7 @@
       "price": 59.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Harbor Blue Hooded Coat in Women's Clothing",
       "images": [
         "assets/products/harbor-blue-hooded-coat/1.png"
       ],
@@ -2380,6 +2419,7 @@
       "price": 149.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Nike Air Jordan 1 Red And Black in Footwear",
       "images": [
         "assets/products/nike-air-jordan-1-red-and-black/1.webp",
         "assets/products/nike-air-jordan-1-red-and-black/2.webp",
@@ -2448,6 +2488,7 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Nike Baseball Cleats in Footwear",
       "images": [
         "assets/products/nike-baseball-cleats/1.webp",
         "assets/products/nike-baseball-cleats/2.webp",
@@ -2515,6 +2556,7 @@
       "price": 89.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Puma Future Rider Trainers in Footwear",
       "images": [
         "assets/products/puma-future-rider-trainers/1.webp",
         "assets/products/puma-future-rider-trainers/2.webp",
@@ -2582,6 +2624,7 @@
       "price": 119.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Sports Sneakers Off White & Red in Footwear",
       "images": [
         "assets/products/sports-sneakers-off-white-red/1.webp",
         "assets/products/sports-sneakers-off-white-red/2.webp",
@@ -2649,6 +2692,7 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Black & Brown Slipper in Footwear",
       "images": [
         "assets/products/black-brown-slipper/1.webp",
         "assets/products/black-brown-slipper/2.webp",
@@ -2714,6 +2758,7 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Calvin Klein Heel Shoes in Footwear",
       "images": [
         "assets/products/calvin-klein-heel-shoes/1.webp",
         "assets/products/calvin-klein-heel-shoes/2.webp",
@@ -2777,6 +2822,7 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Golden Shoes Woman in Footwear",
       "images": [
         "assets/products/golden-shoes-woman/1.webp",
         "assets/products/golden-shoes-woman/2.webp",
@@ -2840,6 +2886,7 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Pampi Shoes in Footwear",
       "images": [
         "assets/products/pampi-shoes/1.webp",
         "assets/products/pampi-shoes/2.webp",
@@ -2905,6 +2952,7 @@
       "price": 34.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Red Shoes in Footwear",
       "images": [
         "assets/products/red-shoes/1.webp",
         "assets/products/red-shoes/2.webp",
@@ -2968,6 +3016,7 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Riviera Women Sandals in Footwear",
       "images": [
         "assets/products/riviera-women-sandals/1.webp",
         "assets/products/riviera-women-sandals/2.webp",
@@ -3034,6 +3083,7 @@
       "price": 44.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Urban Step Women Sneakers in Footwear",
       "images": [
         "assets/products/urban-step-women-sneakers/1.webp",
         "assets/products/urban-step-women-sneakers/2.webp",
@@ -3099,6 +3149,7 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Everyday Women Running Shoes in Footwear",
       "images": [
         "assets/products/everyday-women-running-shoes/1.webp",
         "assets/products/everyday-women-running-shoes/2.webp",
@@ -3167,6 +3218,7 @@
       "price": 39,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Futuristic Holographic Soccer Cleats in Footwear",
       "images": [
         "assets/products/futuristic-holographic-soccer-cleats/1.jpeg"
       ],
@@ -3229,6 +3281,7 @@
       "price": 39,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Rainbow Glitter High Heels in Footwear",
       "images": [
         "assets/products/rainbow-glitter-high-heels/1.jpeg"
       ],
@@ -3291,6 +3344,7 @@
       "price": 33,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Chic Summer Denim Espadrille Sandals in Footwear",
       "images": [
         "assets/products/chic-summer-denim-espadrille-sandals/1.jpeg"
       ],
@@ -3354,6 +3408,7 @@
       "price": 27,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Vibrant Runners: Bold Orange & Blue Sneakers in Footwear",
       "images": [
         "assets/products/vibrant-runners-bold-orange-blue-sneakers/1.jpeg"
       ],
@@ -3419,6 +3474,7 @@
       "price": 84,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Vibrant Pink Classic Sneakers in Footwear",
       "images": [
         "assets/products/vibrant-pink-classic-sneakers/1.jpeg"
       ],
@@ -3481,6 +3537,7 @@
       "price": 68,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Futuristic Silver and Gold High-Top Sneaker in Footwear",
       "images": [
         "assets/products/futuristic-silver-and-gold-high-top-sneaker/1.jpeg"
       ],
@@ -3543,6 +3600,7 @@
       "price": 36,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Futuristic Chic High-Heel Boots in Footwear",
       "images": [
         "assets/products/futuristic-chic-high-heel-boots/1.jpeg"
       ],
@@ -3603,6 +3661,7 @@
       "price": 53,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Elegant Patent Leather Peep-Toe Pumps with Gold-Tone Heel in Footwear",
       "images": [
         "assets/products/elegant-patent-leather-peep-toe-pumps-with-gold-tone-heel/1.jpeg"
       ],
@@ -3663,6 +3722,7 @@
       "price": 1999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Apple MacBook Pro 14 Inch Space Grey in Electronics",
       "images": [
         "assets/products/apple-macbook-pro-14-inch-space-grey/1.webp",
         "assets/products/apple-macbook-pro-14-inch-space-grey/2.webp",
@@ -3720,6 +3780,7 @@
       "price": 1799.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Asus Zenbook Pro Dual Screen Laptop in Electronics",
       "images": [
         "assets/products/asus-zenbook-pro-dual-screen-laptop/1.webp",
         "assets/products/asus-zenbook-pro-dual-screen-laptop/2.webp",
@@ -3777,6 +3838,7 @@
       "price": 1399.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Huawei Matebook X Pro in Electronics",
       "images": [
         "assets/products/huawei-matebook-x-pro/1.webp",
         "assets/products/huawei-matebook-x-pro/2.webp",
@@ -3836,6 +3898,7 @@
       "price": 1099.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Lenovo Yoga 920 in Electronics",
       "images": [
         "assets/products/lenovo-yoga-920/1.webp",
         "assets/products/lenovo-yoga-920/2.webp",
@@ -3893,6 +3956,7 @@
       "price": 1499.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "New DELL XPS 13 9300 Laptop in Electronics",
       "images": [
         "assets/products/new-dell-xps-13-9300-laptop/1.webp",
         "assets/products/new-dell-xps-13-9300-laptop/2.webp",
@@ -3952,6 +4016,7 @@
       "price": 99.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Amazon Echo Plus in Electronics",
       "images": [
         "assets/products/amazon-echo-plus/1.webp",
         "assets/products/amazon-echo-plus/2.webp",
@@ -4008,6 +4073,7 @@
       "price": 129.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Apple Airpods in Electronics",
       "images": [
         "assets/products/apple-airpods/1.webp",
         "assets/products/apple-airpods/2.webp",
@@ -4065,6 +4131,7 @@
       "price": 549.99,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "Apple AirPods Max Silver in Electronics",
       "images": [
         "assets/products/apple-airpods-max-silver/1.webp",
         "assets/products/apple-airpods-max-silver/2.webp"
@@ -4122,6 +4189,7 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Apple Airpower Wireless Charger in Electronics",
       "images": [
         "assets/products/apple-airpower-wireless-charger/1.webp",
         "assets/products/apple-airpower-wireless-charger/2.webp"
@@ -4176,6 +4244,7 @@
       "price": 99.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Apple HomePod Mini Cosmic Grey in Electronics",
       "images": [
         "assets/products/apple-homepod-mini-cosmic-grey/1.webp",
         "assets/products/apple-homepod-mini-cosmic-grey/2.webp"
@@ -4230,6 +4299,7 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Apple iPhone Charger in Electronics",
       "images": [
         "assets/products/apple-iphone-charger/1.webp",
         "assets/products/apple-iphone-charger/2.webp",
@@ -4285,6 +4355,7 @@
       "price": 99.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Apple MagSafe Battery Pack in Electronics",
       "images": [
         "assets/products/apple-magsafe-battery-pack/1.webp",
         "assets/products/apple-magsafe-battery-pack/2.webp",
@@ -4340,6 +4411,7 @@
       "price": 349.99,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "Apple Watch Series 4 Gold in Electronics",
       "images": [
         "assets/products/apple-watch-series-4-gold/1.webp",
         "assets/products/apple-watch-series-4-gold/2.webp",
@@ -4398,6 +4470,7 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Beats Flex Wireless Earphones in Electronics",
       "images": [
         "assets/products/beats-flex-wireless-earphones/1.webp",
         "assets/products/beats-flex-wireless-earphones/2.webp"
@@ -4453,6 +4526,7 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "iPhone 12 Silicone Case with MagSafe Plum in Electronics",
       "images": [
         "assets/products/iphone-12-silicone-case-with-magsafe-plum/1.webp",
         "assets/products/iphone-12-silicone-case-with-magsafe-plum/2.webp",
@@ -4508,6 +4582,7 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Monopod in Electronics",
       "images": [
         "assets/products/monopod/1.webp",
         "assets/products/monopod/2.webp",
@@ -4562,6 +4637,7 @@
       "price": 14.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Selfie Lamp with iPhone in Electronics",
       "images": [
         "assets/products/selfie-lamp-with-iphone/1.webp",
         "assets/products/selfie-lamp-with-iphone/2.webp"
@@ -4615,6 +4691,7 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Selfie Stick Monopod in Electronics",
       "images": [
         "assets/products/selfie-stick-monopod/1.webp",
         "assets/products/selfie-stick-monopod/2.webp"
@@ -4669,6 +4746,7 @@
       "price": 499.99,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "TV Studio Camera Pedestal in Electronics",
       "images": [
         "assets/products/tv-studio-camera-pedestal/1.webp",
         "assets/products/tv-studio-camera-pedestal/2.webp"
@@ -4722,6 +4800,7 @@
       "price": 199.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "iPhone 5s in Electronics",
       "images": [
         "assets/products/iphone-5s/1.webp",
         "assets/products/iphone-5s/2.webp",
@@ -4783,6 +4862,7 @@
       "price": 299.99,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "iPhone 6 in Electronics",
       "images": [
         "assets/products/iphone-6/1.webp",
         "assets/products/iphone-6/2.webp",
@@ -4844,6 +4924,7 @@
       "price": 1099.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "iPhone 13 Pro in Electronics",
       "images": [
         "assets/products/iphone-13-pro/1.webp",
         "assets/products/iphone-13-pro/2.webp",
@@ -4906,6 +4987,7 @@
       "price": 899.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "iPhone X in Electronics",
       "images": [
         "assets/products/iphone-x/1.webp",
         "assets/products/iphone-x/2.webp",
@@ -4966,6 +5048,7 @@
       "price": 249.99,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "Oppo A57 in Electronics",
       "images": [
         "assets/products/oppo-a57/1.webp",
         "assets/products/oppo-a57/2.webp",
@@ -5027,6 +5110,7 @@
       "price": 399.99,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "Oppo F19 Pro Plus in Electronics",
       "images": [
         "assets/products/oppo-f19-pro-plus/1.webp",
         "assets/products/oppo-f19-pro-plus/2.webp",
@@ -5088,6 +5172,7 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Essence Mascara Lash Princess in Beauty & Fragrances",
       "images": [
         "assets/products/essence-mascara-lash-princess/1.webp",
         "assets/products/essence-mascara-lash-princess/2.webp"
@@ -5140,6 +5225,7 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Eyeshadow Palette with Mirror in Beauty & Fragrances",
       "images": [
         "assets/products/eyeshadow-palette-with-mirror/1.webp",
         "assets/products/eyeshadow-palette-with-mirror/2.webp"
@@ -5193,6 +5279,7 @@
       "price": 14.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Powder Canister in Beauty & Fragrances",
       "images": [
         "assets/products/powder-canister/1.webp",
         "assets/products/powder-canister/2.webp"
@@ -5244,6 +5331,7 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Red Lipstick in Beauty & Fragrances",
       "images": [
         "assets/products/red-lipstick/1.webp",
         "assets/products/red-lipstick/2.webp"
@@ -5295,6 +5383,7 @@
       "price": 8.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Red Nail Polish in Beauty & Fragrances",
       "images": [
         "assets/products/red-nail-polish/1.webp",
         "assets/products/red-nail-polish/2.webp"
@@ -5345,6 +5434,7 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Calvin Klein CK One in Beauty & Fragrances",
       "images": [
         "assets/products/calvin-klein-ck-one/1.webp",
         "assets/products/calvin-klein-ck-one/2.webp",
@@ -5398,6 +5488,7 @@
       "price": 129.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Chanel Coco Noir Eau De in Beauty & Fragrances",
       "images": [
         "assets/products/chanel-coco-noir-eau-de/1.webp",
         "assets/products/chanel-coco-noir-eau-de/2.webp",
@@ -5450,6 +5541,7 @@
       "price": 89.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Dior J'adore in Beauty & Fragrances",
       "images": [
         "assets/products/dior-j-adore/1.webp",
         "assets/products/dior-j-adore/2.webp",
@@ -5502,6 +5594,7 @@
       "price": 69.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Dolce Shine Eau de in Beauty & Fragrances",
       "images": [
         "assets/products/dolce-shine-eau-de/1.webp",
         "assets/products/dolce-shine-eau-de/2.webp",
@@ -5554,6 +5647,7 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Gucci Bloom Eau de in Beauty & Fragrances",
       "images": [
         "assets/products/gucci-bloom-eau-de/1.webp",
         "assets/products/gucci-bloom-eau-de/2.webp",
@@ -5606,6 +5700,7 @@
       "price": 64.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Soft Rose Day Fragrance in Beauty & Fragrances",
       "images": [
         "assets/products/soft-rose-day-fragrance/1.webp",
         "assets/products/soft-rose-day-fragrance/2.webp",
@@ -5658,6 +5753,7 @@
       "price": 79.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Maison Citrus Bloom Eau de Parfum in Beauty & Fragrances",
       "images": [
         "assets/products/maison-citrus-bloom-eau-de-parfum/1.webp",
         "assets/products/maison-citrus-bloom-eau-de-parfum/2.webp",
@@ -5710,6 +5806,7 @@
       "price": 8.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Attitude Super Leaves Hand Soap in Beauty & Fragrances",
       "images": [
         "assets/products/attitude-super-leaves-hand-soap/1.webp",
         "assets/products/attitude-super-leaves-hand-soap/2.webp",
@@ -5752,6 +5849,7 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Olay Ultra Moisture Shea Butter Body Wash in Beauty & Fragrances",
       "images": [
         "assets/products/olay-ultra-moisture-shea-butter-body-wash/1.webp",
         "assets/products/olay-ultra-moisture-shea-butter-body-wash/2.webp",
@@ -5793,6 +5891,7 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Vaseline Men Body and Face Lotion in Beauty & Fragrances",
       "images": [
         "assets/products/vaseline-men-body-and-face-lotion/1.webp",
         "assets/products/vaseline-men-body-and-face-lotion/2.webp",
@@ -5834,6 +5933,7 @@
       "price": 73,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Radiant Citrus Eau de Parfum in Beauty & Fragrances",
       "images": [
         "assets/products/radiant-citrus-eau-de-parfum/1.jpg"
       ],
@@ -5883,6 +5983,7 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Green Crystal Earring in Jewelry",
       "images": [
         "assets/products/green-crystal-earring/1.webp",
         "assets/products/green-crystal-earring/2.webp",
@@ -5927,6 +6028,7 @@
       "price": 24.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Green Oval Earring in Jewelry",
       "images": [
         "assets/products/green-oval-earring/1.webp",
         "assets/products/green-oval-earring/2.webp",
@@ -5971,6 +6073,7 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Tropical Earring in Jewelry",
       "images": [
         "assets/products/tropical-earring/1.webp",
         "assets/products/tropical-earring/2.webp",
@@ -6017,6 +6120,7 @@
       "price": 695,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "John Hardy Women's Legends Naga Gold & Silver Dragon Station Chain Bracelet in Jewelry",
       "images": [
         "assets/products/john-hardy-women-s-legends-naga-gold-silver-dragon-station-chain-bracelet/1.png"
       ],
@@ -6073,6 +6177,7 @@
       "price": 168,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Solid Gold Petite Micropave in Jewelry",
       "images": [
         "assets/products/solid-gold-petite-micropave/1.png"
       ],
@@ -6125,6 +6230,7 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "White Gold Plated Princess in Jewelry",
       "images": [
         "assets/products/white-gold-plated-princess/1.png"
       ],
@@ -6177,6 +6283,7 @@
       "price": 10.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Pierced Owl Rose Gold Plated Stainless Steel Double in Jewelry",
       "images": [
         "assets/products/pierced-owl-rose-gold-plated-stainless-steel-double/1.png"
       ],
@@ -6229,6 +6336,7 @@
       "price": 1899.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Annibale Colombo Bed in Home & Kitchen",
       "images": [
         "assets/products/annibale-colombo-bed/1.webp",
         "assets/products/annibale-colombo-bed/2.webp",
@@ -6282,6 +6390,7 @@
       "price": 2499.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Annibale Colombo Sofa in Home & Kitchen",
       "images": [
         "assets/products/annibale-colombo-sofa/1.webp",
         "assets/products/annibale-colombo-sofa/2.webp",
@@ -6335,6 +6444,7 @@
       "price": 299.99,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "Bedside Table African Cherry in Home & Kitchen",
       "images": [
         "assets/products/bedside-table-african-cherry/1.webp",
         "assets/products/bedside-table-african-cherry/2.webp",
@@ -6388,6 +6498,7 @@
       "price": 499.99,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "Knoll Saarinen Executive Conference Chair in Home & Kitchen",
       "images": [
         "assets/products/knoll-saarinen-executive-conference-chair/1.webp",
         "assets/products/knoll-saarinen-executive-conference-chair/2.webp",
@@ -6443,6 +6554,7 @@
       "price": 799.99,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "Wooden Bathroom Sink With Mirror in Home & Kitchen",
       "images": [
         "assets/products/wooden-bathroom-sink-with-mirror/1.webp",
         "assets/products/wooden-bathroom-sink-with-mirror/2.webp",
@@ -6498,6 +6610,7 @@
       "price": 59.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Decoration Swing in Home & Kitchen",
       "images": [
         "assets/products/decoration-swing/1.webp",
         "assets/products/decoration-swing/2.webp",
@@ -6551,6 +6664,7 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Family Tree Photo Frame in Home & Kitchen",
       "images": [
         "assets/products/family-tree-photo-frame/1.webp",
         "assets/products/family-tree-photo-frame/2.webp"
@@ -6602,6 +6716,7 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "House Showpiece Plant in Home & Kitchen",
       "images": [
         "assets/products/house-showpiece-plant/1.webp",
         "assets/products/house-showpiece-plant/2.webp",
@@ -6655,6 +6770,7 @@
       "price": 14.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Plant Pot in Home & Kitchen",
       "images": [
         "assets/products/plant-pot/1.webp",
         "assets/products/plant-pot/2.webp",
@@ -6708,6 +6824,7 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Table Lamp in Home & Kitchen",
       "images": [
         "assets/products/table-lamp/1.webp",
         "assets/products/table-lamp/2.webp"
@@ -6759,6 +6876,7 @@
       "price": 7.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Bamboo Spatula in Home & Kitchen",
       "images": [
         "assets/products/bamboo-spatula/1.webp",
         "assets/products/bamboo-spatula/2.webp"
@@ -6812,6 +6930,7 @@
       "price": 5.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Black Aluminium Cup in Home & Kitchen",
       "images": [
         "assets/products/black-aluminium-cup/1.webp",
         "assets/products/black-aluminium-cup/2.webp",
@@ -6866,6 +6985,7 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Black Whisk in Home & Kitchen",
       "images": [
         "assets/products/black-whisk/1.webp",
         "assets/products/black-whisk/2.webp"
@@ -6919,6 +7039,7 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Boxed Blender in Home & Kitchen",
       "images": [
         "assets/products/boxed-blender/1.webp",
         "assets/products/boxed-blender/2.webp",
@@ -6976,6 +7097,7 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Carbon Steel Wok in Home & Kitchen",
       "images": [
         "assets/products/carbon-steel-wok/1.webp",
         "assets/products/carbon-steel-wok/2.webp"
@@ -7030,6 +7152,7 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Chopping Board in Home & Kitchen",
       "images": [
         "assets/products/chopping-board/1.webp",
         "assets/products/chopping-board/2.webp"
@@ -7083,6 +7206,7 @@
       "price": 8.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Citrus Squeezer Yellow in Home & Kitchen",
       "images": [
         "assets/products/citrus-squeezer-yellow/1.webp",
         "assets/products/citrus-squeezer-yellow/2.webp"
@@ -7136,6 +7260,7 @@
       "price": 6.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Egg Slicer in Home & Kitchen",
       "images": [
         "assets/products/egg-slicer/1.webp",
         "assets/products/egg-slicer/2.webp"
@@ -7189,6 +7314,7 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Electric Stove in Home & Kitchen",
       "images": [
         "assets/products/electric-stove/1.webp",
         "assets/products/electric-stove/2.webp",
@@ -7242,6 +7368,7 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Fine Mesh Strainer in Home & Kitchen",
       "images": [
         "assets/products/fine-mesh-strainer/1.webp",
         "assets/products/fine-mesh-strainer/2.webp"
@@ -7295,6 +7422,7 @@
       "price": 3.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Fork in Home & Kitchen",
       "images": [
         "assets/products/fork/1.webp",
         "assets/products/fork/2.webp"
@@ -7348,6 +7476,7 @@
       "price": 4.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Glass in Home & Kitchen",
       "images": [
         "assets/products/glass/1.webp",
         "assets/products/glass/2.webp"
@@ -7402,6 +7531,7 @@
       "price": 10.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Grater Black in Home & Kitchen",
       "images": [
         "assets/products/grater-black/1.webp",
         "assets/products/grater-black/2.webp"
@@ -7455,6 +7585,7 @@
       "price": 34.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Hand Blender in Home & Kitchen",
       "images": [
         "assets/products/hand-blender/1.webp",
         "assets/products/hand-blender/2.webp"
@@ -7510,6 +7641,7 @@
       "price": 5.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Ice Cube Tray in Home & Kitchen",
       "images": [
         "assets/products/ice-cube-tray/1.webp",
         "assets/products/ice-cube-tray/2.webp"
@@ -7563,6 +7695,7 @@
       "price": 7.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Kitchen Sieve in Home & Kitchen",
       "images": [
         "assets/products/kitchen-sieve/1.webp",
         "assets/products/kitchen-sieve/2.webp"
@@ -7616,6 +7749,7 @@
       "price": 14.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Knife in Home & Kitchen",
       "images": [
         "assets/products/knife/1.webp",
         "assets/products/knife/2.webp"
@@ -7669,6 +7803,7 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Lunch Box in Home & Kitchen",
       "images": [
         "assets/products/lunch-box/1.webp",
         "assets/products/lunch-box/2.webp"
@@ -7723,6 +7858,7 @@
       "price": 89.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Microwave Oven in Home & Kitchen",
       "images": [
         "assets/products/microwave-oven/1.webp",
         "assets/products/microwave-oven/2.webp",
@@ -7780,6 +7916,7 @@
       "price": 1.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Apple in Groceries",
       "images": [
         "assets/products/apple/1.webp",
         "assets/products/apple/2.webp"
@@ -7833,6 +7970,7 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Beef Steak in Groceries",
       "images": [
         "assets/products/beef-steak/1.webp",
         "assets/products/beef-steak/2.webp"
@@ -7884,6 +8022,7 @@
       "price": 4.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Cooking Oil in Groceries",
       "images": [
         "assets/products/cooking-oil/1.webp",
         "assets/products/cooking-oil/2.webp"
@@ -7935,6 +8074,7 @@
       "price": 1.49,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Cucumber in Groceries",
       "images": [
         "assets/products/cucumber/1.webp",
         "assets/products/cucumber/2.webp"
@@ -7986,6 +8126,7 @@
       "price": 10.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Dog Food in Groceries",
       "images": [
         "assets/products/dog-food/1.webp",
         "assets/products/dog-food/2.webp"
@@ -8037,6 +8178,7 @@
       "price": 1.29,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Green Bell Pepper in Groceries",
       "images": [
         "assets/products/green-bell-pepper/1.webp",
         "assets/products/green-bell-pepper/2.webp"
@@ -8088,6 +8230,7 @@
       "price": 6.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Honey Jar in Groceries",
       "images": [
         "assets/products/honey-jar/1.webp",
         "assets/products/honey-jar/2.webp"
@@ -8139,6 +8282,7 @@
       "price": 5.49,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Ice Cream in Groceries",
       "images": [
         "assets/products/ice-cream/1.webp",
         "assets/products/ice-cream/2.webp",
@@ -8192,6 +8336,7 @@
       "price": 2.49,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Kiwi in Groceries",
       "images": [
         "assets/products/kiwi/1.webp",
         "assets/products/kiwi/2.webp"
@@ -8243,6 +8388,7 @@
       "price": 0.79,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Lemon in Groceries",
       "images": [
         "assets/products/lemon/1.webp",
         "assets/products/lemon/2.webp"
@@ -8294,6 +8440,7 @@
       "price": 4.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Mulberry in Groceries",
       "images": [
         "assets/products/mulberry/1.webp",
         "assets/products/mulberry/2.webp"
@@ -8345,6 +8492,7 @@
       "price": 7.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Nescafe Coffee in Groceries",
       "images": [
         "assets/products/nescafe-coffee/1.webp",
         "assets/products/nescafe-coffee/2.webp"
@@ -8396,6 +8544,7 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Protein Powder in Groceries",
       "images": [
         "assets/products/protein-powder/1.webp",
         "assets/products/protein-powder/2.webp"
@@ -8447,6 +8596,7 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "American Football in Sports & Fitness",
       "images": [
         "assets/products/american-football/1.webp",
         "assets/products/american-football/2.webp"
@@ -8495,6 +8645,7 @@
       "price": 8.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Baseball Ball in Sports & Fitness",
       "images": [
         "assets/products/baseball-ball/1.webp",
         "assets/products/baseball-ball/2.webp"
@@ -8543,6 +8694,7 @@
       "price": 24.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Baseball Glove in Sports & Fitness",
       "images": [
         "assets/products/baseball-glove/1.webp",
         "assets/products/baseball-glove/2.webp",
@@ -8595,6 +8747,7 @@
       "price": 14.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Basketball in Sports & Fitness",
       "images": [
         "assets/products/basketball/1.webp",
         "assets/products/basketball/2.webp"
@@ -8643,6 +8796,7 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Basketball Rim in Sports & Fitness",
       "images": [
         "assets/products/basketball-rim/1.webp",
         "assets/products/basketball-rim/2.webp"
@@ -8691,6 +8845,7 @@
       "price": 12.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Cricket Ball in Sports & Fitness",
       "images": [
         "assets/products/cricket-ball/1.webp",
         "assets/products/cricket-ball/2.webp"
@@ -8739,6 +8894,7 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Cricket Bat in Sports & Fitness",
       "images": [
         "assets/products/cricket-bat/1.webp",
         "assets/products/cricket-bat/2.webp"
@@ -8787,6 +8943,7 @@
       "price": 44.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Cricket Helmet in Sports & Fitness",
       "images": [
         "assets/products/cricket-helmet/1.webp",
         "assets/products/cricket-helmet/2.webp",
@@ -8841,6 +8998,7 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Cricket Wicket in Sports & Fitness",
       "images": [
         "assets/products/cricket-wicket/1.webp",
         "assets/products/cricket-wicket/2.webp"
@@ -8889,6 +9047,7 @@
       "price": 5.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Feather Shuttlecock in Sports & Fitness",
       "images": [
         "assets/products/feather-shuttlecock/1.webp",
         "assets/products/feather-shuttlecock/2.webp"
@@ -8937,6 +9096,7 @@
       "price": 17.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Football in Sports & Fitness",
       "images": [
         "assets/products/football/1.webp",
         "assets/products/football/2.webp"
@@ -8987,6 +9147,7 @@
       "price": 9.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Golf Ball in Sports & Fitness",
       "images": [
         "assets/products/golf-ball/1.webp",
         "assets/products/golf-ball/2.webp"
@@ -9035,6 +9196,7 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Iron Golf in Sports & Fitness",
       "images": [
         "assets/products/iron-golf/1.webp",
         "assets/products/iron-golf/2.webp"
@@ -9083,6 +9245,7 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Metal Baseball Bat in Sports & Fitness",
       "images": [
         "assets/products/metal-baseball-bat/1.webp",
         "assets/products/metal-baseball-bat/2.webp"
@@ -9131,6 +9294,7 @@
       "price": 6.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Tennis Ball in Sports & Fitness",
       "images": [
         "assets/products/tennis-ball/1.webp",
         "assets/products/tennis-ball/2.webp"
@@ -9179,6 +9343,7 @@
       "price": 49.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Blue Women's Handbag in Bags & Accessories",
       "images": [
         "assets/products/blue-women-s-handbag/1.webp",
         "assets/products/blue-women-s-handbag/2.webp",
@@ -9223,6 +9388,7 @@
       "price": 129.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Heshe Women's Leather Bag in Bags & Accessories",
       "images": [
         "assets/products/heshe-women-s-leather-bag/1.webp",
         "assets/products/heshe-women-s-leather-bag/2.webp",
@@ -9267,6 +9433,7 @@
       "price": 599.99,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "Prada Women Bag in Bags & Accessories",
       "images": [
         "assets/products/prada-women-bag/1.webp",
         "assets/products/prada-women-bag/2.webp",
@@ -9311,6 +9478,7 @@
       "price": 39.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "White Faux Leather Backpack in Bags & Accessories",
       "images": [
         "assets/products/white-faux-leather-backpack/1.webp",
         "assets/products/white-faux-leather-backpack/2.webp",
@@ -9355,6 +9523,7 @@
       "price": 59.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Women Handbag Black in Bags & Accessories",
       "images": [
         "assets/products/women-handbag-black/1.webp",
         "assets/products/women-handbag-black/2.webp",
@@ -9399,6 +9568,7 @@
       "price": 29.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Black Sun Glasses in Bags & Accessories",
       "images": [
         "assets/products/black-sun-glasses/1.webp",
         "assets/products/black-sun-glasses/2.webp",
@@ -9443,6 +9613,7 @@
       "price": 24.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Classic Sun Glasses in Bags & Accessories",
       "images": [
         "assets/products/classic-sun-glasses/1.webp",
         "assets/products/classic-sun-glasses/2.webp",
@@ -9487,6 +9658,7 @@
       "price": 34.99,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Green and Black Glasses in Bags & Accessories",
       "images": [
         "assets/products/green-and-black-glasses/1.webp",
         "assets/products/green-and-black-glasses/2.webp",
@@ -9533,6 +9705,7 @@
       "price": 19.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Party Glasses in Bags & Accessories",
       "images": [
         "assets/products/party-glasses/1.webp",
         "assets/products/party-glasses/2.webp",
@@ -9577,6 +9750,7 @@
       "price": 22.99,
       "currency": "USD",
       "priceTier": "entry",
+      "imageAlt": "Sunglasses in Bags & Accessories",
       "images": [
         "assets/products/sunglasses/1.webp",
         "assets/products/sunglasses/2.webp",
@@ -9621,6 +9795,7 @@
       "price": 48,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Sleek Olive Green Hardshell Carry-On Luggage in Bags & Accessories",
       "images": [
         "assets/products/sleek-olive-green-hardshell-carry-on-luggage/1.jpg"
       ],
@@ -9674,6 +9849,7 @@
       "price": 61,
       "currency": "USD",
       "priceTier": "budget",
+      "imageAlt": "Chic Transparent Fashion Handbag in Bags & Accessories",
       "images": [
         "assets/products/chic-transparent-fashion-handbag/1.jpg"
       ],
@@ -9727,6 +9903,7 @@
       "price": 89.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Brown Leather Belt Watch in Watches",
       "images": [
         "assets/products/brown-leather-belt-watch/1.webp",
         "assets/products/brown-leather-belt-watch/2.webp",
@@ -9782,6 +9959,7 @@
       "price": 1499.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Longines Master Collection in Watches",
       "images": [
         "assets/products/longines-master-collection/1.webp",
         "assets/products/longines-master-collection/2.webp",
@@ -9837,6 +10015,7 @@
       "price": 8999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Rolex Cellini Date Black Dial in Watches",
       "images": [
         "assets/products/rolex-cellini-date-black-dial/1.webp",
         "assets/products/rolex-cellini-date-black-dial/2.webp",
@@ -9892,6 +10071,7 @@
       "price": 12999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Rolex Cellini Moonphase in Watches",
       "images": [
         "assets/products/rolex-cellini-moonphase/1.webp",
         "assets/products/rolex-cellini-moonphase/2.webp",
@@ -9947,6 +10127,7 @@
       "price": 10999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Rolex Datejust in Watches",
       "images": [
         "assets/products/rolex-datejust/1.webp",
         "assets/products/rolex-datejust/2.webp",
@@ -10002,6 +10183,7 @@
       "price": 13999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Rolex Submariner Watch in Watches",
       "images": [
         "assets/products/rolex-submariner-watch/1.webp",
         "assets/products/rolex-submariner-watch/2.webp",
@@ -10057,6 +10239,7 @@
       "price": 4999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "IWC Ingenieur Automatic Steel in Watches",
       "images": [
         "assets/products/iwc-ingenieur-automatic-steel/1.webp",
         "assets/products/iwc-ingenieur-automatic-steel/2.webp",
@@ -10112,6 +10295,7 @@
       "price": 10999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Rolex Datejust Women in Watches",
       "images": [
         "assets/products/rolex-datejust-women/1.webp",
         "assets/products/rolex-datejust-women/2.webp",
@@ -10167,6 +10351,7 @@
       "price": 799.99,
       "currency": "USD",
       "priceTier": "premium",
+      "imageAlt": "Watch Gold for Women in Watches",
       "images": [
         "assets/products/watch-gold-for-women/1.webp",
         "assets/products/watch-gold-for-women/2.webp",
@@ -10222,6 +10407,7 @@
       "price": 129.99,
       "currency": "USD",
       "priceTier": "mid",
+      "imageAlt": "Women's Wrist Watch in Watches",
       "images": [
         "assets/products/women-s-wrist-watch/1.webp",
         "assets/products/women-s-wrist-watch/2.webp",
@@ -10280,6 +10466,7 @@
       "price": 32999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Charger SXT RWD in Automotive",
       "images": [
         "assets/products/charger-sxt-rwd/1.webp",
         "assets/products/charger-sxt-rwd/2.webp",
@@ -10326,6 +10513,7 @@
       "price": 24999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Dodge Hornet GT Plus in Automotive",
       "images": [
         "assets/products/dodge-hornet-gt-plus/1.webp",
         "assets/products/dodge-hornet-gt-plus/2.webp",
@@ -10372,6 +10560,7 @@
       "price": 28999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "300 Touring in Automotive",
       "images": [
         "assets/products/300-touring/1.webp",
         "assets/products/300-touring/2.webp",
@@ -10417,6 +10606,7 @@
       "price": 36999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Durango SXT RWD in Automotive",
       "images": [
         "assets/products/durango-sxt-rwd/1.webp",
         "assets/products/durango-sxt-rwd/2.webp",
@@ -10462,6 +10652,7 @@
       "price": 31999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Pacifica Touring in Automotive",
       "images": [
         "assets/products/pacifica-touring/1.webp",
         "assets/products/pacifica-touring/2.webp",
@@ -10507,6 +10698,7 @@
       "price": 3999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Generic Motorcycle in Automotive",
       "images": [
         "assets/products/generic-motorcycle/1.webp",
         "assets/products/generic-motorcycle/2.webp",
@@ -10551,6 +10743,7 @@
       "price": 8999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Kawasaki Z800 in Automotive",
       "images": [
         "assets/products/kawasaki-z800/1.webp",
         "assets/products/kawasaki-z800/2.webp",
@@ -10596,6 +10789,7 @@
       "price": 14999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "MotoGP CI.H1 in Automotive",
       "images": [
         "assets/products/motogp-ci-h1/1.webp",
         "assets/products/motogp-ci-h1/2.webp",
@@ -10641,6 +10835,7 @@
       "price": 2999.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Scooter Motorcycle in Automotive",
       "images": [
         "assets/products/scooter-motorcycle/1.webp",
         "assets/products/scooter-motorcycle/2.webp",
@@ -10686,6 +10881,7 @@
       "price": 7499.99,
       "currency": "USD",
       "priceTier": "luxury",
+      "imageAlt": "Sportbike Motorcycle in Automotive",
       "images": [
         "assets/products/sportbike-motorcycle/1.webp",
         "assets/products/sportbike-motorcycle/2.webp",
