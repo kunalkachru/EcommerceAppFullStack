@@ -41,6 +41,12 @@ function isPriceOrIntentOnlyQuery(query) {
   );
 }
 
+function sizeMatches(product, size) {
+  if (!size) return null;
+  const sizes = (product.sizes || []).map((s) => String(s).toUpperCase());
+  return sizes.includes(String(size).toUpperCase());
+}
+
 function filterProductsLocally(products, query) {
   const raw = String(query || "").trim();
   if (!raw) {
@@ -48,7 +54,8 @@ function filterProductsLocally(products, query) {
   }
 
   const intent = parseVoiceQuery(raw);
-  return products.filter((product) => {
+
+  let candidates = products.filter((product) => {
     if (product.price < intent.priceMin || product.price > intent.priceMax) {
       return false;
     }
@@ -65,6 +72,15 @@ function filterProductsLocally(products, query) {
     }
     return relevanceScore(product, intent) >= 0.15;
   });
+
+  if (intent.size) {
+    const sized = candidates.filter((p) => sizeMatches(p, intent.size) === true);
+    if (sized.length > 0) {
+      candidates = sized; // graceful fallback: if none match, keep the unfiltered candidate set
+    }
+  }
+
+  return candidates;
 }
 
 function matchIdsFromProducts(products) {
