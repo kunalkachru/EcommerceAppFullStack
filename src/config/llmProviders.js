@@ -74,3 +74,33 @@ export function resolveProviderBaseUrl(provider) {
   }
   return provider?.baseUrl ?? "";
 }
+
+function isKnownProviderBaseUrl(url) {
+  return LLM_PROVIDERS.some((p) => resolveProviderBaseUrl(p) === url);
+}
+
+function isKnownProviderModel(model) {
+  return LLM_PROVIDERS.some((p) => p.defaultModel === model);
+}
+
+export function normalizeProviderBaseUrl(provider, rawBaseUrl) {
+  const targetBase = resolveProviderBaseUrl(provider);
+  const current = String(rawBaseUrl || "").trim();
+  if (!current) return targetBase;
+  // If this is a stale default from another provider, auto-correct.
+  if (isKnownProviderBaseUrl(current) && current !== targetBase) {
+    return targetBase;
+  }
+  return current;
+}
+
+export function normalizeProviderModel(provider, rawModel) {
+  const targetModel = provider.defaultModel;
+  const current = String(rawModel || "").trim();
+  if (!current) return targetModel;
+  // If this is a stale default from another provider, auto-correct.
+  if (isKnownProviderModel(current) && current !== targetModel) {
+    return targetModel;
+  }
+  return current;
+}

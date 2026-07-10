@@ -41,6 +41,8 @@ import {
   LLM_PROVIDERS,
   getProviderById,
   resolveProviderBaseUrl,
+  normalizeProviderBaseUrl,
+  normalizeProviderModel,
 } from "../config/llmProviders";
 import {
   getSearchRuntimeConfig,
@@ -56,36 +58,6 @@ const EXAMPLE_HINTS = [
   "Blue jacket under 50 dollars",
   "Wireless headphones below 100",
 ];
-
-function isKnownProviderBaseUrl(url) {
-  return LLM_PROVIDERS.some((p) => resolveProviderBaseUrl(p) === url);
-}
-
-function isKnownProviderModel(model) {
-  return LLM_PROVIDERS.some((p) => p.defaultModel === model);
-}
-
-function normalizeProviderBaseUrl(provider, rawBaseUrl) {
-  const targetBase = resolveProviderBaseUrl(provider);
-  const current = String(rawBaseUrl || "").trim();
-  if (!current) return targetBase;
-  // If this is a stale default from another provider, auto-correct.
-  if (isKnownProviderBaseUrl(current) && current !== targetBase) {
-    return targetBase;
-  }
-  return current;
-}
-
-function normalizeProviderModel(provider, rawModel) {
-  const targetModel = provider.defaultModel;
-  const current = String(rawModel || "").trim();
-  if (!current) return targetModel;
-  // If this is a stale default from another provider, auto-correct.
-  if (isKnownProviderModel(current) && current !== targetModel) {
-    return targetModel;
-  }
-  return current;
-}
 
 const VoiceSearchCard = ({ onResults, disabled = false }) => {
   const user = useSelector((state) => state.auth.user);
