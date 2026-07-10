@@ -1,6 +1,12 @@
 // __tests__/catalogStaticValidation.test.js
+const path = require("path");
+const fs = require("fs");
 const catalog = require("../server/catalog-static.json");
 const { CATEGORY_TARGETS } = require("../server/scripts/catalogAttributePools.js");
+const {
+  findDuplicateGroups,
+  isLikelyPlaceholder,
+} = require("../server/scripts/lib/imageIntegrity");
 
 describe("catalog-static.json completeness", () => {
   const products = catalog.products;
@@ -43,5 +49,24 @@ describe("catalog-static.json completeness", () => {
   it("has no duplicate SKUs", () => {
     const skus = products.map((p) => p.sku);
     expect(new Set(skus).size).toBe(skus.length);
+  });
+
+  it("no two products share an identical primary-image hash", () => {
+    const repoRoot = path.join(__dirname, "..");
+    const groups = findDuplicateGroups(products, repoRoot);
+    const offenders = groups.map((g) => g.members.map((p) => p.id).join(" == "));
+    expect(offenders).toEqual([]);
+  });
+
+  it("every product's primary image exceeds the minimum real-photo size threshold", () => {
+    const repoRoot = path.join(__dirname, "..");
+    const tooSmall = products.filter((p) => {
+      const img = p.images?.[0];
+      if (!img) return true;
+      const full = path.join(repoRoot, img);
+      if (!fs.existsSync(full)) return true;
+      return isLikelyPlaceholder(fs.readFileSync(full));
+    });
+    expect(tooSmall.map((p) => p.id)).toEqual([]);
   });
 });
