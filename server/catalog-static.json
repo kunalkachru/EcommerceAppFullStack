@@ -547,7 +547,7 @@
       "priceTier": "premium",
       "imageAlt": "Classic Heather Gray Hoodie in Men's Clothing",
       "images": [
-        "assets/products/classic-heather-gray-hoodie/1.jpeg"
+        "assets/products/classic-heather-gray-hoodie/1.png"
       ],
       "colors": [
         "gray"
@@ -591,7 +591,7 @@
       "availability": "in_stock",
       "rating": 4,
       "slug": "classic-heather-gray-hoodie",
-      "image": "assets/products/classic-heather-gray-hoodie/1.jpeg"
+      "image": "assets/products/classic-heather-gray-hoodie/1.png"
     },
     {
       "id": "es-4",
@@ -608,7 +608,7 @@
       "priceTier": "mid",
       "imageAlt": "Classic Grey Hooded Sweatshirt in Men's Clothing",
       "images": [
-        "assets/products/classic-grey-hooded-sweatshirt/1.jpeg"
+        "assets/products/classic-grey-hooded-sweatshirt/1.jpg"
       ],
       "colors": [
         "gray"
@@ -652,7 +652,7 @@
       "availability": "in_stock",
       "rating": 4,
       "slug": "classic-grey-hooded-sweatshirt",
-      "image": "assets/products/classic-grey-hooded-sweatshirt/1.jpeg"
+      "image": "assets/products/classic-grey-hooded-sweatshirt/1.jpg"
     },
     {
       "id": "es-5",
@@ -669,7 +669,7 @@
       "priceTier": "budget",
       "imageAlt": "Classic Black Hooded Sweatshirt in Men's Clothing",
       "images": [
-        "assets/products/classic-black-hooded-sweatshirt/1.jpeg"
+        "assets/products/classic-black-hooded-sweatshirt/1.jpg"
       ],
       "colors": [
         "black"
@@ -713,7 +713,7 @@
       "availability": "in_stock",
       "rating": 4,
       "slug": "classic-black-hooded-sweatshirt",
-      "image": "assets/products/classic-black-hooded-sweatshirt/1.jpeg"
+      "image": "assets/products/classic-black-hooded-sweatshirt/1.jpg"
     },
     {
       "id": "es-7",
@@ -2272,7 +2272,7 @@
       "priceTier": "budget",
       "imageAlt": "Seabreeze Blue Rain Jacket in Women's Clothing",
       "images": [
-        "assets/products/seabreeze-blue-rain-jacket/1.png"
+        "assets/products/seabreeze-blue-rain-jacket/1.jpg"
       ],
       "colors": [
         "blue"
@@ -2317,7 +2317,7 @@
       "availability": "in_stock",
       "rating": 4.4,
       "slug": "seabreeze-blue-rain-jacket",
-      "image": "assets/products/seabreeze-blue-rain-jacket/1.png"
+      "image": "assets/products/seabreeze-blue-rain-jacket/1.jpg"
     },
     {
       "id": "demo-jacket-blue-54",
@@ -2334,7 +2334,7 @@
       "priceTier": "budget",
       "imageAlt": "Alpine Blue Packable Windbreaker in Women's Clothing",
       "images": [
-        "assets/products/alpine-blue-packable-windbreaker/1.png"
+        "assets/products/alpine-blue-packable-windbreaker/1.jpg"
       ],
       "colors": [
         "blue"
@@ -2379,7 +2379,7 @@
       "availability": "in_stock",
       "rating": 4.3,
       "slug": "alpine-blue-packable-windbreaker",
-      "image": "assets/products/alpine-blue-packable-windbreaker/1.png"
+      "image": "assets/products/alpine-blue-packable-windbreaker/1.jpg"
     },
     {
       "id": "demo-jacket-blue-59",
@@ -2396,7 +2396,7 @@
       "priceTier": "budget",
       "imageAlt": "Harbor Blue Hooded Coat in Women's Clothing",
       "images": [
-        "assets/products/harbor-blue-hooded-coat/1.png"
+        "assets/products/harbor-blue-hooded-coat/1.jpg"
       ],
       "colors": [
         "blue"
@@ -2443,7 +2443,7 @@
       "availability": "in_stock",
       "rating": 4.1,
       "slug": "harbor-blue-hooded-coat",
-      "image": "assets/products/harbor-blue-hooded-coat/1.png"
+      "image": "assets/products/harbor-blue-hooded-coat/1.jpg"
     },
     {
       "id": "dj-88",
@@ -3066,10 +3066,7 @@
       "priceTier": "budget",
       "imageAlt": "Riviera Women Sandals in Footwear",
       "images": [
-        "assets/products/riviera-women-sandals/1.webp",
-        "assets/products/riviera-women-sandals/2.webp",
-        "assets/products/riviera-women-sandals/3.webp",
-        "assets/products/riviera-women-sandals/4.webp"
+        "assets/products/riviera-women-sandals/1.jpg"
       ],
       "colors": [
         "tan",
@@ -3117,7 +3114,7 @@
       "availability": "in_stock",
       "rating": 4.1,
       "slug": "riviera-women-sandals",
-      "image": "assets/products/riviera-women-sandals/1.webp"
+      "image": "assets/products/riviera-women-sandals/1.jpg"
     },
     {
       "id": "demo-shoes-women-44",
@@ -3134,10 +3131,7 @@
       "priceTier": "budget",
       "imageAlt": "Urban Step Women Sneakers in Footwear",
       "images": [
-        "assets/products/urban-step-women-sneakers/1.webp",
-        "assets/products/urban-step-women-sneakers/2.webp",
-        "assets/products/urban-step-women-sneakers/3.webp",
-        "assets/products/urban-step-women-sneakers/4.webp"
+        "assets/products/urban-step-women-sneakers/1.webp"
       ],
       "colors": [
         "white",
@@ -3201,10 +3195,7 @@
       "priceTier": "budget",
       "imageAlt": "Everyday Women Running Shoes in Footwear",
       "images": [
-        "assets/products/everyday-women-running-shoes/1.webp",
-        "assets/products/everyday-women-running-shoes/2.webp",
-        "assets/products/everyday-women-running-shoes/3.webp",
-        "assets/products/everyday-women-running-shoes/4.webp"
+        "assets/products/everyday-women-running-shoes/1.jpeg"
       ],
       "colors": [
         "black",
@@ -3254,7 +3245,7 @@
       "availability": "in_stock",
       "rating": 4.3,
       "slug": "everyday-women-running-shoes",
-      "image": "assets/products/everyday-women-running-shoes/1.webp"
+      "image": "assets/products/everyday-women-running-shoes/1.jpeg"
     },
     {
       "id": "es-35",
@@ -5796,10 +5787,7 @@
       "priceTier": "budget",
       "imageAlt": "Soft Rose Day Fragrance in Beauty & Fragrances",
       "images": [
-        "assets/products/soft-rose-day-fragrance/1.webp",
-        "assets/products/soft-rose-day-fragrance/2.webp",
-        "assets/products/soft-rose-day-fragrance/3.webp",
-        "assets/products/soft-rose-day-fragrance/4.webp"
+        "assets/products/soft-rose-day-fragrance/1.jpg"
       ],
       "colors": [
         "pink"
@@ -5833,7 +5821,7 @@
       "availability": "in_stock",
       "rating": 4.2,
       "slug": "soft-rose-day-fragrance",
-      "image": "assets/products/soft-rose-day-fragrance/1.webp"
+      "image": "assets/products/soft-rose-day-fragrance/1.jpg"
     },
     {
       "id": "demo-fragrance-79",
@@ -5850,10 +5838,7 @@
       "priceTier": "budget",
       "imageAlt": "Maison Citrus Bloom Eau de Parfum in Beauty & Fragrances",
       "images": [
-        "assets/products/maison-citrus-bloom-eau-de-parfum/1.webp",
-        "assets/products/maison-citrus-bloom-eau-de-parfum/2.webp",
-        "assets/products/maison-citrus-bloom-eau-de-parfum/3.webp",
-        "assets/products/maison-citrus-bloom-eau-de-parfum/4.webp"
+        "assets/products/maison-citrus-bloom-eau-de-parfum/1.jpg"
       ],
       "colors": [
         "yellow"
@@ -5887,7 +5872,7 @@
       "availability": "in_stock",
       "rating": 4.5,
       "slug": "maison-citrus-bloom-eau-de-parfum",
-      "image": "assets/products/maison-citrus-bloom-eau-de-parfum/1.webp"
+      "image": "assets/products/maison-citrus-bloom-eau-de-parfum/1.jpg"
     },
     {
       "id": "dj-118",
@@ -10309,10 +10294,7 @@
       "priceTier": "luxury",
       "imageAlt": "Rolex Datejust in Watches",
       "images": [
-        "assets/products/rolex-datejust/1.webp",
-        "assets/products/rolex-datejust/2.webp",
-        "assets/products/rolex-datejust/3.webp",
-        "assets/products/rolex-datejust/4.webp"
+        "assets/products/rolex-datejust/1.webp"
       ],
       "colors": [
         "gray"
@@ -10480,10 +10462,7 @@
       "priceTier": "luxury",
       "imageAlt": "Rolex Datejust Women in Watches",
       "images": [
-        "assets/products/rolex-datejust-women/1.webp",
-        "assets/products/rolex-datejust-women/2.webp",
-        "assets/products/rolex-datejust-women/3.webp",
-        "assets/products/rolex-datejust-women/4.webp"
+        "assets/products/rolex-datejust-women/1.jpg"
       ],
       "colors": [
         "gray"
@@ -10520,7 +10499,7 @@
       "availability": "in_stock",
       "rating": 2.86,
       "slug": "rolex-datejust-women",
-      "image": "assets/products/rolex-datejust-women/1.webp"
+      "image": "assets/products/rolex-datejust-women/1.jpg"
     },
     {
       "id": "dj-193",
