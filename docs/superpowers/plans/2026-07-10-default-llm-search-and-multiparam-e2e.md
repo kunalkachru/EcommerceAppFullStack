@@ -1560,7 +1560,8 @@ Task B5 wires it into the plain product-search box."
 
 ### Task B4: Wire `VoiceSearchCard.jsx` to persist keys and hydrate from secure storage
 
-**Status:** Not Started
+**Status:** Done (commit `d0a2f23`). No deviations. Full suite 181/181 shows only
+the one known pre-existing `goldenFixtures.test.js` failure.
 
 **Entry Criteria:** Task B3 Exit Criteria met.
 
@@ -1697,7 +1698,12 @@ resolveDefaultLlmOptions() so this component and the plain search box
 
 ### Task B5: Wire `ProductListScreen.jsx`'s search box to use LLM reasoning by default
 
-**Status:** Not Started
+**Status:** Done (commit `22fd153`). One deviation: the new `state.auth.user`
+selector broke 2 pre-existing tests (`ProductListScreen.searchState.test.js`,
+`ProductListScreen.discoveryControls.test.js`) whose react-redux mocks only
+stubbed `state.cart`. Fixed by adding `auth: { user: null }` to both mocks.
+Full suite 181/181 shows only the one known pre-existing
+`goldenFixtures.test.js` failure.
 
 **Entry Criteria:** Task B4 Exit Criteria met.
 
