@@ -7,9 +7,16 @@ import {
   StyleSheet,
 } from "react-native";
 import catalogFallback from "../data/catalog-fallback.json";
+import { getApiBaseUrl } from "../config/api";
 
 const ITEM_WIDTH = 120;
 const featured = (catalogFallback?.products ?? []).slice(0, 6);
+
+function resolveImageUri(path) {
+  if (!path) return undefined;
+  if (/^https?:\/\//i.test(path)) return path;
+  return `${getApiBaseUrl()}/${path}`;
+}
 
 const FeaturedProductsStrip = () => (
   <View style={styles.wrap}>
@@ -22,7 +29,7 @@ const FeaturedProductsStrip = () => (
       {featured.map((product) => (
         <View key={product.id} style={styles.card}>
           <Image
-            source={{ uri: product.image || product.images?.[0] }}
+            source={{ uri: resolveImageUri(product.image || product.images?.[0]) }}
             style={styles.image}
             resizeMode="contain"
           />
