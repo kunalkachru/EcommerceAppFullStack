@@ -751,7 +751,9 @@ for exactly which source supplied each one's replacement image."
 
 ### Task 0.4: Permanent regression gate in `catalogStaticValidation.test.js`
 
-**Status:** Not Started
+**Status:** Done (commit `04ca947`). Both new assertions passed on first run
+against the fixed catalog. Full suite: 169/170 (only the known pre-existing
+`goldenFixtures.test.js` failure). `npm run validate:catalog` green.
 
 **Entry Criteria:** Task 0.3 Exit Criteria met.
 
@@ -846,6 +848,20 @@ immediately, instead of silently shipping like Stage 0's 33 did."
 - `npm test` shows only the one known pre-existing `goldenFixtures.test.js` failure.
 - Manual spot-check: at least 3 of the 33 fixed products, viewed in the running app (product
   listing + PDP), show a sensible, non-broken, correctly-oriented photo.
+
+**Status:** Done (commits `1675962` + earlier CLIP rebuild). Manual spot-check
+(Step 3) caught a real quality problem the automated fallback chain missed: 8 of
+9 pixabay first-hit picks were real/non-broken/non-duplicate but not usable
+product photos (crowd scene, wrong-gender portrait, assorted-flats rack, a
+literal rose instead of a bottle, wrong-color jackets). Replaced all 9 with
+manually verified picks (targeted queries + tag filtering + visual inspection
+before selection) per user decision "accept best-available for all 4" remaining
+hard cases. 5/9 are now clean correct-color matches; 4/9 are real/sensible but
+imperfect on color or show a third-party brand patch — flagged as a possible
+future manual-recuration item, not blocking. Final state: 0 duplicate-hash
+groups, 0 placeholder-sized images across all 196 products; `npm test` shows
+only the one known pre-existing `goldenFixtures.test.js` failure; CLIP index
+rebuilt twice (once after Task 0.3, once after this quality-fix pass).
 
 **Files:** None (verification only).
 
