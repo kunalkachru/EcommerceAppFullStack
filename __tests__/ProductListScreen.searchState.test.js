@@ -127,9 +127,58 @@ describe("ProductListScreen search state", () => {
     const visibleItems = tree.root.findAll(
       (node) =>
         typeof node.props?.testID === "string" &&
-        node.props.testID.startsWith("product-list-item-")
+        node.props.testID.startsWith("product-list-item-"),
+      { deep: false }
     );
 
     expect(visibleItems).toHaveLength(0);
+  });
+
+  it("renders search results in the search's relevance-ranked order, not catalog order", async () => {
+    // Catalog order is id 1 then id 2 (see the catalogApi mock above). The search
+    // backend ranks id 2 as the better match -- the rendered list must follow that
+    // ranking, not silently fall back to the base catalog's own ordering.
+    mockSearchCatalog.mockResolvedValue({
+      matches: [
+        { id: 2, title: "Leather City Backpack", price: 129, category: "bags" },
+        { id: 1, title: "Structured Wool Coat", price: 189, category: "women's clothing" },
+      ],
+      source: "api",
+    });
+
+    let tree;
+    await act(async () => {
+      tree = ReactTestRenderer.create(
+        React.createElement(ProductListScreen, {
+          navigation: { navigate: jest.fn() },
+        })
+      );
+    });
+
+    const input = tree.root.findByProps({ testID: "product-search-input" });
+
+    await act(async () => {
+      input.props.onChangeText("bag or coat");
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(500);
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const visibleItems = tree.root.findAll(
+      (node) =>
+        typeof node.props?.testID === "string" &&
+        node.props.testID.startsWith("product-list-item-"),
+      { deep: false }
+    );
+
+    expect(visibleItems.map((node) => node.props.testID)).toEqual([
+      "product-list-item-2",
+      "product-list-item-1",
+    ]);
   });
 });

@@ -22,10 +22,7 @@ import LlmSearchInviteBanner from "../components/LlmSearchInviteBanner";
 import { useCatalogProducts, getTopCategories } from "../redux/api/catalogApi";
 import { addToCart } from "../redux/cartSlice";
 import { analyzeImageForProducts } from "../services/visualSearchService";
-import {
-  searchCatalog,
-  matchIdsFromProducts,
-} from "../services/catalogSearchService";
+import { searchCatalog } from "../services/catalogSearchService";
 import { resolveDefaultLlmOptions } from "../utils/llmSearchDefaults";
 import { pickPhotoAsset } from "../utils/photoPicker";
 import { buildVisualSearchErrorMessage } from "../utils/visualSearchMessages";
@@ -97,7 +94,7 @@ const ProductListScreen = ({ navigation }) => {
     const vq = route.params?.voiceQuery;
     const source = route.params?.matchSource ?? "voice";
     if (Array.isArray(ids) && ids.length > 0) {
-      setVoiceProductIds(new Set(ids.map(String)));
+      setVoiceProductIds(ids.map(String));
       setVoiceBanner(
         buildAmbientSearchBanner({
           mode: source === "visual" ? "photo" : "smart",
@@ -133,7 +130,7 @@ const ProductListScreen = ({ navigation }) => {
         const llmOptions = await resolveDefaultLlmOptions(userId);
         const result = await searchCatalog(q, products, llmOptions);
         const matches = result.matches ?? [];
-        setVoiceProductIds(matches.length ? matchIdsFromProducts(matches) : new Set());
+        setVoiceProductIds(matches.map((m) => String(m.id)));
         if (matches.length > 0) {
           const banner = buildAmbientSearchBanner({
             mode: "smart",
@@ -202,7 +199,17 @@ const ProductListScreen = ({ navigation }) => {
     );
 
     if (voiceProductIds != null) {
-      list = list.filter((product) => voiceProductIds.has(String(product.id)));
+      const idSet = new Set(voiceProductIds);
+      list = list.filter((product) => idSet.has(String(product.id)));
+      if (sortOption === "Default") {
+        // Preserve the search's own relevance ranking (voiceProductIds is an
+        // ordered array, best match first) instead of falling back to the base
+        // catalog's arbitrary order once "Default" sort applies.
+        const rank = new Map(voiceProductIds.map((id, index) => [id, index]));
+        list = [...list].sort(
+          (a, b) => (rank.get(String(a.id)) ?? 0) - (rank.get(String(b.id)) ?? 0)
+        );
+      }
     }
 
     if (selectedCategory !== "All" && voiceProductIds == null && !searchQuery.trim()) {
@@ -289,7 +296,7 @@ const ProductListScreen = ({ navigation }) => {
             result.searchQuery ||
             result.matches[0].title.split(" ").slice(0, 3).join(" ");
           setSearchQuery(hint);
-          setVoiceProductIds(matchIdsFromProducts(result.matches));
+          setVoiceProductIds(result.matches.map((m) => String(m.id)));
           setVoiceBanner(
             buildAmbientSearchBanner({
               mode: "photo",
@@ -403,7 +410,7 @@ const ProductListScreen = ({ navigation }) => {
             onChangeText={(text) => {
               setSearchQuery(text);
               const hasQuery = text.trim().length > 0;
-              setVoiceProductIds(hasQuery ? new Set() : null);
+              setVoiceProductIds(hasQuery ? [] : null);
               setVoiceBanner(null);
             }}
             onSubmitEditing={() => runSmartSearch()}
