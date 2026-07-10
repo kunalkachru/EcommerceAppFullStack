@@ -1,7 +1,7 @@
 # E2E Keyboard Robustness & Live-LLM Testing Integration — Design
 
 **Date:** 2026-07-10
-**Status:** Part 1 revised after implementation (IME-disable approach was tried and reverted — see "Revision" below); Part 2 approved as designed.
+**Status:** Part 1 revised after implementation (IME-disable approach was tried and reverted — see "Revision" below), and extended to cover the iOS keyboard/photo-search findings below. Part 2 approved as designed.
 
 ## Goal
 
@@ -18,7 +18,18 @@ The Android emulator's AVD config already sets `hw.keyboard=yes` (treats the hos
 
 Because the keyboard occupies roughly the bottom 40% of the screen once shown, whether a field positioned below the one just typed into ends up hidden is purely a function of absolute scroll position at that moment — explaining why this has been intermittent (worked repeatedly earlier in the session, then failed 5/5 times after an emulator restart shifted that position) rather than reliably broken or reliably working.
 
-iOS Simulator has an analogous but mechanically distinct problem; its fix is deferred until the agent actually reaches iOS testing (see "Out of scope" — do not assume the Android conclusion transfers without separate validation).
+iOS Simulator has an analogous but mechanically distinct problem, now validated directly (see "iOS findings" below) — the Android conclusion does NOT transfer as-is.
+
+### iOS findings (validated)
+
+iOS has no hardware back button, so the Android `pressKey: back` keyboard-dismiss convention does not apply. Two distinct iOS-specific bugs were found and fixed:
+
+1. **`ml-features-comprehensive.yaml`'s manually-duplicated login block used `pressKey: back` after each `inputText`, copy-pasted from the Android version without adaptation.** On iOS this command completes without error but does not dismiss the keyboard, so the keyboard stayed open and the next `tapOn: id: "login-password"` landed on the still-focused email field instead — confirmed directly via screenshot, the email field ended up containing the literal concatenated string `test@example.comysecret123g`. Fixed by replacing the manually-duplicated login block with `runFlow: login.yaml` (the already-validated canonical iOS login flow, which uses the correct convention: tap the next field directly by id, with an optional `tapOn: text: "Sign in"` in between as a dismiss — no back-press involved).
+2. **The same file also used `pressKey: back` to submit search queries** (`inputText` into the product-search field). This is likewise a no-op on iOS. The search field is wired to `returnKeyType="search"` + `onSubmitEditing` (`src/screens/ProductListScreen.jsx`), so the correct key is the iOS return/search key. Fixed by replacing both occurrences with `pressKey: enter`.
+3. **`ml-features-comprehensive.yaml` (iOS) also had the wrong `appId`** — it was set to the Android package id (`com.ecommerceappfullstack`) instead of the iOS bundle id (`org.reactjs.native.example.EcommerceAppFullStack`), meaning the file could not have launched the correct app on a real run. Fixed.
+4. **`photo-search.yaml` (iOS): a layout-ordering scroll bug**, unrelated to the keyboard issue above. `photo-closest-match` (the top-match "compare" row) renders *above* `photo-results-section` (the full matches grid) in `HomeScreen.jsx`'s JSX. The original two-step scroll (scroll to `photo-results-section`, then continue scrolling to `photo-closest-match`) overshot past `photo-closest-match` entirely, landing at the bottom of the screen ("Browse the full catalog"). Confirmed via failure screenshot. Fixed by collapsing to a single `scrollUntilVisible` targeting `photo-closest-match` directly, with `timeout: 60000` (covers the CLIP/reranker search-completion wait, not just the scroll) and `centerElement: true`.
+
+Notably, `.maestro/ios/login.yaml` itself needed **no fix** — it already used the correct per-field-tap convention and was stable across repeated runs (see Testing). The bug was confined to files that had duplicated Android-style login/search logic inline instead of composing the canonical iOS flow.
 
 ### Revision: IME-disable was tried and reverted — do not repeat it
 
@@ -74,12 +85,13 @@ node scripts/run-e2e-all.mjs
 
 - **Keyboard fix (Android, done):** `login.yaml` re-run 3x consecutively against a real emulator, passed every time (previously 5/5 failures). Root cause confirmed via direct `uiautomator dump` bounds inspection, not assumption.
 - **Phase 6 gate (Android, done):** two-sample photo-search verification, both passing end-to-end with exact product-title assertions and PDP confirmation — `Blue & Black Check Shirt` (mens-clothing/sample-1) and `Nike Air Jordan 1 Red And Black` (footwear/sample-1).
-- **iOS keyboard fix:** not yet started. Do not assume the Android conclusion (leave IME alone, fix scrolling) transfers directly — iOS's on-screen keyboard and `pressKey`/`hideKeyboard` semantics are mechanically different (no universal hardware back button), so this needs its own real-device validation before any fix is considered done.
+- **Phase 6 gate (iOS, done):** `login.yaml` validated stable across repeated runs with no changes needed (3/4 clean, one run discarded due to acknowledged manual interference during testing, not a script defect). `photo-search.yaml` validated end-to-end for both samples — `Blue & Black Check Shirt` (mens-clothing/sample-1, run twice for repeatability) and `Nike Air Jordan 1 Red And Black` (footwear/sample-1) — all reaching `pdp-add-to-cart`. `ml-features-comprehensive.yaml` (iOS) fixed (wrong appId, Android-style `pressKey: back` in login and search submission, photo-search Phase 3 placeholder replaced with the real subflow) and validated 2/2 consecutive clean runs (exit 0).
+- **iOS regression check (done):** `complete-e2e-clean.yaml` (the canonical flow wired into `npm run maestro:ios`, unmodified by this work) re-run and passed (exit 0) after the `photo-search.yaml`/`ml-features-comprehensive.yaml` changes — confirms no side effects on other iOS flows. Jest suite: 159/160 passing, the 1 failure (`goldenFixtures.test.js`, missing checked-in image path) is pre-existing and unrelated, matching the Android regression baseline.
 - **LLM integration:** agent runs `06-llm-reasoning.yaml` with `DEMO_LLM_PROVIDER=ollama` to confirm the flow's mechanics (toggle, key field, provider selection, query, result assertion) are sound. User runs `node scripts/run-e2e-all.mjs` themselves for real-provider confirmation and reports pass/fail back.
 
 ## Out of scope
 
 - Rewriting or consolidating the project's several overlapping legacy E2E runner scripts (`run-e2e-android-maestro.sh`, `e2e-android-final.mjs`, `run-e2e-android.mjs`, etc.) — noted as existing clutter, not touched here.
+- `.maestro/ios/complete-e2e.yaml` (the non-"clean" variant) — confirmed unreferenced by any npm script or runner (`complete-e2e-clean.yaml` is the canonical one wired into `maestro:ios`); it has the same `pressKey: back` bug but is dead code, not touched here.
 - Any change to how `src/.env` itself is structured or gitignored — already correct per the 2026-07-06 spec.
 - Phase 7's multi-parameter search rewrite — separate, already-planned work in the static-catalog plan.
-- iOS keyboard/field-visibility fix — deliberately deferred to its own validation pass, not assumed from the Android fix.

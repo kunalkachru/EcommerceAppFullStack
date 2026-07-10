@@ -1,0 +1,60 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# Photo/image search via the native iOS Photos picker (PHPickerViewController).
+#
+# Unlike Android, this picker needs no permission dialog (privacy-preserving
+# by design) and opens as a full-screen sheet with a photo grid starting near
+# the top -- so the tap coordinate differs substantially from Android's.
+#
+# Assumes the most-recently-seeded photo was added via
+# `xcrun simctl addmedia <udid> <jpg>` immediately before this flow runs --
+# the simulator's Photos library sorts newest-first, so the seeded sample
+# reliably lands in the first (top-left) grid cell regardless of how many
+# other photos (the simulator's default stock images) already exist.
+#
+# Requires env: EXPECTED_PRODUCT_TITLE - the manifest productTitle for the
+# seeded sample (see test-assets/image-search-samples/manifest.json).
+- tapOn:
+    id: "tab-home"
+
+- scrollUntilVisible:
+    element:
+      id: "photo-gallery-button"
+    direction: DOWN
+    timeout: 15000
+
+- tapOn:
+    id: "photo-gallery-button"
+
+- extendedWaitUntil:
+    visible: "Photos"
+    timeout: 15000
+
+- tapOn:
+    point: "16%,24%"
+
+# photo-closest-match (the top-match "compare" row) renders *above*
+# photo-results-section (the full matches grid) in the layout -- scrolling to
+# results-section first and then continuing down for closest-match overshoots
+# past it entirely (confirmed directly: landed on "Browse the full catalog"
+# at the bottom, past the whole results block). Scroll straight to
+# photo-closest-match instead; the long timeout covers the actual
+# CLIP/reranker search request completing, not just the scroll itself, since
+# neither testID renders until `!analyzing && topMatch?.image`.
+- scrollUntilVisible:
+    element:
+      id: "photo-closest-match"
+    direction: DOWN
+    timeout: 60000
+    centerElement: true
+
+- assertVisible:
+    text: "${EXPECTED_PRODUCT_TITLE}"
+
+- tapOn:
+    id: "photo-closest-match"
+
+- extendedWaitUntil:
+    visible:
+      id: "pdp-add-to-cart"
+    timeout: 10000
