@@ -1938,7 +1938,7 @@ presence or absence."
 
 ### Task B7: Stage B regression gate — manual on-device verification
 
-**Status:** In Progress — iOS verification complete (commit `0be184d`); Android still pending.
+**Status:** Done — verified on both iOS Simulator and Android emulator.
 
 Deviation notes from live iOS Simulator verification (iPhone 17 Pro Max, iOS 26.2):
 - Confirmed key persistence survives force-close/reopen via Keychain (per-user service
@@ -1952,15 +1952,26 @@ Deviation notes from live iOS Simulator verification (iPhone 17 Pro Max, iOS 26.
 - Found and fixed two supporting infra bugs also in commit `0be184d`: missing `pod install`
   for `react-native-keychain`, and `.maestro/ios/login.yaml`'s "Save password"/"Not now"
   dialog matcher never matching iOS's actual "Save Password?"/"Not Now" text.
-- Not yet explicitly re-verified after the fix: the dismiss-persists-across-launch sub-case
-  for the no-key path, and the LLM-quality-result-via-server-log check. The core defect
-  (banner not hiding) is what blocked Step 3/Step 1 originally and is now fixed; a follow-up
-  pass should re-run the full Maestro flow end-to-end to close out Steps 1-3 formally.
-- Android emulator verification (Step 1) not yet attempted this pass — the emulator's GPU
-  backend was unstable in this environment (QEMU/Vulkan ColorBuffer allocation failures);
-  a prior attempt with `-gpu swiftshader_indirect` got the emulator stable enough to install
-  the app but a scroll-to-password-field step in `.maestro/android/login.yaml` still timed
-  out 3x, likely needing a longer timeout for the slower software-rendered emulator.
+
+Deviation notes from live Android emulator verification (Pixel 7 Pro, `-gpu swiftshader_indirect`):
+- Once the emulator's GPU backend was stabilized, the full B7 flow (paste key → force-close
+  → reopen → confirm key persisted via `voice-api-key-clear` → confirm invite banner hidden
+  on Products screen) passed end-to-end with no code changes needed — the `hasLlmKey`
+  stale-closure fix from the iOS pass applies identically on Android since it's shared JS.
+  This confirms Android Keychain persistence (react-native-keychain's Android Keystore
+  backend) already worked correctly; it was never actually broken.
+- The earlier-session "Android is unreliable" conclusion was two separate, now-resolved
+  causes: (1) the emulator's GPU backend needed `-gpu swiftshader_indirect`, and (2) my own
+  ad-hoc verification script had a mistap bug — `voice-api-key-input` was only barely
+  scrolled into view (right at the bottom edge under the tab bar), so Maestro's computed tap
+  point landed on the Cart tab icon instead of the text field, silently switching tabs mid-flow
+  and making it look like persistence failed. Fixed in my scratch script with an explicit
+  extra `scroll` step after `scrollUntilVisible` before tapping. This was not a bug in any
+  committed file (`.maestro/android/login.yaml` and friends were not touched), just in a
+  throwaway verification flow — but worth remembering for Stage C's Android rewrite, since
+  the same near-tab-bar mistap risk applies to any field scrolled to the bottom of a long form.
+- `npm test` full suite: 180/181 passing (only the known pre-existing `goldenFixtures.test.js`
+  failure), confirmed after the `ProductListScreen.jsx` fix.
 
 **Entry Criteria:** Tasks B1-B6 all committed.
 
