@@ -37,6 +37,8 @@ import {
   setSessionLlmKey,
   clearSessionLlmKey,
 } from "../utils/llmSessionStore";
+import { setPersistedLlmKey } from "../utils/secureLlmKeyStorage";
+import { resolveDefaultLlmOptions } from "../utils/llmSearchDefaults";
 import {
   LLM_PROVIDERS,
   getProviderById,
@@ -95,11 +97,16 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
       const provider = getProviderById(prefs.providerId || "groq");
       const normalizedBase = normalizeProviderBaseUrl(provider, prefs.baseUrl);
       const normalizedModel = normalizeProviderModel(provider, prefs.model);
-      setUseLlmReasoning(prefs.useLlmReasoning);
       setProviderId(provider.id);
       setBaseUrl(normalizedBase);
       setModel(normalizedModel);
-      setApiKey(getSessionLlmKey(userId));
+      // resolveDefaultLlmOptions checks the session key first, falls back to secure
+      // storage, and hydrates the session store -- so this single call covers both
+      // "already used this session" and "app was just restarted" cases.
+      const defaults = await resolveDefaultLlmOptions(userId);
+      if (!mounted) return;
+      setUseLlmReasoning(defaults.useLlmReasoning || prefs.useLlmReasoning);
+      setApiKey(defaults.apiKey || getSessionLlmKey(userId));
       await fetchVoiceSearchConfig().catch(() => null);
     })();
     return () => {
@@ -154,6 +161,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
       setError(null);
       try {
         setSessionLlmKey(apiKey, userId);
+        await setPersistedLlmKey(apiKey, userId);
         await persistPreferences({ useLlmReasoning, providerId, baseUrl, model });
         const result = await searchCatalog(q, products, llmPayload());
         setLastParsed(result.parsed);
@@ -295,6 +303,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
   const onApiKeyChange = (value) => {
     setApiKey(value);
     setSessionLlmKey(value, userId);
+    setPersistedLlmKey(value, userId);
   };
 
   const clearKey = () => {
