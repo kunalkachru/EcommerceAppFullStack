@@ -29,7 +29,14 @@ function main() {
     console.error("Run npm run seed:emulator-photos first to download test images");
     process.exit(1);
   }
-  const files = readdirSync(PHOTOS_DIR).filter((f) => /\.(jpg|jpeg|png|webp)$/i.test(f));
+  // simctl addmedia rejects .webp (confirmed: exit 133, "File type unsupported").
+  // scripts/seed-emulator-photos.mjs converts every sample to .jpg before writing
+  // here, so only jpg/png should ever land in this directory.
+  const files = readdirSync(PHOTOS_DIR).filter((f) => /\.(jpg|jpeg|png)$/i.test(f));
+  if (files.length === 0) {
+    console.error(`No jpg/png photos found in ${PHOTOS_DIR}. Run npm run seed:emulator-photos first.`);
+    process.exit(1);
+  }
   console.log(`Seeding ${files.length} photos to simulator ${udid}…`);
   for (const file of files) {
     const path = join(PHOTOS_DIR, file);

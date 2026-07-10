@@ -1,0 +1,143 @@
+appId: com.ecommerceappfullstack
+---
+# Photo/image search via the native Android gallery picker.
+#
+# Assumes exactly one photo has been seeded into the device's test album
+# beforehand (node scripts/seed-emulator-photos.mjs <category>/<file>), so the
+# picker's single visible thumbnail is unambiguous -- native OS pickers can't
+# be targeted by testID/text, only by fixed grid position (17%,60% lands on
+# the first/only thumbnail in the grid).
+#
+# Requires env: EXPECTED_PRODUCT_TITLE - the manifest productTitle for the
+# seeded sample (see test-assets/image-search-samples/manifest.json).
+- tapOn:
+    id: "tab-home"
+
+# Give the RN bridge a moment to finish settling after the login->home
+# navigation transition before we start interacting -- a cold JS bundle load
+# plus navigation can leave native-module calls (image picker) unreliable
+# for the first second or so.
+- extendedWaitUntil:
+    visible:
+      id: "__settle__"
+    timeout: 3000
+    optional: true
+
+- scrollUntilVisible:
+    element:
+      id: "photo-gallery-button"
+    direction: DOWN
+    timeout: 15000
+
+- extendedWaitUntil:
+    visible:
+      id: "__settle__"
+    timeout: 2000
+    optional: true
+
+- tapOn:
+    id: "photo-gallery-button"
+
+# ensureGalleryPermission() (src/utils/mediaPermissions.js) requests the
+# READ_MEDIA_IMAGES runtime permission before ever calling launchImageLibrary.
+# On a fresh clearState install this shows a blocking system dialog *before*
+# the picker itself opens -- part of the root cause of a "picker never opens,
+# no crash" flake: the dialog needs a tap, and this app's JS promise won't
+# resolve (so the picker never launches) until it gets one.
+- tapOn:
+    text: "While using the app"
+    optional: true
+
+- tapOn:
+    text: "Allow"
+    optional: true
+
+- tapOn:
+    text: "Only this time"
+    optional: true
+
+- extendedWaitUntil:
+    visible: "Photos"
+    timeout: 15000
+    optional: true
+
+# The native module call is intermittently unreliable even after the above
+# (confirmed via repeated manual runs: no crash, no dialog, picker just never
+# opens). Re-scroll (forces Maestro to recompute the button's on-screen
+# position fresh rather than reusing a possibly-stale coordinate) and retry
+# up to twice more before giving up for real.
+- repeat:
+    times: 3
+    while:
+      notVisible: "Photos"
+    commands:
+      - tapOn:
+          id: "tab-home"
+      - scrollUntilVisible:
+          element:
+            id: "photo-gallery-button"
+          direction: DOWN
+          timeout: 15000
+      - extendedWaitUntil:
+          visible:
+            id: "__settle__"
+          timeout: 2000
+          optional: true
+      - tapOn:
+          id: "photo-gallery-button"
+      - tapOn:
+          text: "While using the app"
+          optional: true
+      - tapOn:
+          text: "Allow"
+          optional: true
+      - tapOn:
+          text: "Only this time"
+          optional: true
+      - extendedWaitUntil:
+          visible: "Photos"
+          timeout: 15000
+          optional: true
+
+- assertVisible: "Photos"
+
+- tapOn:
+    text: "Allow"
+    optional: true
+
+- tapOn:
+    point: "17%,60%"
+
+# photo-results-section renders below the fold (past the Use camera/Open
+# gallery buttons) -- extendedWaitUntil only checks the hierarchy, not
+# on-screen visibility within the viewport, so scroll to it explicitly.
+# The long timeout covers the actual CLIP/reranker search request, not just
+# scrolling.
+- scrollUntilVisible:
+    element:
+      id: "photo-results-section"
+    direction: DOWN
+    timeout: 60000
+
+# photo-closest-match sits at the very top of the results block -- without
+# centering, scrollUntilVisible can stop once only a sliver clears the
+# status bar (observed directly: bounds [144,0][1297,204]), and a tap at
+# that position misses the real button entirely (no crash, no error, PDP
+# just never opens).
+- scrollUntilVisible:
+    element:
+      id: "photo-closest-match"
+    direction: DOWN
+    timeout: 15000
+    centerElement: true
+
+- assertVisible:
+    text: "${EXPECTED_PRODUCT_TITLE}"
+
+- tapOn:
+    id: "photo-closest-match"
+
+- extendedWaitUntil:
+    visible:
+      id: "pdp-add-to-cart"
+    timeout: 10000

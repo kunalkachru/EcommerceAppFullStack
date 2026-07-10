@@ -132,36 +132,13 @@ appId: com.ecommerceappfullstack
     optional: true
 
 # ============================================================================
-# PHASE 3: IMAGE/PHOTO SEARCH (Camera Capability)
+# PHASE 3: IMAGE/PHOTO SEARCH (real gallery-picker interaction, not a
+# generic-text placeholder -- requires a photo pre-seeded via
+# `node scripts/seed-emulator-photos.mjs <category>/<file>` and
+# EXPECTED_PRODUCT_TITLE set to that sample's manifest productTitle;
+# see .maestro/android/photo-search.yaml)
 # ============================================================================
-# Navigate back to products
-- tapOn:
-    id: "tab-products"
-    optional: true
-
-- extendedWaitUntil:
-    visible:
-      id: "tab-products"
-    timeout: 8000
-    optional: true
-
-# Look for camera/photo search icon
-- extendedWaitUntil:
-    visible:
-      text: "Search"
-    timeout: 8000
-    optional: true
-
-# Look for photo/camera icon in search area
-- tapOn:
-    text: "photo"
-    optional: true
-
-- extendedWaitUntil:
-    visible:
-      text: "camera"
-    timeout: 5000
-    optional: true
+- runFlow: photo-search.yaml
 
 # ============================================================================
 # PHASE 4: VERIFY AI REASONING is ACTIVE

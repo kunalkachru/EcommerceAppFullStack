@@ -37,17 +37,27 @@ appId: com.ecommerceappfullstack
 
 - inputText: "test@example.com"
 
-- extendedWaitUntil:
-    visible:
+# The on-screen keyboard covers ~40% of the screen once shown (Android shows
+# it for touch-focused fields regardless of hw.keyboard=yes -- it only
+# suppresses once a *real* physical key event proves hardware keyboard use).
+# Whether login-password ends up hidden behind it depends on scroll position,
+# so scroll to it explicitly (accounts for the keyboard's on-screen bounds)
+# instead of a plain visibility check against a static hierarchy position.
+# See docs/superpowers/specs/2026-07-10-e2e-keyboard-and-llm-testing-
+# robustness-design.md.
+- scrollUntilVisible:
+    element:
       id: "login-password"
-    timeout: 3000
+    direction: DOWN
+    timeout: 5000
 
 - tapOn:
     id: "login-password"
 
 - inputText: "secret123"
 
-# Dismiss keyboard before scrolling
+# Dismiss keyboard before scrolling -- pressKey: back is intercepted by the
+# IME (dismisses the keyboard) whenever it's actually showing.
 - pressKey: back
 
 - extendedWaitUntil:

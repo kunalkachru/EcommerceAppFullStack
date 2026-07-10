@@ -1,7 +1,7 @@
 # E2E Keyboard Robustness & Live-LLM Testing Integration — Design
 
 **Date:** 2026-07-10
-**Status:** Draft — pending user review
+**Status:** Part 1 revised after implementation (IME-disable approach was tried and reverted — see "Revision" below); Part 2 approved as designed.
 
 ## Goal
 
@@ -18,33 +18,25 @@ The Android emulator's AVD config already sets `hw.keyboard=yes` (treats the hos
 
 Because the keyboard occupies roughly the bottom 40% of the screen once shown, whether a field positioned below the one just typed into ends up hidden is purely a function of absolute scroll position at that moment — explaining why this has been intermittent (worked repeatedly earlier in the session, then failed 5/5 times after an emulator restart shifted that position) rather than reliably broken or reliably working.
 
-iOS Simulator has an analogous but mechanically distinct problem and fix: enabling "Connect Hardware Keyboard" (`Cmd+Shift+K` / the `ConnectHardwareKeyboard` preference) suppresses its on-screen keyboard the same way.
+iOS Simulator has an analogous but mechanically distinct problem; its fix is deferred until the agent actually reaches iOS testing (see "Out of scope" — do not assume the Android conclusion transfers without separate validation).
 
-### Fix: suppress the keyboard at the source, per platform
+### Revision: IME-disable was tried and reverted — do not repeat it
 
-**Android** — disable the on-screen IME entirely for the test session:
-```bash
-adb shell ime disable com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME
-```
-With no enabled software IME and `hw.keyboard=yes` already set, Android has nothing to render when a field is focused; `inputText` still delivers text via Maestro's input-injection path. Re-enable is symmetric (`ime enable ...`) if a flow ever needs to test the keyboard itself (none currently do).
+The first version of this spec proposed disabling the on-screen IME entirely (`adb shell ime disable ...`) as the fix, on the theory that "no keyboard to render" removes the bug at the source. **This was implemented, tested, and found to break the suite in a different way, so it was reverted.**
 
-**iOS** — enable the Simulator's hardware-keyboard preference once per machine:
-```bash
-defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool YES
-```
-This is a `Simulator.app` preference, not per-AVD — set once, persists across simulator restarts.
+What actually happened: this project's Android flows use `pressKey: back` pervasively (17+ occurrences across `checkout.yaml`, `complete-e2e*.yaml`, `ml-multiparameter-search.yaml`, `ml-features-comprehensive.yaml`, `login.yaml`) as the established, working keyboard-dismiss convention — pressing back is intercepted by the IME to close the keyboard when the keyboard is actually showing. With the IME disabled, there's no keyboard to intercept the back press, so it performs **real back-navigation** instead — reproduced directly: `hideKeyboard` (added as an initial belt-and-suspenders step) exited the app to the Android home launcher instead of doing nothing, because there was no keyboard for it to hide.
 
-**New script:** `scripts/disable-soft-keyboard.mjs --platform android|ios`
-- Idempotent (safe to re-run; checking current state before changing it where practical).
-- Exits non-zero with a clear message if no device/simulator is reachable (adb device / booted simulator check), rather than silently no-op'ing.
+`scripts/disable-soft-keyboard.mjs` was removed. **Do not re-add IME-disable to the Android path** — it is fundamentally incompatible with this codebase's existing `pressKey: back` convention, and fixing that would mean touching every flow that relies on it, a much larger and riskier change than the field-visibility problem warrants.
 
-**Wiring:** called automatically at the start of the two canonical npm entry points (`maestro:android`, `maestro:ios` in `package.json`) before the `maestro test` invocation, plus documented as a standalone command (`node scripts/disable-soft-keyboard.mjs --platform android`) for ad-hoc/interactive runs. The project's several older overlapping runner scripts (`run-e2e-android-maestro.sh`, `e2e-android-final.mjs`, etc.) are out of scope — this only touches the two currently-canonical entry points plus the standalone script.
+### Fix: scroll to the target with centering, not a blind visibility check
 
-### Belt-and-suspenders: explicit `hideKeyboard` in flows
+The actual, implemented, validated fix leaves the keyboard alone and instead makes field-visibility checks robust to it being present:
 
-Even with the IME disabled, add an explicit `- hideKeyboard` step (a native Maestro command, already used successfully in `.maestro/flows/06-llm-reasoning.yaml`) immediately after every `inputText` step in any flow where a later step needs to see content below the just-typed field. This is a second line of defense, not the primary fix — if IME suppression fully works, `hideKeyboard` is a fast no-op; if suppression is incomplete in some environment (e.g. a CI machine with different AVD defaults), this still prevents the failure.
+- Replace a bare `extendedWaitUntil: visible: id: X` (which only checks hierarchy presence + raw on-screen coordinates, not whether the keyboard currently covers those coordinates) with `scrollUntilVisible: element: { id: X }, direction: DOWN` immediately before interacting with a field that might sit behind the keyboard. `scrollUntilVisible` actively scrolls until the target genuinely clears the viewport, keyboard included.
+- Where the target can end up only *barely* visible at a screen edge (observed directly: `photo-closest-match`'s bounds were `[144,0][1297,204]`, clipped by the status bar, and a tap there missed the real button with no error), add `centerElement: true` to the `scrollUntilVisible` so the element lands away from any edge before tapping.
+- Existing `pressKey: back` keyboard-dismiss steps are left untouched — they already work correctly precisely because the keyboard is genuinely present when they run.
 
-Flows affected: `.maestro/android/login.yaml`, `.maestro/ios/login.yaml`, and any other current or future flow with a type-then-check-below-it pattern (grep for `inputText` followed by a subsequent `extendedWaitUntil`/`assertVisible`/`tapOn` targeting a *different* element to identify candidates at implementation time).
+Applied to: `.maestro/android/login.yaml` (`login-password` visibility, was a bare `extendedWaitUntil`, now `scrollUntilVisible`) and `.maestro/android/photo-search.yaml` (`photo-closest-match`, added `centerElement: true`). Both validated with repeated real runs against the emulator (see Testing).
 
 ## Part 2: Integrating with existing live-LLM infrastructure
 
@@ -80,8 +72,9 @@ node scripts/run-e2e-all.mjs
 
 ## Testing
 
-- **Keyboard fix:** re-run `login.yaml` on both platforms after IME suppression is wired in; confirm `login-password` visibility check passes without relying on lucky scroll position. Verify by deliberately testing from a fresh emulator/simulator boot (the exact condition that exposed the bug) rather than a warm one.
-- **Phase 6 gate (unblocked by the keyboard fix):** re-run the two-sample photo-search verification (`Blue & Black Check Shirt` already passed once; `Nike Air Jordan 1 Red And Black` blocked by the login flake) to close out the existing Phase 6 gate.
+- **Keyboard fix (Android, done):** `login.yaml` re-run 3x consecutively against a real emulator, passed every time (previously 5/5 failures). Root cause confirmed via direct `uiautomator dump` bounds inspection, not assumption.
+- **Phase 6 gate (Android, done):** two-sample photo-search verification, both passing end-to-end with exact product-title assertions and PDP confirmation — `Blue & Black Check Shirt` (mens-clothing/sample-1) and `Nike Air Jordan 1 Red And Black` (footwear/sample-1).
+- **iOS keyboard fix:** not yet started. Do not assume the Android conclusion (leave IME alone, fix scrolling) transfers directly — iOS's on-screen keyboard and `pressKey`/`hideKeyboard` semantics are mechanically different (no universal hardware back button), so this needs its own real-device validation before any fix is considered done.
 - **LLM integration:** agent runs `06-llm-reasoning.yaml` with `DEMO_LLM_PROVIDER=ollama` to confirm the flow's mechanics (toggle, key field, provider selection, query, result assertion) are sound. User runs `node scripts/run-e2e-all.mjs` themselves for real-provider confirmation and reports pass/fail back.
 
 ## Out of scope
@@ -89,3 +82,4 @@ node scripts/run-e2e-all.mjs
 - Rewriting or consolidating the project's several overlapping legacy E2E runner scripts (`run-e2e-android-maestro.sh`, `e2e-android-final.mjs`, `run-e2e-android.mjs`, etc.) — noted as existing clutter, not touched here.
 - Any change to how `src/.env` itself is structured or gitignored — already correct per the 2026-07-06 spec.
 - Phase 7's multi-parameter search rewrite — separate, already-planned work in the static-catalog plan.
+- iOS keyboard/field-visibility fix — deliberately deferred to its own validation pass, not assumed from the Android fix.
