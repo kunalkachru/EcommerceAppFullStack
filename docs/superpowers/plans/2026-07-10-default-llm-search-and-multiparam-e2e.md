@@ -1254,7 +1254,8 @@ Task B3/B4 build the default-reasoning behavior on top of."
 
 ### Task B2: Extract provider URL/model normalization helpers into the shared config module
 
-**Status:** Not Started
+**Status:** Done (commit `ba25286`). Pure move, no deviations. Full suite
+176/176 shows only the one known pre-existing `goldenFixtures.test.js` failure.
 
 **Entry Criteria:** Task B1 Exit Criteria met.
 
@@ -1362,7 +1363,8 @@ needs them too, so they belong in the shared config module, not duplicated."
 
 ### Task B3: Add the shared `resolveDefaultLlmOptions()` helper
 
-**Status:** Not Started
+**Status:** Done (commit `8c6eab7`). No deviations. All 5 tests pass; full suite
+181/181 shows only the one known pre-existing `goldenFixtures.test.js` failure.
 
 **Entry Criteria:** Task B2 Exit Criteria met.
 
