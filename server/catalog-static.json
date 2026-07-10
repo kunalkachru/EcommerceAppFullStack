@@ -2334,7 +2334,7 @@
       "priceTier": "budget",
       "imageAlt": "Alpine Blue Packable Windbreaker in Women's Clothing",
       "images": [
-        "assets/products/alpine-blue-packable-windbreaker/1.jpg"
+        "assets/products/alpine-blue-packable-windbreaker/1.png"
       ],
       "colors": [
         "blue"
@@ -2379,7 +2379,7 @@
       "availability": "in_stock",
       "rating": 4.3,
       "slug": "alpine-blue-packable-windbreaker",
-      "image": "assets/products/alpine-blue-packable-windbreaker/1.jpg"
+      "image": "assets/products/alpine-blue-packable-windbreaker/1.png"
     },
     {
       "id": "demo-jacket-blue-59",
