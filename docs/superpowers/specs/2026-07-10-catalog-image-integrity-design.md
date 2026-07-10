@@ -23,16 +23,20 @@ regression gate so this class of bug can never silently reappear.
 MD5-hashed every product's primary image in `server/catalog-static.json` (196 products) and
 grouped by hash. Three distinct root causes, not one:
 
-1. **Group 1 — 23 products, dead escuelajs.co/imgur links.** These products (id prefix
-   `es-`) source their photo from `i.imgur.com` URLs recorded in
-   `server/data/catalog-selection.json`. Fetching one of those URLs live returns HTTP 200,
-   but the body is imgur's well-known tiny "image removed" placeholder graphic (161×81px,
-   503 bytes) — imgur deleted the original uploads at some point after the catalog was
-   originally built, and now serves this stub instead of a proper 404. All 23 escuelajs-sourced
-   products in the catalog are affected — confirmed this is the entire escuelajs-sourced
-   population, not a sample of it. Re-running the existing download script would fetch the
-   exact same dead stub; there is no fix without a different source for these specific
-   products.
+1. **Group 1 — 23 products, broken escuelajs.co/imgur URLs — but 21 of 23 are recoverable
+   in place, not permanently dead.** These products (id prefix `es-`) source their photo from
+   `i.imgur.com` URLs recorded in `server/data/catalog-selection.json`, stored all-lowercase
+   (e.g. `r2pn9wq.jpeg`). Fetching that exact stored URL live returns HTTP 200, but the body
+   is imgur's well-known tiny "image removed" placeholder graphic (161×81px, 503 bytes).
+   **The actual root cause: imgur URLs are case-sensitive, and the correctly-cased version of
+   the same ID is a genuinely different, working image** — verified directly:
+   `i.imgur.com/r2pn9wq.jpeg` (as stored) is dead, `i.imgur.com/R2PN9Wq.jpeg` (mixed case) is
+   a real, working 64KB photo. Cross-referencing all 23 broken products' exact titles against
+   escuelajs's current live catalog (fetched fresh, 55 total live products) found **21 exact
+   title matches**, each with a currently-working, correctly-cased image URL for that *same*
+   already-selected real product — no product-selection change needed, just a URL correction.
+   Only 2 of 23 (`Classic Heather Gray Hoodie`, `Classic Black Hooded Sweatshirt`) have no
+   current live match and need the fallback chain described below, same as Groups 2/3.
 2. **Group 2 — 8 products, a hand-curation bug.** `server/src/demoCoverageProducts.js`
    contains a small hand-authored list of "demo coverage" products (id prefix `demo-`) added
    to fill search-demo gaps (e.g. specific price-range buckets). Several of these were
@@ -51,10 +55,15 @@ pair as broken. Corrected by classifying each duplicate group: a group containin
 `dj-`/`fs-` (dummyjson/fakestoreapi) member and the rest non-real-prefixed is Group 2 (the
 `dj-`/`fs-` member is the legitimate original and is excluded from the fix list); a group
 where every member shares a sub-2KB file is Group 1 (nobody in it is legitimate); a group of
-two-or-more `dj-`/`fs-` members is Group 3. True total needing a fix: **33**, not 39.
+two-or-more `dj-`/`fs-` members is Group 3. True total with a wrong image: **33**, not 39 —
+but only **12 of those 33** actually need the sourcing fallback chain below, since 21 of
+Group 1's 23 are a same-product URL correction (title-matched against escuelajs's live
+catalog), not a re-sourcing problem at all.
 
-By category: mens-clothing 12, footwear 11, beauty-fragrances 3, bags-accessories 2,
-womens-clothing 3, watches 2.
+By category, for the 12 that need the fallback chain: mens-clothing 2, footwear 3,
+womens-clothing 3, beauty-fragrances 2, watches 2. (The 21 title-matched Group 1 corrections
+span mens-clothing, footwear, beauty-fragrances, and bags-accessories but need no fallback
+sourcing — see Sourcing approach below.)
 
 ## Sourcing approach
 
@@ -62,25 +71,32 @@ womens-clothing 3, watches 2.
 images — never AI-generated or synthesized.** Within that constraint, sourcing choices differ
 by how much real inventory each category has left:
 
-- **Primary: dummyjson.com + fakestoreapi.com**, the two sources already proven reliable
-  (152 + 13 products in the catalog, zero broken images between them). Same-category
-  replacement required (preserves the original 12-category, 196-product balance from Phase 1).
-- **Feasibility problem found and confirmed by live query:** dummyjson's `mens-shirts`
-  category has only 5 products total (all 5 already used in the catalog) and fakestoreapi's
-  `men's clothing` has only 4 total (3 already used) — combined, ~1 spare slot exists against
-  a need for 12. Similarly, dummyjson's `mens-shoes` + `womens-shoes` combined total 10 (9
-  already used), fakestoreapi has no shoes category at all — ~4 spare slots against a need for
-  11. The other 4 affected categories (beauty-fragrances 3, bags-accessories 2,
-  womens-clothing 3, watches 2) are small enough that dummyjson/fakestoreapi headroom is not
-  expected to be a problem.
-- **Fallback 1, for the mens-clothing/footwear shortfall specifically: fresh, not-yet-used
+- **Tier 0 (Group 1 only, 21 of 23 products): same-product URL correction, no re-sourcing at
+  all.** For each Group 1 product whose exact title matches a currently-live escuelajs
+  listing, take that listing's current image URL directly — the product itself (title, price,
+  description, category) is completely unchanged; only the broken image URL is corrected.
+  This is not really "sourcing a replacement," it's fixing a stale/case-wrong URL for a
+  product we already legitimately selected, and it's why the fallback-chain volume below is
+  12, not 33.
+- **Primary (for the remaining 12 — Group 1's 2 unmatched + Group 2's 8 + Group 3's 2):
+  dummyjson.com + fakestoreapi.com**, the two sources already proven reliable (152 + 13
+  products in the catalog, zero broken images between them). Same-category replacement
+  required (preserves the original 12-category, 196-product balance from Phase 1).
+- **Feasibility, re-checked against the corrected 12-product need:** mens-clothing needs 2
+  (dummyjson's `mens-shirts` has 0 spare of 5, fakestoreapi's `men's clothing` has 1 spare of
+  4 — enough for 1 of the 2, fallback needed for at most 1), footwear needs 3 (dummyjson's
+  `mens-shoes`+`womens-shoes` combined have ~1 spare of 10 — fallback needed for roughly 2).
+  womens-clothing (3), beauty-fragrances (2), and watches (2) are small enough that
+  dummyjson/fakestoreapi headroom is not expected to be a problem. The earlier 33-product
+  feasibility concern (12 needed vs. ~1 spare in mens-clothing, 11 needed vs. ~4 spare in
+  footwear) is effectively resolved by the Tier 0 correction; only a small handful of products
+  are now expected to actually reach the escuelajs/Unsplash fallback tiers below.
+- **Fallback 1, for whatever's still short after dummyjson/fakestoreapi: fresh, not-yet-used
   escuelajs.co candidates, each individually validated before acceptance** (real decodable
   image, exceeds a minimum size/dimension threshold, no hash collision with any existing
-  catalog image). The 23 known-dead escuelajs products are the specific SKUs this catalog
-  happened to select, not evidence the entire site is dead — escuelajs has many more products
-  than the ones already tried. This keeps the replacement as another catalog API's own real
-  product record, at the cost of needing a live validation step per candidate (exactly the
-  discipline that was missing the first time).
+  catalog image) — confirmed via live sampling this session that escuelajs's *current* catalog
+  (55 live products, not the stale set originally selected) does contain genuinely working,
+  correctly-cased imgur images, so this tier is real and usable, not just theoretical.
 - **Fallback 2, for whatever remains short after fresh-escuelajs attempts: Unsplash's free API**
   (`api.unsplash.com`, requires a free developer Access Key — confirmed live that
   unauthenticated requests return `401`). Real, correctly-licensed (Unsplash License permits
@@ -112,8 +128,12 @@ by how much real inventory each category has left:
 2. **`server/scripts/fixBrokenCatalogImages.mjs`** (new) — one-time Stage 0 script:
    - Loads `catalog-static.json`, runs `findDuplicateGroups` + classification (as described
      in Root Cause above) to get the definitive 33-product fix list, tagged by group.
-   - For each, tries in order: (a) an unused dummyjson/fakestoreapi candidate in the same
-     category, if any category headroom remains: (b) a fresh, not-yet-used escuelajs
+   - For Group 1 products specifically, first tries Tier 0: fetch escuelajs's live catalog,
+     look for an exact `title` match, and if found, take that listing's current image URL
+     directly (same product, corrected URL, no category/inventory considerations at all).
+   - For anything not resolved by Tier 0 (Group 1's 2 unmatched, all of Group 2, all of
+     Group 3), tries in order: (a) an unused dummyjson/fakestoreapi candidate in the same
+     category, if any category headroom remains; (b) a fresh, not-yet-used escuelajs
      candidate in the same category, validated live before acceptance; (c) an Unsplash photo
      for the same category/type, only if (a) and (b) are exhausted.
    - Downloads the accepted image into `assets/products/<slug>/`, updates that product's
@@ -150,12 +170,18 @@ catalog-static.json (196 products, 33 flagged)
 imageIntegrity.mjs: findDuplicateGroups + classify -> 33-item fix list, grouped 1/2/3
         |
         v
-fixBrokenCatalogImages.mjs: per product, try (a) dummyjson/fakestoreapi unused candidate
+Group 1 (23) -> Tier 0: exact-title match against escuelajs's LIVE catalog
+                  -> 21 resolved (same product, corrected URL, done)
+                  -> 2 unresolved, fall through with Group 2 (8) + Group 3 (2) = 12 total
+        |
+        v
+fixBrokenCatalogImages.mjs, for the 12: try (a) dummyjson/fakestoreapi unused candidate
                               -> (b) fresh validated escuelajs candidate
                               -> (c) Unsplash (requires user-provided ACCESS_KEY)
         |
         v
 assets/products/<slug>/*.{webp,jpg} written; catalog-static.json images/image fields updated
+  (all 33: 21 via Tier 0, 12 via the (a)/(b)/(c) chain)
         |
         v
 rebuildClipIndex.js (full rebuild, existing script, unmodified)
