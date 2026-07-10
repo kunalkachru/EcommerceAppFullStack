@@ -37,6 +37,20 @@ export async function searchCatalog(query, catalogProducts = [], llmOptions = {}
       };
     }
 
+    // resultStatus "no_matches" is the server confidently deciding nothing is
+    // relevant (naturalSearch.js's absolute-floor threshold) -- that's a real
+    // answer, not a failure, so it must not be overridden by a broad local
+    // keyword fallback intended for when the API has no usable data at all.
+    if (result.resultStatus === "no_matches") {
+      return {
+        query: q,
+        matches: [],
+        parsed: result.parsed,
+        source: "no_matches",
+        searchMode: result.searchMode ?? "semantic-first",
+      };
+    }
+
     const local = localMatches();
     return {
       query: q,
