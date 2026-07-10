@@ -2039,7 +2039,25 @@ met and committed.
 
 ### Task C1: Build the multi-parameter fixture generator
 
-**Status:** Not Started
+**Status:** Done (commits `41a56db` + `473fad9`). Deviations: (1) the plan's own
+SAMPLE_PRODUCTS test fixture only had 3 products, but the test asserts 5 positive
+fixtures -- expanded to 5 sample products across distinct categories so the test
+actually exercises the "5 positive, diverse categories" behavior. (2) `sentenceFor()`
+was extended beyond the plan's literal code to avoid two real query-quality bugs found
+during Step 6 manual verification: a title's trailing color word (e.g. "...Space Grey")
+or a stopword (e.g. "...Red And Black" -> "and") getting picked as the sentence's "type"
+word, and bare numeric sizes ("6") not being recognized by extractSize() without an
+explicit "size" prefix. (3) Major deviation, user-approved: discovered the no-match
+fixture was fundamentally untestable against the live search backend -- the existing
+relative-only threshold (topScore * 0.55) mathematically guarantees the top result
+always survives, so no text query could ever produce a genuine empty-result state.
+User confirmed real e-commerce precedent (Amazon/Flipkart use an absolute floor, not
+relative) and approved fixing server/src/naturalSearch.js with an ABSOLUTE_MIN_SCORE
+floor (0.65, chosen from the empirical gap between 5 nonsense queries at 0.62-0.64 and
+5 real matches at 0.70-0.82). All 6 fixtures (5 positive + 1 no-match) verified against
+the live running server after the fix; full test suite 183/183 (only the known
+pre-existing `goldenFixtures` failure remains, +1 net new passing test vs. Stage B's
+181/181 baseline).
 
 **Entry Criteria:** Stage C Entry Criteria met.
 
