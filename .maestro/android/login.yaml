@@ -37,14 +37,13 @@ appId: com.ecommerceappfullstack
 
 - inputText: "test@example.com"
 
-# The on-screen keyboard covers ~40% of the screen once shown (Android shows
-# it for touch-focused fields regardless of hw.keyboard=yes -- it only
-# suppresses once a *real* physical key event proves hardware keyboard use).
-# Whether login-password ends up hidden behind it depends on scroll position,
-# so scroll to it explicitly (accounts for the keyboard's on-screen bounds)
-# instead of a plain visibility check against a static hierarchy position.
-# See docs/superpowers/specs/2026-07-10-e2e-keyboard-and-llm-testing-
-# robustness-design.md.
+# The Android soft keyboard freezes the ScrollView's scroll position while
+# it's showing -- scrollUntilVisible/swipe gestures are no-ops in that state
+# (confirmed with both Maestro and raw ADB swipes), even though the
+# password field is already within the ScrollView's content and needs no
+# further scrolling once the keyboard is gone. Dismiss it first.
+- pressKey: back
+
 - scrollUntilVisible:
     element:
       id: "login-password"
