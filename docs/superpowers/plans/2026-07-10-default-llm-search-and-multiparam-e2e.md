@@ -1938,7 +1938,29 @@ presence or absence."
 
 ### Task B7: Stage B regression gate — manual on-device verification
 
-**Status:** Not Started
+**Status:** In Progress — iOS verification complete (commit `0be184d`); Android still pending.
+
+Deviation notes from live iOS Simulator verification (iPhone 17 Pro Max, iOS 26.2):
+- Confirmed key persistence survives force-close/reopen via Keychain (per-user service
+  `shopease-llm-key:<userId>`), and confirmed via the `voice-api-key-clear` testID (added
+  this task) rather than literal-text assertion, since `secureTextEntry` masks the field's
+  accessible text from Maestro/XCUITest on iOS.
+- Found and fixed a real bug during this verification: the LLM invite banner never hid
+  itself after a key was confirmed present, because `ProductListScreen.jsx`'s `listHeader`
+  `useMemo` was missing `hasLlmKey` from its dependency array (stale closure). Fixed in
+  commit `0be184d`.
+- Found and fixed two supporting infra bugs also in commit `0be184d`: missing `pod install`
+  for `react-native-keychain`, and `.maestro/ios/login.yaml`'s "Save password"/"Not now"
+  dialog matcher never matching iOS's actual "Save Password?"/"Not Now" text.
+- Not yet explicitly re-verified after the fix: the dismiss-persists-across-launch sub-case
+  for the no-key path, and the LLM-quality-result-via-server-log check. The core defect
+  (banner not hiding) is what blocked Step 3/Step 1 originally and is now fixed; a follow-up
+  pass should re-run the full Maestro flow end-to-end to close out Steps 1-3 formally.
+- Android emulator verification (Step 1) not yet attempted this pass — the emulator's GPU
+  backend was unstable in this environment (QEMU/Vulkan ColorBuffer allocation failures);
+  a prior attempt with `-gpu swiftshader_indirect` got the emulator stable enough to install
+  the app but a scroll-to-password-field step in `.maestro/android/login.yaml` still timed
+  out 3x, likely needing a longer timeout for the slower software-rendered emulator.
 
 **Entry Criteria:** Tasks B1-B6 all committed.
 
