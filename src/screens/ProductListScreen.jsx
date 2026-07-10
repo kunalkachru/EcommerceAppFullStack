@@ -18,6 +18,7 @@ import CategoryFilterBar from "../components/CategoryFilterBar";
 import VisualSearchCategoryPrompt from "../components/VisualSearchCategoryPrompt";
 import UnifiedFilterPanel from "../components/UnifiedFilterPanel";
 import { LuxuryErrorBanner, LuxuryLoadingState, LuxuryEmptyState } from "../components/LuxuryStateIndicators";
+import LlmSearchInviteBanner from "../components/LlmSearchInviteBanner";
 import { useCatalogProducts, getTopCategories } from "../redux/api/catalogApi";
 import { addToCart } from "../redux/cartSlice";
 import { analyzeImageForProducts } from "../services/visualSearchService";
@@ -40,6 +41,18 @@ const ProductListScreen = ({ navigation }) => {
     useCatalogProducts();
   const user = useSelector((state) => state.auth.user);
   const userId = user?._id ?? user?.email ?? null;
+  const [hasLlmKey, setHasLlmKey] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    resolveDefaultLlmOptions(userId).then((opts) => {
+      if (mounted) setHasLlmKey(Boolean(opts.apiKey));
+    });
+    return () => {
+      mounted = false;
+    };
+  }, [userId]);
+
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOption, setSortOption] = useState("Default");
   const [priceRange, setPriceRange] = useState([0, PRICE_MAX]);
@@ -363,6 +376,10 @@ const ProductListScreen = ({ navigation }) => {
           selectedCategory={selectedCategory}
           onSelect={setSelectedCategory}
         />
+
+        {!hasLlmKey && (
+          <LlmSearchInviteBanner onPressSetup={() => navigation.navigate("Home")} />
+        )}
 
         <View style={styles.searchContainer}>
           <TouchableOpacity
