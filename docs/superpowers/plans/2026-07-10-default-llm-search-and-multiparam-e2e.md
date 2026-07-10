@@ -902,7 +902,10 @@ git commit -m "docs: mark Stage 0 complete, catalog image integrity fixed and ga
 
 ### Task A1: Fix natural-language size extraction in `voiceQueryParser.js`
 
-**Status:** Not Started
+**Status:** Done (commit `5847c4b`). Both bugs fixed exactly as planned, no
+deviations. All 7 tests in `voiceQueryParser.sizeSpec.test.js` pass (3
+pre-existing + 2 new, plus 2 pre-existing specification tests). Full suite:
+171/172 (only the known pre-existing `goldenFixtures.test.js` failure).
 
 **Entry Criteria:**
 - Stage 0's Exit Criteria (Task 0.5) are all met and committed — the catalog has zero
