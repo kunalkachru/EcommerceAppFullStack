@@ -1774,7 +1774,9 @@ elsewhere in the app."
 
 ### Task B6: Add the first-run "add a key" invite banner
 
-**Status:** Not Started
+**Status:** Done (commit `f29ce5b`). No deviations; all token/route-name claims
+verified against the actual codebase before writing. Full suite 181/181 shows
+only the one known pre-existing `goldenFixtures.test.js` failure.
 
 **Entry Criteria:** Task B5 Exit Criteria met.
 
