@@ -2325,7 +2325,41 @@ catalog)."
 
 ### Task C2: Android `ml-multiparameter-search.yaml` (rule-based search box)
 
-**Status:** Not Started
+**Status:** Done
+
+**Deviations / findings during verification:**
+- **Major, session-wide:** `config/app-target.json` was `"mode": "cloud"`, silently
+  routing the emulator app at the old Railway production backend (258-product dynamic
+  catalog, predates the static-catalog migration) instead of `localhost:5001`. Every
+  "live verified" claim earlier in Stage C (and arguably Stage 0/A/B) that depended on
+  server-side behavior was not actually exercising the code under test — only
+  client-side JS fixes were validly verified, since those ship in the bundle
+  regardless of backend. Root-caused by adding temporary request logging to the local
+  server and confirming zero requests arrived during a live device search. Fixed by
+  switching to `"mode": "local"`; full re-verification below is against the corrected
+  target. See `feedback_verify_backend_target_before_testing` memory for the standing
+  guideline this produced.
+- Found and fixed (via TDD) two more real, previously-hidden bugs surfaced once the
+  app was actually talking to the local server: (1) `FeaturedProductsStrip.jsx`'s
+  pre-login "Trending now" carousel rendered blank images because it read raw
+  server-relative paths from the bundled `catalog-fallback.json` snapshot without
+  resolving them to absolute URLs; (2) `catalogSearchService.js` silently overrode a
+  confident `resultStatus: "no_matches"` server response (the Task C1 absolute-floor
+  fix) with a broad client-side keyword fallback, turning a correct empty result into
+  23 bogus matches for the no-match fixture.
+- Also fixed a reproducible Android E2E flow bug (not a product bug): the login
+  screen's ScrollView stops responding to scroll/swipe gestures entirely while the
+  soft keyboard is showing (confirmed with both Maestro and raw ADB swipes). Fixed
+  `login.yaml` to dismiss the keyboard (`pressKey: back`) after typing the email,
+  before locating the password field, instead of trying to scroll past a frozen
+  ScrollView.
+- Replaced `tapOn: text: "Search products"` / `"e.g. below 45"` (plan's literal
+  template — never actually found/focused the field) with `tapOn: id:
+  "product-search-input"`, and added `centerElement: true` to the pre-assertion
+  `scrollUntilVisible` step to fix a near-tab-bar mistap.
+- All 5 positive fixtures + the 1 no-match fixture from
+  `scripts/fixtures/golden-multiparam-queries.json` verified live end-to-end against
+  the corrected local backend.
 
 **Entry Criteria:** Task C1 Exit Criteria met. Android emulator running with the dev server
 started fresh (`npm run start:baseline` in `server/`, confirm it serves the current product
