@@ -25,6 +25,7 @@ import {
   searchCatalog,
   matchIdsFromProducts,
 } from "../services/catalogSearchService";
+import { resolveDefaultLlmOptions } from "../utils/llmSearchDefaults";
 import { pickPhotoAsset } from "../utils/photoPicker";
 import { buildVisualSearchErrorMessage } from "../utils/visualSearchMessages";
 import { buildAmbientSearchBanner } from "../utils/ambientAiNarratives";
@@ -37,6 +38,8 @@ const ProductListScreen = ({ navigation }) => {
   const route = useRoute();
   const { products, isLoading, error, isOfflineFallback, refetch, catalogTotal } =
     useCatalogProducts();
+  const user = useSelector((state) => state.auth.user);
+  const userId = user?._id ?? user?.email ?? null;
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOption, setSortOption] = useState("Default");
   const [priceRange, setPriceRange] = useState([0, PRICE_MAX]);
@@ -114,7 +117,8 @@ const ProductListScreen = ({ navigation }) => {
       setSearchSearching(true);
       setVisualError(null);
       try {
-        const result = await searchCatalog(q, products);
+        const llmOptions = await resolveDefaultLlmOptions(userId);
+        const result = await searchCatalog(q, products, llmOptions);
         const matches = result.matches ?? [];
         setVoiceProductIds(matches.length ? matchIdsFromProducts(matches) : new Set());
         if (matches.length > 0) {
@@ -151,7 +155,7 @@ const ProductListScreen = ({ navigation }) => {
         setSearchSearching(false);
       }
     },
-    [searchQuery, products, clearSmartSearch]
+    [searchQuery, products, clearSmartSearch, userId]
   );
 
   useEffect(() => {

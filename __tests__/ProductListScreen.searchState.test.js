@@ -15,6 +15,9 @@ jest.mock("react-redux", () => ({
       cart: {
         pendingByProduct: {},
       },
+      auth: {
+        user: null,
+      },
     }),
 }));
 
