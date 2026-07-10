@@ -1088,7 +1088,8 @@ on the branch (`git log --oneline -1 -- server/src/voiceQueryParser.js` shows th
 
 ### Task B1: Add secure on-device key storage module
 
-**Status:** Not Started
+**Status:** Done (commit `c8fbab9`). No deviations. All 4 tests pass; full suite
+176/176 shows only the one known pre-existing `goldenFixtures.test.js` failure.
 
 **Entry Criteria:** Stage B Entry Criteria met (see above).
 
