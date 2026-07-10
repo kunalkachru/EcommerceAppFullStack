@@ -36,6 +36,23 @@ const SIZE_LETTER_WORDS = ["xs", "s", "m", "l", "xl", "xxl", "xxxl"];
 const SIZE_WAIST_NUMBERS = ["28", "29", "30", "31", "32", "33", "34", "36", "38", "40"];
 const SIZE_SHOE_NUMBERS = ["5", "6", "7", "8", "9", "10", "11", "12", "13"];
 
+// Spoken-word -> stored-code canonicalization. Size is the only attribute where the
+// catalog's stored value (XS/S/M/L/XL/XXL) is an abbreviation a person wouldn't actually
+// say out loud -- colors/materials/specifications don't have this gap because the catalog
+// already stores the plain word ("waterproof", "brown") that matches natural speech. If a
+// future attribute is ever added with this same code-vs-word mismatch, reuse this pattern
+// rather than inventing a new one.
+const SIZE_WORD_SYNONYMS = {
+  "extra small": "XS",
+  "small": "S",
+  "medium": "M",
+  "large": "L",
+  "extra large": "XL",
+  "extra-large": "XL",
+  "double extra large": "XXL",
+  "2xl": "XXL",
+};
+
 const SPECIFICATION_WORDS = [
   "waterproof", "water-resistant", "water resistant",
   "wireless", "bluetooth",
@@ -165,7 +182,17 @@ function normalizeSpecWord(raw) {
 
 function extractSize(text) {
   const lower = String(text).toLowerCase();
-  // Explicit "size X" / "size X waist" phrasing takes priority.
+
+  // Spoken-word sizes ("medium", "extra large") take priority. Check longer phrases
+  // first so "extra large" matches before a bare "large" substring inside it would.
+  const sortedSynonyms = Object.keys(SIZE_WORD_SYNONYMS).sort((a, b) => b.length - a.length);
+  for (const phrase of sortedSynonyms) {
+    if (wordMatch(lower, phrase)) {
+      return SIZE_WORD_SYNONYMS[phrase];
+    }
+  }
+
+  // Explicit "size X" / "size X waist" phrasing takes priority over a bare letter.
   const sizeMatch = lower.match(/\bsize\s+([a-z0-9]+)\b/);
   if (sizeMatch) {
     const raw = sizeMatch[1].toUpperCase();
@@ -177,9 +204,16 @@ function extractSize(text) {
       return raw;
     }
   }
-  // Bare letter size as a standalone word (e.g. "trousers XL brown").
+
+  // Bare letter size as a standalone word (e.g. "trousers XL brown"). Guard against
+  // contractions like "that's"/"it's": the apostrophe creates a word boundary that would
+  // otherwise let the trailing "s" false-match as size S. The negative lookbehind excludes
+  // any match immediately preceded by an apostrophe. This file runs only in Node.js (server
+  // + Jest), never on-device, so lookbehind support is not a Hermes/React-Native concern.
   for (const w of ["xxxl", "xxl", "xl", "s", "m", "l", "xs"]) {
-    if (wordMatch(lower, w)) return w.toUpperCase();
+    const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`(?<!')\\b${escaped}\\b`, "i");
+    if (re.test(lower)) return w.toUpperCase();
   }
   return null;
 }

@@ -26,4 +26,14 @@ describe("voiceQueryParser size and specification extraction", () => {
     expect(intent.size).toBeNull();
     expect(intent.specifications).toEqual([]);
   });
+
+  it("extracts a spelled-out size word from a natural sentence", () => {
+    const intent = parseVoiceQuery("a shirt in medium size");
+    expect(intent.size).toBe("M");
+  });
+
+  it("does not false-match a size letter inside a contraction", () => {
+    const intent = parseVoiceQuery("a shirt that's nice");
+    expect(intent.size).toBeNull();
+  });
 });
