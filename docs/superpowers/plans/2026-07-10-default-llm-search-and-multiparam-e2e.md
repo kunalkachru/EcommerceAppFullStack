@@ -332,7 +332,12 @@ what counts as a duplicate or a placeholder-sized broken image."
 
 ### Task 0.2: Fix script Tier 0 — escuelajs live title-match for Group 1
 
-**Status:** Not Started
+**Status:** Done (commit `6cd6e95`). Actual result: 20/23 resolved, not 21/23 as
+estimated — escuelajs's live demo catalog shifted between design-time and
+execution-time (their inventory is not static). `es-6` was found never to have
+existed (id numbering gap, not a missing fix). The 3 unresolved (`es-3`, `es-4`,
+`es-5` — mens-clothing hoodies) carried forward into Task 0.3, bringing its
+total from the estimated 12 to 13.
 
 **Entry Criteria:** Task 0.1 Exit Criteria met.
 
@@ -513,10 +518,37 @@ working photo). 12 products remain for Task 0.3's fallback chain."
 
 ### Task 0.3: Fix script fallback chain — dummyjson/fakestoreapi, then fresh escuelajs, then Unsplash
 
-**Status:** Not Started
+**Status:** Done (commit `182c02d`). Deviations from plan, both approved by the user
+inline:
+1. **Unsplash could not be used.** The user could not obtain a working Unsplash API
+   access token. They provided the Unsplash Research Dataset Lite instead, but its
+   license (`TERMS.md`) only permits ML-training use, not in-app display — using it
+   for product photos would have been a licensing violation, so it was rejected.
+   **Pixabay was substituted as the last-resort tier** (free key, Content License
+   explicitly permits commercial display of downloaded images — matches this
+   script's already-existing download-to-server pattern). `findUnsplashCandidate`
+   was kept in the chain (harmless no-op without an env var) and `findPixabayCandidate`
+   added after it.
+2. **Fixed a same-run duplicate bug found during execution.** The plan's own
+   `findUnusedDummyjsonCandidate`/`findUnusedFakestoreCandidate` code took a
+   `usedIds` set but never added a newly-chosen candidate to it, so multiple
+   products needing the same category could all receive the same "first unused"
+   candidate — reproducing the exact duplicate-image defect Stage 0 exists to fix.
+   First real run produced 3 byte-identical-image groups (hoodies, women's shoes,
+   watches) before this was caught and fixed. Fixed by marking `candidate.id` used
+   at selection time in `resolveFallbackChain`.
+3. **Pixabay tier got a query-narrowing retry** after one product transiently
+   returned 0 hits on a full-title query that returned 20 hits moments earlier in
+   manual testing — added retry with progressively shorter query strings (full
+   title → last 2 words → last word) before giving up.
+
+Final verification (ad hoc, beyond the plan's stated Exit Criteria): re-ran
+`findDuplicateGroups`/`isLikelyPlaceholder` from `imageIntegrity.js` against the
+full 196-product catalog post-fix — 0 duplicate groups, 0 placeholder-sized images.
 
 **Entry Criteria:** Task 0.2 Exit Criteria met. `UNSPLASH_ACCESS_KEY` available in the
 environment (user-provided — see this task's Step 1 for what to ask for if not yet provided).
+Superseded — see Status note above; `PIXABAY_API_KEY` was used instead.
 
 **Exit Criteria:**
 - All 12 products remaining after Task 0.2 are resolved (report shows 33/33 total across both
