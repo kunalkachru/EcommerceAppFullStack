@@ -71,12 +71,16 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
 - tapOn:
     id: "login-submit"
 
-# Skip password save dialog
+# Skip password save dialog. iOS's actual dialog text is "Save Password?" /
+# "Not Now" (Title Case, with a question mark) -- the previous "Save password" /
+# "Not now" matcher never matched it, so this dialog silently blocked every
+# subsequent step whenever the Simulator had no saved credential yet (i.e. on
+# every fresh clearState:true run).
 - runFlow:
     when:
-      visible: "Save password"
+      visible: "Save Password\\?"
     commands:
-      - tapOn: "Not now"
+      - tapOn: "Not Now"
 
 # Verify login success
 - extendedWaitUntil:

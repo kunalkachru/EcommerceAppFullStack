@@ -422,7 +422,11 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
                   editable={!searching}
                 />
                 {apiKey ? (
-                  <TouchableOpacity style={styles.clearKeyBtn} onPress={clearKey}>
+                  <TouchableOpacity
+                    testID="voice-api-key-clear"
+                    style={styles.clearKeyBtn}
+                    onPress={clearKey}
+                  >
                     <Ionicons name="close-circle" size={22} color="#9aa3af" />
                   </TouchableOpacity>
                 ) : null}

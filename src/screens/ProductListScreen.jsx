@@ -484,6 +484,8 @@ const ProductListScreen = ({ navigation }) => {
       clearSmartSearch,
       pickVisualSearchAsset,
       runSmartSearch,
+      hasLlmKey,
+      navigation,
     ]
   );
 
