@@ -9,28 +9,41 @@
 > its Entry Criteria yourself — don't trust a `Status` field alone, since it can go stale.
 > After finishing a task, update its `Status` field in this file and commit that update.
 
-**Goal:** Fix two real bugs in the rule-based natural-language query parser, make
-LLM-based search understanding the automatic default across both search surfaces (with a
-securely-persisted, never-server-stored-long-term API key), and rewrite
+**Goal:** Fix 33 broken/duplicated catalog product images (discovered mid-investigation, root
+cause confirmed by direct execution), fix two real bugs in the rule-based natural-language
+query parser, make LLM-based search understanding the automatic default across both search
+surfaces (with a securely-persisted, never-server-stored-long-term API key), and rewrite
 `ml-multiparameter-search.yaml` into a real, falsifiable E2E test of both the rule-based and
 LLM-reasoning search paths — on Android first, then iOS.
 
-**Architecture:** Three sequential stages, each gating the next. Stage A fixes
+**Architecture:** Four sequential stages, each gating the next. Stage 0 fixes the 33 catalog
+products whose primary image is either a dead-link placeholder or wrongly duplicated from a
+different product, re-sourcing real replacement photos (dummyjson/fakestoreapi first, then
+validated-fresh escuelajs, then Unsplash as a last resort) and adding a permanent
+duplicate/placeholder-detection gate to the catalog validation suite. Stage A fixes
 `server/src/voiceQueryParser.js` so natural conversational size phrasing works correctly.
 Stage B adds `react-native-keychain`-backed secure key persistence and threads a shared
 `resolveDefaultLlmOptions()` helper into both `ProductListScreen.jsx`'s plain search box and
 `VoiceSearchCard.jsx`'s voice/AI card, so LLM reasoning activates automatically once a key
 exists, with the existing toggle becoming an override. Stage C derives real multi-parameter
-test queries from the live catalog and writes four new Maestro flows (rule-based + LLM path,
-Android + iOS) using the same exact-title-assertion + PDP-tap-through pattern already proven
-in `photo-search.yaml`.
+test queries from the live catalog (which Stage 0 has by then made free of broken images) and
+writes four new Maestro flows (rule-based + LLM path, Android + iOS) using the same
+exact-title-assertion + PDP-tap-through pattern already proven in `photo-search.yaml`.
 
 **Tech Stack:** Node.js/Express backend (`server/`), React Native 0.85.3 frontend (`src/`),
 Jest for unit tests, `node --test` for script tests, Maestro for E2E, `react-native-keychain`
-(new dependency) for secure on-device storage.
+(new dependency) for secure on-device storage, Unsplash API (new, Stage 0 only) for
+last-resort real photo sourcing.
 
 ## Global Constraints
 
+- **Only real, sourced, non-fictional product data and images — never AI-generated or
+  synthesized** — a hard constraint carried through this entire project, directly relevant to
+  Stage 0's sourcing chain.
+- **Stage 0's placeholder-size threshold is 2048 bytes** — comfortably above the confirmed-dead
+  escuelajs stub (503 bytes, verified live) and comfortably below every confirmed-real product
+  photo size seen this session (several KB or more). Use this exact value everywhere the
+  threshold appears; do not re-derive or approximate it differently between tasks.
 - **Android and iOS Maestro flows live in permanently separate folders** (`.maestro/android/`
   vs `.maestro/ios/`) with zero shared/conditional/templated files between them — a hard
   project requirement. `.maestro/flows/06-llm-reasoning.yaml` is a pre-existing, already-wired
@@ -61,6 +74,782 @@ Jest for unit tests, `node --test` for script tests, Maestro for E2E, `react-nat
 
 ---
 
+## Stage 0: Catalog image integrity
+
+**Stage 0 Entry Criteria (verify before starting Task 0.1):** Working tree is clean on
+`feature/static-product-catalog` (or its current active branch). `npm test` passes with
+exactly one known failure: `goldenFixtures.test.js`'s "defines image fixtures that point at
+checked-in photos" (same pre-existing failure noted in the Global Constraints).
+
+### Task 0.1: `imageIntegrity.js` — hashing, duplicate-grouping, classification, placeholder detection
+
+**Status:** Not Started
+
+**Entry Criteria:** Stage 0 Entry Criteria met (see above).
+
+**Exit Criteria:**
+- `npx jest __tests__/imageIntegrity.test.js -v` passes, all cases green.
+
+**Files:**
+- Create: `server/scripts/lib/imageIntegrity.js` (CommonJS `.js`, not `.mjs` — this file is
+  `require()`'d directly by the existing Jest test `__tests__/catalogStaticValidation.test.js`
+  in Task 0.4, matching the existing `server/scripts/catalogAttributePools.js`'s pattern of a
+  CommonJS helper consumed by Jest; ESM scripts in Task 0.2/0.3 import it via
+  `import imageIntegrity from "../lib/imageIntegrity.js"` — Node's CJS-from-ESM default-import
+  interop, not named imports, to avoid interop footguns.)
+- Test: `__tests__/imageIntegrity.test.js`
+
+**Interfaces:**
+- Produces: `PLACEHOLDER_SIZE_THRESHOLD_BYTES = 2048` (exported constant — see Global
+  Constraints; use this exact exported value everywhere, never a re-typed literal),
+  `hashImage(absolutePath: string): string` (MD5 hex of file bytes),
+  `findDuplicateGroups(products: Product[], repoRoot: string): Array<{hash, size, members:
+  Product[]}>` (only groups where 2+ products share an identical primary-image hash; a
+  `Product` here just needs `.id`/`.images[0]` — matches `catalog-static.json`'s product
+  shape), `classifyDuplicateGroups(groups): {needsFix: Product[], legitimateOriginals:
+  Product[]}` (implements the Group 1/2/3 classification from the design spec — a
+  `dj-`/`fs-`-prefixed member of a group that also contains a non-`dj-`/`fs-` member is a
+  legitimate original and excluded from `needsFix`; everyone in an all-sub-threshold-size
+  group needs fixing; everyone in a 2-or-more-real-member group needs fixing, since neither
+  can be assumed to be more "legitimate" than the other), `isLikelyPlaceholder(buffer:
+  Buffer): boolean` (`buffer.length < PLACEHOLDER_SIZE_THRESHOLD_BYTES`). Task 0.2/0.3's fix
+  script and Task 0.4's new test assertions both consume these five exports by exact name.
+
+- [ ] **Step 1: Write the failing tests**
+
+Create `__tests__/imageIntegrity.test.js`:
+
+```js
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
+const {
+  PLACEHOLDER_SIZE_THRESHOLD_BYTES,
+  hashImage,
+  findDuplicateGroups,
+  classifyDuplicateGroups,
+  isLikelyPlaceholder,
+} = require("../server/scripts/lib/imageIntegrity");
+
+describe("imageIntegrity", () => {
+  let tmpDir;
+
+  beforeEach(() => {
+    tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "image-integrity-test-"));
+  });
+
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  function writeFile(relPath, content) {
+    const full = path.join(tmpDir, relPath);
+    fs.mkdirSync(path.dirname(full), { recursive: true });
+    fs.writeFileSync(full, content);
+    return full;
+  }
+
+  it("hashImage returns the same hash for identical file contents", () => {
+    const a = writeFile("a.jpg", "same-bytes");
+    const b = writeFile("b.jpg", "same-bytes");
+    expect(hashImage(a)).toBe(hashImage(b));
+  });
+
+  it("hashImage returns different hashes for different file contents", () => {
+    const a = writeFile("a.jpg", "content-one");
+    const b = writeFile("b.jpg", "content-two");
+    expect(hashImage(a)).not.toBe(hashImage(b));
+  });
+
+  it("PLACEHOLDER_SIZE_THRESHOLD_BYTES is 2048", () => {
+    expect(PLACEHOLDER_SIZE_THRESHOLD_BYTES).toBe(2048);
+  });
+
+  it("isLikelyPlaceholder is true below the threshold, false at or above it", () => {
+    expect(isLikelyPlaceholder(Buffer.alloc(503))).toBe(true);
+    expect(isLikelyPlaceholder(Buffer.alloc(2047))).toBe(true);
+    expect(isLikelyPlaceholder(Buffer.alloc(2048))).toBe(false);
+    expect(isLikelyPlaceholder(Buffer.alloc(50000))).toBe(false);
+  });
+
+  it("findDuplicateGroups groups products whose primary image is byte-identical", () => {
+    writeFile("assets/products/a/1.jpg", "shared-bytes");
+    writeFile("assets/products/b/1.jpg", "shared-bytes");
+    writeFile("assets/products/c/1.jpg", "unique-bytes");
+    const products = [
+      { id: "p1", images: ["assets/products/a/1.jpg"] },
+      { id: "p2", images: ["assets/products/b/1.jpg"] },
+      { id: "p3", images: ["assets/products/c/1.jpg"] },
+    ];
+    const groups = findDuplicateGroups(products, tmpDir);
+    expect(groups.length).toBe(1);
+    expect(groups[0].members.map((p) => p.id).sort()).toEqual(["p1", "p2"]);
+  });
+
+  it("classifyDuplicateGroups excludes the legitimate dj-/fs- original from needsFix", () => {
+    const groups = [
+      {
+        hash: "h1",
+        size: 50000,
+        members: [
+          { id: "dj-88", images: ["x"] },
+          { id: "demo-shoes-women-44", images: ["x"] },
+        ],
+      },
+    ];
+    const { needsFix, legitimateOriginals } = classifyDuplicateGroups(groups);
+    expect(needsFix.map((p) => p.id)).toEqual(["demo-shoes-women-44"]);
+    expect(legitimateOriginals.map((p) => p.id)).toEqual(["dj-88"]);
+  });
+
+  it("classifyDuplicateGroups needs-fixes everyone in a sub-threshold-size group", () => {
+    const groups = [
+      {
+        hash: "h2",
+        size: 503,
+        members: [
+          { id: "es-3", images: ["x"] },
+          { id: "es-4", images: ["x"] },
+        ],
+      },
+    ];
+    const { needsFix, legitimateOriginals } = classifyDuplicateGroups(groups);
+    expect(needsFix.map((p) => p.id).sort()).toEqual(["es-3", "es-4"]);
+    expect(legitimateOriginals).toEqual([]);
+  });
+
+  it("classifyDuplicateGroups needs-fixes everyone when 2+ real (dj-/fs-) members coincide", () => {
+    const groups = [
+      {
+        hash: "h3",
+        size: 40000,
+        members: [
+          { id: "dj-97", images: ["x"] },
+          { id: "dj-192", images: ["x"] },
+        ],
+      },
+    ];
+    const { needsFix, legitimateOriginals } = classifyDuplicateGroups(groups);
+    expect(needsFix.map((p) => p.id).sort()).toEqual(["dj-192", "dj-97"]);
+    expect(legitimateOriginals).toEqual([]);
+  });
+});
+```
+
+- [ ] **Step 2: Run tests to verify they fail**
+
+Run: `npx jest __tests__/imageIntegrity.test.js -v`
+
+Expected: FAIL — `Cannot find module '../server/scripts/lib/imageIntegrity'`.
+
+- [ ] **Step 3: Write the implementation**
+
+Create `server/scripts/lib/imageIntegrity.js`:
+
+```js
+// server/scripts/lib/imageIntegrity.js
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
+
+// Comfortably above the confirmed-dead escuelajs/imgur placeholder stub (503 bytes,
+// verified live this session) and comfortably below every confirmed-real product photo
+// size seen this session (several KB or more). See the plan's Global Constraints.
+const PLACEHOLDER_SIZE_THRESHOLD_BYTES = 2048;
+
+function hashImage(absolutePath) {
+  const buf = fs.readFileSync(absolutePath);
+  return crypto.createHash("md5").update(buf).digest("hex");
+}
+
+function isLikelyPlaceholder(buffer) {
+  return buffer.length < PLACEHOLDER_SIZE_THRESHOLD_BYTES;
+}
+
+function findDuplicateGroups(products, repoRoot) {
+  const byHash = new Map();
+  for (const product of products) {
+    const img = product.images?.[0];
+    if (!img) continue;
+    const absolutePath = path.join(repoRoot, img);
+    if (!fs.existsSync(absolutePath)) continue;
+    const buf = fs.readFileSync(absolutePath);
+    const hash = crypto.createHash("md5").update(buf).digest("hex");
+    if (!byHash.has(hash)) byHash.set(hash, { hash, size: buf.length, members: [] });
+    byHash.get(hash).members.push(product);
+  }
+  return [...byHash.values()].filter((g) => g.members.length > 1);
+}
+
+function isRealSource(product) {
+  return /^(dj|fs)-/.test(product.id);
+}
+
+function classifyDuplicateGroups(groups) {
+  const needsFix = [];
+  const legitimateOriginals = [];
+  for (const { size, members } of groups) {
+    const realMembers = members.filter(isRealSource);
+    const nonRealMembers = members.filter((p) => !isRealSource(p));
+    if (size < PLACEHOLDER_SIZE_THRESHOLD_BYTES) {
+      needsFix.push(...members);
+    } else if (realMembers.length === 1 && nonRealMembers.length >= 1) {
+      legitimateOriginals.push(realMembers[0]);
+      needsFix.push(...nonRealMembers);
+    } else {
+      needsFix.push(...members);
+    }
+  }
+  return { needsFix, legitimateOriginals };
+}
+
+module.exports = {
+  PLACEHOLDER_SIZE_THRESHOLD_BYTES,
+  hashImage,
+  isLikelyPlaceholder,
+  findDuplicateGroups,
+  classifyDuplicateGroups,
+};
+```
+
+- [ ] **Step 4: Run tests to verify they pass**
+
+Run: `npx jest __tests__/imageIntegrity.test.js -v`
+
+Expected: all 7 tests PASS.
+
+- [ ] **Step 5: Commit**
+
+```bash
+git add server/scripts/lib/imageIntegrity.js __tests__/imageIntegrity.test.js
+git commit -m "feat: add imageIntegrity.js - catalog image hashing/duplicate/classification
+
+Pure, testable functions shared by the one-time Stage 0 fix script
+(Task 0.2/0.3) and the permanent regression gate added to
+catalogStaticValidation.test.js (Task 0.4) -- single source of truth for
+what counts as a duplicate or a placeholder-sized broken image."
+```
+
+### Task 0.2: Fix script Tier 0 — escuelajs live title-match for Group 1
+
+**Status:** Not Started
+
+**Entry Criteria:** Task 0.1 Exit Criteria met.
+
+**Exit Criteria:**
+- Running the script resolves 21 of Group 1's 23 products (the 2 known unmatched —
+  `Classic Heather Gray Hoodie`, `Classic Black Hooded Sweatshirt` — remain, to be picked up
+  by Task 0.3's fallback chain).
+- `git diff server/catalog-static.json` shows exactly those 21 products' `images`/`image`
+  fields changed, nothing else.
+- The 21 new image files exist under `assets/products/<slug>/` and are all
+  `>= 2048` bytes (verify with the same `isLikelyPlaceholder` function from Task 0.1).
+
+**Files:**
+- Create: `server/scripts/fixBrokenCatalogImages.mjs`
+- Modify: `server/catalog-static.json` (data change, produced by running the script — not
+  hand-edited)
+
+**Interfaces:**
+- Consumes: `hashImage`, `findDuplicateGroups`, `classifyDuplicateGroups`,
+  `isLikelyPlaceholder` (Task 0.1, imported via default-import CJS interop as noted in Task
+  0.1's Files section).
+- Produces: no exports — this is a CLI script, run directly with `node`. Task 0.3 extends this
+  same file in place (adds the fallback-chain function and calls it for whatever Tier 0
+  didn't resolve), it does not create a second file.
+
+- [ ] **Step 1: Write the script's Tier 0 logic**
+
+Create `server/scripts/fixBrokenCatalogImages.mjs`:
+
+```js
+#!/usr/bin/env node
+// server/scripts/fixBrokenCatalogImages.mjs
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+import imageIntegrityModule from "./lib/imageIntegrity.js";
+
+const { findDuplicateGroups, classifyDuplicateGroups, isLikelyPlaceholder } =
+  imageIntegrityModule;
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, "..", "..");
+const STATIC_PATH = join(__dirname, "..", "catalog-static.json");
+
+async function downloadTo(url, destPath) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  const buf = Buffer.from(await res.arrayBuffer());
+  if (isLikelyPlaceholder(buf)) {
+    throw new Error(`Rejected: ${url} is only ${buf.length} bytes (placeholder-sized)`);
+  }
+  mkdirSync(dirname(destPath), { recursive: true });
+  writeFileSync(destPath, buf);
+  return buf.length;
+}
+
+async function fetchEscuelajsLiveCatalog() {
+  const all = [];
+  for (let offset = 0; offset < 300; offset += 50) {
+    const res = await fetch(`https://api.escuelajs.co/api/v1/products?limit=50&offset=${offset}`);
+    if (!res.ok) break;
+    const page = await res.json();
+    if (!Array.isArray(page) || page.length === 0) break;
+    all.push(...page);
+    if (page.length < 50) break;
+  }
+  return all;
+}
+
+async function resolveTier0(needsFix, catalog, report) {
+  const liveEscuelajs = await fetchEscuelajsLiveCatalog();
+  console.log(`Fetched ${liveEscuelajs.length} live escuelajs products for Tier 0 title-matching.`);
+
+  const stillNeedsFix = [];
+  for (const product of needsFix) {
+    if (!/^es-/.test(product.id)) {
+      stillNeedsFix.push(product);
+      continue;
+    }
+    const liveMatch = liveEscuelajs.find((p) => p.title === product.title);
+    const candidateUrl = liveMatch?.images?.[0];
+    if (!candidateUrl) {
+      stillNeedsFix.push(product);
+      continue;
+    }
+    const ext = candidateUrl.match(/\.(jpe?g|png|webp)(\?|$)/i)?.[1] || "jpg";
+    const destPath = join(ROOT, "assets", "products", product.slug, `1.${ext}`);
+    try {
+      const size = await downloadTo(candidateUrl, destPath);
+      const relPath = `assets/products/${product.slug}/1.${ext}`;
+      const catalogProduct = catalog.products.find((p) => p.id === product.id);
+      catalogProduct.images = [relPath];
+      catalogProduct.image = relPath;
+      report.push({ id: product.id, title: product.title, tier: "0-escuelajs-title-match", size });
+      console.log(`  [Tier 0] ${product.id} "${product.title}" -> ${relPath} (${size} bytes)`);
+    } catch (err) {
+      console.warn(`  [Tier 0 FAILED] ${product.id} "${product.title}": ${err.message}`);
+      stillNeedsFix.push(product);
+    }
+  }
+  return stillNeedsFix;
+}
+
+async function main() {
+  const catalog = JSON.parse(readFileSync(STATIC_PATH, "utf8"));
+  const groups = findDuplicateGroups(catalog.products, ROOT);
+  const { needsFix } = classifyDuplicateGroups(groups);
+  console.log(`Classified ${needsFix.length} products needing a fix.`);
+
+  const report = [];
+  const remaining = await resolveTier0(needsFix, catalog, report);
+
+  writeFileSync(STATIC_PATH, JSON.stringify(catalog, null, 2), "utf8");
+  writeFileSync(
+    join(__dirname, "..", "data", "image-fix-report.json"),
+    JSON.stringify(report, null, 2)
+  );
+
+  console.log(`\nTier 0 resolved ${report.length}/${needsFix.length}.`);
+  console.log(`Still needing a fix (${remaining.length}):`);
+  remaining.forEach((p) => console.log(`  ${p.id} | ${p.title} | ${p.category}`));
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+```
+
+- [ ] **Step 2: Run the script**
+
+Run: `node server/scripts/fixBrokenCatalogImages.mjs`
+
+Expected output ends with:
+```
+Tier 0 resolved 21/33.
+Still needing a fix (12):
+  es-3 | Classic Heather Gray Hoodie | mens-clothing
+  es-5 | Classic Black Hooded Sweatshirt | mens-clothing
+  demo-jacket-blue-49 | Seabreeze Blue Rain Jacket | womens-clothing
+  demo-jacket-blue-54 | Alpine Blue Packable Windbreaker | womens-clothing
+  demo-jacket-blue-59 | Harbor Blue Hooded Coat | womens-clothing
+  demo-shoes-women-39 | Riviera Women Sandals | footwear
+  demo-shoes-women-44 | Urban Step Women Sneakers | footwear
+  demo-shoes-women-49 | Everyday Women Running Shoes | footwear
+  demo-fragrance-* | Maison Citrus Bloom Eau de Parfum | beauty-fragrances
+  demo-fragrance-* | Soft Rose Day Fragrance | beauty-fragrances
+  dj-97 | Rolex Datejust | watches
+  dj-192 | Rolex Datejust Women | watches
+```
+(Exact `demo-fragrance-*` ids: confirm against the live run's output — this session's earlier
+analysis identified them by title, not by exact id string.)
+
+If the resolved count differs from 21, investigate before proceeding — either a title changed
+in escuelajs's live catalog since this plan was written (re-run Task 0.1's classification
+logic against the current data to see what changed) or a network issue during the run.
+
+- [ ] **Step 3: Verify no unintended changes**
+
+Run: `git diff --stat server/catalog-static.json`
+
+Expected: only `catalog-static.json` and the 21 new image files under `assets/products/`
+changed; no product's title/price/description/category was touched, only `images`/`image`.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add server/catalog-static.json server/scripts/fixBrokenCatalogImages.mjs server/data/image-fix-report.json assets/products/
+git commit -m "fix: Tier 0 - correct 21 broken catalog images via escuelajs live title-match
+
+Same products, same selection -- only the broken image URL is corrected,
+by matching each broken product's exact title against escuelajs's current
+live catalog (its prior stored URL was case-mangled: our data had
+i.imgur.com/r2pn9wq.jpeg, permanently dead, while the correctly-cased
+i.imgur.com/R2PN9Wq.jpeg for the same escuelajs listing is a genuinely
+working photo). 12 products remain for Task 0.3's fallback chain."
+```
+
+### Task 0.3: Fix script fallback chain — dummyjson/fakestoreapi, then fresh escuelajs, then Unsplash
+
+**Status:** Not Started
+
+**Entry Criteria:** Task 0.2 Exit Criteria met. `UNSPLASH_ACCESS_KEY` available in the
+environment (user-provided — see this task's Step 1 for what to ask for if not yet provided).
+
+**Exit Criteria:**
+- All 12 products remaining after Task 0.2 are resolved (report shows 33/33 total across both
+  tasks).
+- `git diff server/catalog-static.json` (cumulative with Task 0.2) shows all 33 fixed
+  products' `images`/`image` changed, nothing else touched.
+
+**Files:**
+- Modify: `server/scripts/fixBrokenCatalogImages.mjs` (extend, don't replace, Task 0.2's file)
+
+**Interfaces:**
+- Consumes: same as Task 0.2, plus `catalog-selection.json`'s existing `selection` array (to
+  compute "already-used" ids per category, so the dummyjson/fakestoreapi tier only offers
+  genuinely unused candidates).
+- Produces: no new exports.
+
+- [ ] **Step 1: Ask the user for the Unsplash key if not already provided**
+
+Before writing code, confirm `process.env.UNSPLASH_ACCESS_KEY` will be set when this task
+runs. If the user hasn't provided one yet, ask them to sign up (free, no billing info) at
+`unsplash.com/developers`, create an application, and provide the "Access Key" value — per
+the approved design, this agent cannot create that account itself.
+
+- [ ] **Step 2: Add the dummyjson/fakestoreapi/escuelajs-fresh/Unsplash fallback chain**
+
+Extend `server/scripts/fixBrokenCatalogImages.mjs` — add these functions above `main()`:
+
+```js
+const CATEGORY_TO_DUMMYJSON = {
+  "mens-clothing": ["mens-shirts", "tops"],
+  "womens-clothing": ["womens-dresses"],
+  footwear: ["mens-shoes", "womens-shoes"],
+  "beauty-fragrances": ["beauty", "fragrances", "skin-care"],
+  watches: ["mens-watches", "womens-watches"],
+  "bags-accessories": ["womens-bags", "sunglasses"],
+};
+
+const CATEGORY_TO_FAKESTORE = {
+  "mens-clothing": "men's clothing",
+  "womens-clothing": "women's clothing",
+};
+
+async function usedIdsBySource() {
+  const selection = JSON.parse(
+    readFileSync(join(__dirname, "..", "data", "catalog-selection.json"), "utf8")
+  );
+  return new Set((selection.selection || selection).map((p) => p.id));
+}
+
+async function findUnusedDummyjsonCandidate(category, usedIds) {
+  const slugs = CATEGORY_TO_DUMMYJSON[category] || [];
+  for (const slug of slugs) {
+    const res = await fetch(`https://dummyjson.com/products/category/${slug}`);
+    if (!res.ok) continue;
+    const { products } = await res.json();
+    for (const item of products) {
+      const id = `dj-${item.id}`;
+      if (usedIds.has(id)) continue;
+      const img = item.images?.[0] || item.thumbnail;
+      if (img) return { sourceLabel: "dummyjson", url: img };
+    }
+  }
+  return null;
+}
+
+async function findUnusedFakestoreCandidate(category, usedIds) {
+  const fsCategory = CATEGORY_TO_FAKESTORE[category];
+  if (!fsCategory) return null;
+  const res = await fetch(`https://fakestoreapi.com/products/category/${encodeURIComponent(fsCategory)}`);
+  if (!res.ok) return null;
+  const items = await res.json();
+  for (const item of items) {
+    const id = `fs-${item.id}`;
+    if (usedIds.has(id)) continue;
+    if (item.image) return { sourceLabel: "fakestoreapi", url: item.image };
+  }
+  return null;
+}
+
+async function findFreshEscuelajsCandidate(product, liveEscuelajs, usedTitles) {
+  const categoryWord = product.title.split(" ").slice(-1)[0].toLowerCase();
+  const candidate = liveEscuelajs.find(
+    (p) => !usedTitles.has(p.title) && p.title.toLowerCase().includes(categoryWord)
+  );
+  if (!candidate) return null;
+  usedTitles.add(candidate.title);
+  return { sourceLabel: "escuelajs-fresh", url: candidate.images?.[0] };
+}
+
+async function findUnsplashCandidate(product) {
+  const key = process.env.UNSPLASH_ACCESS_KEY;
+  if (!key) return null;
+  const query = encodeURIComponent(product.title);
+  const res = await fetch(`https://api.unsplash.com/photos/random?query=${query}`, {
+    headers: { Authorization: `Client-ID ${key}` },
+  });
+  if (!res.ok) return null;
+  const photo = await res.json();
+  const url = photo?.urls?.regular;
+  return url ? { sourceLabel: "unsplash", url } : null;
+}
+
+async function resolveFallbackChain(remaining, catalog, liveEscuelajs, report) {
+  const usedIds = await usedIdsBySource();
+  const usedEscuelajsTitles = new Set(liveEscuelajs.map((p) => p.title).filter((t) =>
+    catalog.products.some((cp) => cp.title === t)
+  ));
+  const stillUnresolved = [];
+
+  for (const product of remaining) {
+    let candidate =
+      (await findUnusedDummyjsonCandidate(product.category, usedIds)) ||
+      (await findUnusedFakestoreCandidate(product.category, usedIds)) ||
+      (await findFreshEscuelajsCandidate(product, liveEscuelajs, usedEscuelajsTitles)) ||
+      (await findUnsplashCandidate(product));
+
+    if (!candidate) {
+      stillUnresolved.push(product);
+      continue;
+    }
+
+    const ext = candidate.url.match(/\.(jpe?g|png|webp)(\?|$)/i)?.[1] || "jpg";
+    const destPath = join(ROOT, "assets", "products", product.slug, `1.${ext}`);
+    try {
+      const size = await downloadTo(candidate.url, destPath);
+      const relPath = `assets/products/${product.slug}/1.${ext}`;
+      const catalogProduct = catalog.products.find((p) => p.id === product.id);
+      catalogProduct.images = [relPath];
+      catalogProduct.image = relPath;
+      report.push({ id: product.id, title: product.title, tier: candidate.sourceLabel, size });
+      console.log(`  [${candidate.sourceLabel}] ${product.id} "${product.title}" -> ${relPath} (${size} bytes)`);
+    } catch (err) {
+      console.warn(`  [${candidate.sourceLabel} FAILED] ${product.id} "${product.title}": ${err.message}`);
+      stillUnresolved.push(product);
+    }
+  }
+  return stillUnresolved;
+}
+```
+
+- [ ] **Step 3: Wire the fallback chain into `main()`**
+
+Replace `main()`'s body:
+
+```js
+async function main() {
+  const catalog = JSON.parse(readFileSync(STATIC_PATH, "utf8"));
+  const groups = findDuplicateGroups(catalog.products, ROOT);
+  const { needsFix } = classifyDuplicateGroups(groups);
+  console.log(`Classified ${needsFix.length} products needing a fix.`);
+
+  const report = [];
+  const liveEscuelajs = await fetchEscuelajsLiveCatalog();
+  console.log(`Fetched ${liveEscuelajs.length} live escuelajs products.`);
+
+  const afterTier0 = await resolveTier0(needsFix, catalog, report, liveEscuelajs);
+  const afterFallback = await resolveFallbackChain(afterTier0, catalog, liveEscuelajs, report);
+
+  writeFileSync(STATIC_PATH, JSON.stringify(catalog, null, 2), "utf8");
+  writeFileSync(
+    join(__dirname, "..", "data", "image-fix-report.json"),
+    JSON.stringify(report, null, 2)
+  );
+
+  console.log(`\nResolved ${report.length}/${needsFix.length}.`);
+  if (afterFallback.length) {
+    console.log(`UNRESOLVED (${afterFallback.length}) — needs a human decision:`);
+    afterFallback.forEach((p) => console.log(`  ${p.id} | ${p.title} | ${p.category}`));
+  }
+}
+```
+
+Also update `resolveTier0`'s signature to accept the already-fetched `liveEscuelajs` instead
+of fetching it again internally — change its declaration to
+`async function resolveTier0(needsFix, catalog, report, liveEscuelajs)` and delete the
+`const liveEscuelajs = await fetchEscuelajsLiveCatalog();` line from inside it (now passed in
+from `main()` instead, fetched once).
+
+- [ ] **Step 4: Run the script**
+
+Run: `UNSPLASH_ACCESS_KEY=<the key the user provided> node server/scripts/fixBrokenCatalogImages.mjs`
+
+Expected: `Resolved 33/33.` with no `UNRESOLVED` section. If any product remains unresolved,
+stop and report it — per the spec's error handling, an exhausted product is a real "needs a
+human decision" case, not something to paper over silently.
+
+- [ ] **Step 5: Verify and commit**
+
+```bash
+git diff --stat server/catalog-static.json  # only images/image fields changed for the 33
+git add server/catalog-static.json server/scripts/fixBrokenCatalogImages.mjs server/data/image-fix-report.json assets/products/
+git commit -m "fix: Stage 0 fallback chain - resolve remaining 12 broken catalog images
+
+dummyjson/fakestoreapi unused-candidate lookup first (same category),
+fresh validated escuelajs candidates second, Unsplash (user-provided
+UNSPLASH_ACCESS_KEY) last resort. All 33 products flagged by Task 0.1's
+classification are now resolved -- see server/data/image-fix-report.json
+for exactly which source supplied each one's replacement image."
+```
+
+### Task 0.4: Permanent regression gate in `catalogStaticValidation.test.js`
+
+**Status:** Not Started
+
+**Entry Criteria:** Task 0.3 Exit Criteria met.
+
+**Exit Criteria:**
+- `npx jest __tests__/catalogStaticValidation.test.js -v` passes, including the two new
+  assertions, against the now-fixed `catalog-static.json`.
+
+**Files:**
+- Modify: `__tests__/catalogStaticValidation.test.js`
+
+**Interfaces:**
+- Consumes: `findDuplicateGroups`, `isLikelyPlaceholder` (Task 0.1).
+
+- [ ] **Step 1: Write the failing tests**
+
+Add to `__tests__/catalogStaticValidation.test.js` (add the import at the top alongside the
+existing two, and the two new `it` blocks inside the existing `describe`):
+
+```js
+const path = require("path");
+const fs = require("fs");
+const {
+  findDuplicateGroups,
+  isLikelyPlaceholder,
+} = require("../server/scripts/lib/imageIntegrity");
+```
+
+```js
+  it("no two products share an identical primary-image hash", () => {
+    const repoRoot = path.join(__dirname, "..");
+    const groups = findDuplicateGroups(products, repoRoot);
+    const offenders = groups.map((g) => g.members.map((p) => p.id).join(" == "));
+    expect(offenders).toEqual([]);
+  });
+
+  it("every product's primary image exceeds the minimum real-photo size threshold", () => {
+    const repoRoot = path.join(__dirname, "..");
+    const tooSmall = products.filter((p) => {
+      const img = p.images?.[0];
+      if (!img) return true;
+      const full = path.join(repoRoot, img);
+      if (!fs.existsSync(full)) return true;
+      return isLikelyPlaceholder(fs.readFileSync(full));
+    });
+    expect(tooSmall.map((p) => p.id)).toEqual([]);
+  });
+```
+
+- [ ] **Step 2: Run to verify they were failing before Stage 0 and pass now**
+
+Run: `npx jest __tests__/catalogStaticValidation.test.js -v`
+
+Expected: all tests PASS, including the two new ones — proof that Stage 0's fix actually
+worked across the entire 196-product catalog, not just the 33 that were touched (this also
+re-confirms the 163 untouched products are still fine).
+
+(There is no separate "watch it fail first" step here in the usual TDD sense, because by the
+time this task starts, Task 0.3 has already fixed the catalog — these assertions are written
+to describe the *desired permanent state*, and Task 0.1's own unit tests already proved the
+underlying detection logic correctly identifies duplicates/placeholders in isolation. Running
+these two new assertions against the pre-Stage-0 catalog was effectively already done, ad hoc,
+during this plan's own investigation this session — they would have failed with the 33 known
+offenders.)
+
+- [ ] **Step 3: Run the full suite and `npm run validate:catalog`**
+
+Run: `npm test && npm run validate:catalog`
+
+Expected: both green. `npm test` still shows only the one pre-existing
+`goldenFixtures.test.js` failure noted in Global Constraints — nothing else red.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add __tests__/catalogStaticValidation.test.js
+git commit -m "test: permanent gate against duplicate/placeholder catalog images
+
+Added to the existing catalogStaticValidation.test.js (same file/severity
+as the existing 'no duplicate SKUs' check) so any future catalog change
+that reintroduces a duplicate or near-empty primary image fails npm test
+immediately, instead of silently shipping like Stage 0's 33 did."
+```
+
+### Task 0.5: Rebuild CLIP index — Stage 0 final regression gate
+
+**Status:** Not Started
+
+**Entry Criteria:** Task 0.4 Exit Criteria met.
+
+**Exit Criteria (all must pass before Stage A may start):**
+- `node server/scripts/rebuildClipIndex.js` completes without error.
+- `npm test` shows only the one known pre-existing `goldenFixtures.test.js` failure.
+- Manual spot-check: at least 3 of the 33 fixed products, viewed in the running app (product
+  listing + PDP), show a sensible, non-broken, correctly-oriented photo.
+
+**Files:** None (verification only).
+
+- [ ] **Step 1: Rebuild the CLIP index**
+
+Run: `node server/scripts/rebuildClipIndex.js`
+
+Expected: `Done in <N>s` with no errors. This is a full rebuild (confirmed in the design spec
+that no incremental mode exists) — expect it to take roughly the same time Phase 4's original
+rebuild did.
+
+- [ ] **Step 2: Full regression check**
+
+Run: `npm test`
+
+Expected: only the one known pre-existing `goldenFixtures.test.js` failure, nothing else red.
+
+- [ ] **Step 3: Manual spot-check**
+
+Start the server (`npm run server` or `npm run start:baseline` per this project's established
+convention) and the app, and view at least 3 of the 33 fixed products (pick a mix across
+Task 0.2's Tier 0 fixes and Task 0.3's fallback-chain fixes — check
+`server/data/image-fix-report.json` for the full list) in the product listing and their PDP.
+Confirm each shows a real, sensible, non-broken photo — not a blank/broken-image icon, not
+another product's photo.
+
+- [ ] **Step 4: Update this plan's status**
+
+Mark Tasks 0.1-0.5 as `Status: Done` in this file and commit:
+```bash
+git add docs/superpowers/plans/2026-07-10-default-llm-search-and-multiparam-e2e.md
+git commit -m "docs: mark Stage 0 complete, catalog image integrity fixed and gated"
+```
+
+---
+
 ## Stage A: Parser bug fixes
 
 ### Task A1: Fix natural-language size extraction in `voiceQueryParser.js`
@@ -68,6 +857,8 @@ Jest for unit tests, `node --test` for script tests, Maestro for E2E, `react-nat
 **Status:** Not Started
 
 **Entry Criteria:**
+- Stage 0's Exit Criteria (Task 0.5) are all met and committed — the catalog has zero
+  duplicate/placeholder-sized primary images before any further work builds on it.
 - Working tree is clean on `feature/static-product-catalog` (or its current active branch).
 - `npm test` passes with exactly one known failure: `goldenFixtures.test.js`'s "defines image
   fixtures that point at checked-in photos" (run `npm test` now and confirm this before
