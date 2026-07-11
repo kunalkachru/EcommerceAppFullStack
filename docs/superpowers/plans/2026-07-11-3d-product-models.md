@@ -1975,7 +1975,7 @@ Every catalog category now resolves a model via resolveCategoryModelUrl."
 **Files:** None (verification only, reusing `.maestro/android/product-3d-viewer.yaml` from
 Stage 4 — it's already parameterized by `CATEGORY`/`PRODUCT_TITLE`, no changes needed).
 
-- [ ] **Step 1: Run the flow once per new category**
+- [x] **Step 1: Run the flow once per new category**
 
 ```bash
 cat > .maestro/android/_tmp-verify-3d.yaml <<'EOF'
@@ -2023,18 +2023,29 @@ hasn't manually touched the price slider (tracked via `priceRangeTouchedRef`, se
 (`npx jest`) confirmed no other test depended on the old fixed `2000` ceiling and the only
 failure is the pre-existing unrelated `goldenFixtures.test.js` fixture-file gap.
 
-- [ ] **Step 2: Full Android regression**
+- [x] **Step 2: Full Android regression**
 
 Same commands as Stage 4 Task 4.1 Step 4.
 
 Expected: all green, `npx jest` shows only the known pre-existing failure.
 
-- [ ] **Step 3: Commit** (only if any fixes were needed during this verification — otherwise
+**Result:** `login.yaml` x3 green. `photo-search.yaml` for both samples green (each needed one
+force-stop retry for the documented pre-existing gallery-picker flake, not a regression).
+`ml-features-comprehensive.yaml` green (needed two force-stop retries, same flake).
+`complete-e2e-clean.yaml` via `npm run maestro:android` green on first try. `npx jest` shows
+only the known pre-existing `goldenFixtures.test.js` failure (204 tests, 1 known failure).
+
+- [x] **Step 3: Commit** (only if any fixes were needed during this verification — otherwise
   nothing to commit, this task is verification-only)
 
+The price-ceiling fix (the only code change needed during this task) was already committed
+separately in `a5489c4` (`fix: derive product list price ceiling from real catalog data, not
+a fixed $2000 cap`) before this verification ran, per TDD one-commit-per-fix discipline. This
+commit is the plan-doc checkbox/status update only:
+
 ```bash
-git add -A
-git commit -m "test: verify Android 3D viewer for all Phase 2 categories"
+git add docs/superpowers/plans/2026-07-11-3d-product-models.md
+git commit -m "docs: mark Task 6.2 complete -- Android Phase 2 verification + regression green"
 ```
 
 ### Task 6.3: iOS Maestro coverage for the 8 new categories + full regression — plan complete
