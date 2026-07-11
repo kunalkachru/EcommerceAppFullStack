@@ -9,7 +9,7 @@ const { findDuplicateGroups, classifyDuplicateGroups, isLikelyPlaceholder } =
   imageIntegrityModule;
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(__dirname, "..", "..");
+const ROOT = join(__dirname, "..");
 const STATIC_PATH = join(__dirname, "..", "catalog-static.json");
 
 async function downloadTo(url, destPath) {

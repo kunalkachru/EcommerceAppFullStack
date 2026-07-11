@@ -52,14 +52,14 @@ describe("catalog-static.json completeness", () => {
   });
 
   it("no two products share an identical primary-image hash", () => {
-    const repoRoot = path.join(__dirname, "..");
+    const repoRoot = path.join(__dirname, "..", "server");
     const groups = findDuplicateGroups(products, repoRoot);
     const offenders = groups.map((g) => g.members.map((p) => p.id).join(" == "));
     expect(offenders).toEqual([]);
   });
 
   it("every product's primary image exceeds the minimum real-photo size threshold", () => {
-    const repoRoot = path.join(__dirname, "..");
+    const repoRoot = path.join(__dirname, "..", "server");
     const tooSmall = products.filter((p) => {
       const img = p.images?.[0];
       if (!img) return true;

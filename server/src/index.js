@@ -188,7 +188,14 @@ app.use(morgan((tokens, req, res) => {
 
 // Serve the static catalog's local product images (server/catalog-static.json
 // stores repo-relative paths like "assets/products/<slug>/1.jpg").
-app.use("/assets", express.static(path.join(__dirname, "..", "..", "assets")));
+//
+// Lives at server/assets (not a repo-root sibling of server/) because
+// Railway's deploy build context is scoped to the "server" root directory
+// (confirmed via its build log: "COPY . ." with build context = server/) --
+// a repo-root-level assets/ directory is invisible to that build entirely,
+// which silently 404s every product image and 3D model in production while
+// working fine locally (where the whole repo checkout sits together).
+app.use("/assets", express.static(path.join(__dirname, "..", "assets")));
 
 /**
  * The static catalog stores product images as repo-relative paths, not full
