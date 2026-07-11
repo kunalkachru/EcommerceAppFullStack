@@ -1416,9 +1416,8 @@ appId: com.ecommerceappfullstack
 # with a model, toggle to 3D, and assert the JS bridge reports a real "loaded"
 # status (not just that the WebView didn't crash).
 #
-# Requires env: CATEGORY - one of footwear/electronics/watches/bags-accessories
-# (a category from category3DModels.js), PRODUCT_TITLE - any product title in
-# that category, visible via the search box.
+# Requires env: PRODUCT_ID (catalog-static.json id, e.g. "dj-88"),
+# PRODUCT_TITLE (that product's title, used as the search query).
 - tapOn:
     id: "tab-products"
 
@@ -1431,11 +1430,26 @@ appId: com.ecommerceappfullstack
 
 - extendedWaitUntil:
     visible:
-      text: "${PRODUCT_TITLE}"
+      id: "product-list-item-${PRODUCT_ID}"
     timeout: 15000
 
+# With only one search result, the LLM-invite banner above it can push the
+# card down far enough that it's only a sliver above the bottom tab bar --
+# not enough scroll room exists to fully reveal it, so scrollUntilVisible
+# alone can't fix this (confirmed: scrolling further is a no-op here, unlike
+# complete-e2e-clean.yaml's browse-all list where there's plenty of room).
+# Dismissing the banner (persisted via AsyncStorage) reclaims that vertical
+# space so the card renders fully visible instead.
+- runFlow:
+    when:
+      visible:
+        id: "llm-invite-banner-dismiss"
+    commands:
+      - tapOn:
+          id: "llm-invite-banner-dismiss"
+
 - tapOn:
-    text: "${PRODUCT_TITLE}"
+    id: "product-list-item-${PRODUCT_ID}"
 
 - extendedWaitUntil:
     visible:
@@ -1460,11 +1474,33 @@ appId: com.ecommerceappfullstack
     timeout: 30000
 ```
 
+**Deviation from a naive first draft, found by actually running the flow:** targeting the
+result by `text: "${PRODUCT_TITLE}"` (as an early draft did) is ambiguous — the search box
+renders its own typed query as visible text, so the selector can match the input itself instead
+of the result card (this project's established `product-list-item-<id>` testID convention,
+documented in `complete-e2e-clean.yaml`, exists precisely to avoid this). Use
+`product-list-item-${PRODUCT_ID}` instead, requiring a `PRODUCT_ID` env var alongside
+`PRODUCT_TITLE`. Second, a single search result's card can render mostly hidden behind the
+floating bottom tab bar, with no more scroll room available to fully reveal it (unlike a long
+browse-all list) — dismissing the LLM-invite banner (`llm-invite-banner-dismiss`, persisted via
+AsyncStorage) reclaims the vertical space instead of trying to scroll further.
+
 - [ ] **Step 2: Verify with a category that HAS a model**
 
-Pick one real product title from the footwear category in `server/catalog-static.json` (e.g.
-grep it: `grep -i '"category": "footwear"' -A2 server/catalog-static.json | grep title | head -1`)
-and run:
+Pick one real product from the footwear category in `server/catalog-static.json`:
+
+```bash
+python3 -c "
+import json
+data = json.load(open('server/catalog-static.json'))
+products = data if isinstance(data, list) else data.get('products', data)
+for p in products:
+    if p.get('category') == 'footwear':
+        print(p.get('id'), '|', p.get('title')); break
+"
+```
+
+Then run:
 
 ```bash
 cat > .maestro/android/_tmp-verify-3d.yaml <<'EOF'
@@ -1474,14 +1510,21 @@ appId: com.ecommerceappfullstack
 - runFlow: product-3d-viewer.yaml
 EOF
 maestro test .maestro/android/_tmp-verify-3d.yaml \
-  --env CATEGORY="footwear" \
-  --env PRODUCT_TITLE="<the real title you found>"
+  --env PRODUCT_ID="<the id you found>" \
+  --env PRODUCT_TITLE="<the title you found>"
 ```
 
 Expected: exits 0. Repeat for electronics, watches, and bags-accessories, one real product
-title from each.
+from each (confirmed working with `dj-88`/"Nike Air Jordan 1 Red And Black" for footwear,
+`dj-78`/"Apple MacBook Pro 14 Inch Space Grey" for electronics, `dj-93`/"Brown Leather Belt
+Watch" for watches, `dj-172`/"Blue Women's Handbag" for bags-accessories).
 
 - [ ] **Step 3: Verify the toggle is absent for a category with no model yet**
+
+Use a groceries product with a distinctive multi-word title (a bare single common noun like
+"Apple" can fail this catalog's rule-based search entirely — confirmed with the fruit product
+literally titled "Apple", which returned "No products matched" — pick something more specific,
+e.g. "Beef Steak" / `dj-17`):
 
 ```bash
 cat > .maestro/android/_tmp-verify-no-3d.yaml <<'EOF'
@@ -1492,14 +1535,21 @@ appId: com.ecommerceappfullstack
     id: "tab-products"
 - tapOn:
     id: "product-search-input"
-- inputText: "<a real groceries-category product title>"
+- inputText: "Beef Steak"
 - pressKey: Enter
 - extendedWaitUntil:
     visible:
-      text: "<that same title>"
+      id: "product-list-item-dj-17"
     timeout: 15000
+- runFlow:
+    when:
+      visible:
+        id: "llm-invite-banner-dismiss"
+    commands:
+      - tapOn:
+          id: "llm-invite-banner-dismiss"
 - tapOn:
-    text: "<that same title>"
+    id: "product-list-item-dj-17"
 - extendedWaitUntil:
     visible:
       id: "pdp-hero-image"

@@ -1,0 +1,62 @@
+appId: com.ecommerceappfullstack
+---
+# Verifies the 3D product viewer end-to-end: navigate to a product in a category
+# with a model, toggle to 3D, and assert the JS bridge reports a real "loaded"
+# status (not just that the WebView didn't crash).
+#
+# Requires env: PRODUCT_ID (catalog-static.json id, e.g. "dj-88"),
+# PRODUCT_TITLE (that product's title, used as the search query).
+- tapOn:
+    id: "tab-products"
+
+- tapOn:
+    id: "product-search-input"
+
+- inputText: "${PRODUCT_TITLE}"
+
+- pressKey: Enter
+
+- extendedWaitUntil:
+    visible:
+      id: "product-list-item-${PRODUCT_ID}"
+    timeout: 15000
+
+# With only one search result, the LLM-invite banner above it can push the
+# card down far enough that it's only a sliver above the bottom tab bar --
+# not enough scroll room exists to fully reveal it, so scrollUntilVisible
+# alone can't fix this (confirmed: scrolling further is a no-op here, unlike
+# complete-e2e-clean.yaml's browse-all list where there's plenty of room).
+# Dismissing the banner (persisted via AsyncStorage) reclaims that vertical
+# space so the card renders fully visible instead.
+- runFlow:
+    when:
+      visible:
+        id: "llm-invite-banner-dismiss"
+    commands:
+      - tapOn:
+          id: "llm-invite-banner-dismiss"
+
+- tapOn:
+    id: "product-list-item-${PRODUCT_ID}"
+
+- extendedWaitUntil:
+    visible:
+      id: "pdp-view-toggle-3d"
+    timeout: 10000
+
+- tapOn:
+    id: "pdp-view-toggle-3d"
+
+- extendedWaitUntil:
+    visible:
+      id: "product-3d-webview"
+    timeout: 10000
+
+# The 3D model load itself (network fetch + WebGL render) can take longer than
+# typical UI transitions -- give it a generous timeout, matching this project's
+# established pattern of longer waits for genuinely slow, real network/render
+# operations (e.g. photo-search.yaml's 60s wait for the CLIP pipeline).
+- extendedWaitUntil:
+    notVisible:
+      id: "product-3d-retry"
+    timeout: 30000
