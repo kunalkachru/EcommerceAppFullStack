@@ -1818,12 +1818,37 @@ Same procedure as Stage 2's Task 2.1, repeated for these 8 categories. Search te
 
 - [ ] **Step 1: Search, select, download, and place each of the 8 models**
 
-Same license/format/size/recognizability criteria as Stage 2 Task 2.1 Step 1.
+Same license/format/size/recognizability criteria as Stage 2 Task 2.1 Step 1. Two more Khronos
+glTF-Sample-Assets turned out clean (no embedded branding): `CommercialRefrigerator` (CC-BY 4.0)
+for home-kitchen, `Avocado` (CC0) for groceries. `CarConcept` was found and rejected for the
+same reason as `ChronographWatch`/`SunglassesKhronos` in Stage 2 — its README confirms a
+`Khronos_C.png` baseColor texture, i.e. a Khronos logo decal baked into the car body. The
+remaining 6 categories were sourced from Poly Pizza:
+
+| Category | Model | Source | License |
+|---|---|---|---|
+| home-kitchen | Commercial Refrigerator | Khronos glTF-Sample-Assets | CC-BY 4.0 |
+| groceries | Avocado | Khronos glTF-Sample-Assets | CC0 1.0 |
+| mens-clothing | "T-shirt" (`bdOMzzh-fSl`) | Poly Pizza / Poly by Google | CC-BY 3.0 |
+| womens-clothing | "Woman in Dress" (`zMyPlQXBzq`) | Poly Pizza / Quaternius | CC0 |
+| beauty-fragrances | "Perfume bottle" (`aJbcT0Vrldz`) | Poly Pizza / Poly by Google | CC-BY 3.0 |
+| sports-fitness | "Dumbbell" (`6nGMIxBENld`) | Poly Pizza / Poly by Google | CC-BY 3.0 |
+| automotive | "CAR Model" (`5zUWP5UsLg-`) | Poly Pizza / Ignition Labs | CC-BY 3.0 |
+| jewelry | "Diamond Solitaire Ring" (`37T8IFe_re3`) | Poly Pizza / Jarlan Perez | CC-BY 3.0 |
 
 ```bash
 mkdir -p assets/models/home-kitchen assets/models/mens-clothing assets/models/womens-clothing \
   assets/models/beauty-fragrances assets/models/sports-fitness assets/models/automotive \
   assets/models/groceries assets/models/jewelry
+
+curl -sL -o assets/models/home-kitchen/model.glb "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/CommercialRefrigerator/glTF-Binary/CommercialRefrigerator.glb"
+curl -sL -o assets/models/groceries/model.glb "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/Avocado/glTF-Binary/Avocado.glb"
+curl -sL -o assets/models/jewelry/model.glb "https://static.poly.pizza/2b5e6c5f-5849-4256-b470-ea34858dd24b.glb"
+curl -sL -o assets/models/automotive/model.glb "https://static.poly.pizza/f8c6bcd5-92a2-4f88-b821-64935a00216f.glb"
+curl -sL -o assets/models/sports-fitness/model.glb "https://static.poly.pizza/132843b8-e432-44a9-b2b4-1f1c5f421602.glb"
+curl -sL -o assets/models/beauty-fragrances/model.glb "https://static.poly.pizza/4cbc524f-5d9e-4c57-bd07-07ec2e610181.glb"
+curl -sL -o assets/models/mens-clothing/model.glb "https://static.poly.pizza/859b2ce6-83a6-41bc-a7da-8f2ddba25fff.glb"
+curl -sL -o assets/models/womens-clothing/model.glb "https://static.poly.pizza/a642af96-e239-4c5f-b50d-7661ff51deec.glb"
 ```
 
 - [ ] **Step 2: Verify each renders standalone**
@@ -1866,6 +1891,12 @@ it("resolves a model URL for every one of the catalog's 12 categories", () => {
 });
 ```
 
+**Deviation:** Stage 2's original `"returns null for a category with no 3D model yet"` test used
+`groceries` as its example -- now stale, since groceries has a model after this task. Change
+that test's category argument to a name that will never be a real catalog category (e.g.
+`"nonexistent-category"`) instead of any specific category from the 12, so it stays correct no
+matter how many categories eventually get models.
+
 Note: this test will need the `jest.mock("../src/config/api", ...)` from the top of the file
 still in scope (it already is, since this is added to the same describe block).
 
@@ -1875,12 +1906,59 @@ still in scope (it already is, since this is added to the same describe block).
 npx jest __tests__/category3DModels.test.js
 ```
 
-Expected: PASS, 3 tests (the original 2 plus this new one).
+Expected: PASS, 3 tests (the original 2, with the null-check case fixed, plus this new one).
 
 - [ ] **Step 6: Extend `model3DCredits.js` for any new CC-BY models**
 
-Same pattern as Stage 2 Task 2.1 Step 4, appending entries for any of the 8 new models that
-require attribution.
+6 of the 8 Phase 2 models are CC-BY and need an entry (`groceries`/Avocado and
+`womens-clothing`/"Woman in Dress" are CC0, no entry needed):
+
+```js
+// Append to src/config/model3DCredits.js's MODEL_3D_CREDITS array
+{
+  category: "home-kitchen",
+  title: "Commercial Refrigerator",
+  author: "Khronos Group (glTF-Sample-Assets)",
+  license: "CC-BY 4.0",
+  sourceUrl:
+    "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/CommercialRefrigerator",
+},
+{
+  category: "mens-clothing",
+  title: "T-shirt",
+  author: "Poly by Google",
+  license: "CC-BY 3.0",
+  sourceUrl: "https://poly.pizza/m/bdOMzzh-fSl",
+},
+{
+  category: "beauty-fragrances",
+  title: "Perfume bottle",
+  author: "Poly by Google",
+  license: "CC-BY 3.0",
+  sourceUrl: "https://poly.pizza/m/aJbcT0Vrldz",
+},
+{
+  category: "sports-fitness",
+  title: "Dumbbell",
+  author: "Poly by Google",
+  license: "CC-BY 3.0",
+  sourceUrl: "https://poly.pizza/m/6nGMIxBENld",
+},
+{
+  category: "automotive",
+  title: "CAR Model",
+  author: "Ignition Labs",
+  license: "CC-BY 3.0",
+  sourceUrl: "https://poly.pizza/m/5zUWP5UsLg-",
+},
+{
+  category: "jewelry",
+  title: "Diamond Solitaire Ring",
+  author: "Jarlan Perez",
+  license: "CC-BY 3.0",
+  sourceUrl: "https://poly.pizza/m/37T8IFe_re3",
+},
+```
 
 - [ ] **Step 7: Commit**
 
