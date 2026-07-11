@@ -28,7 +28,17 @@ CDN-loaded), Express static-file serving (existing, unmodified), Jest + Maestro 
 - Models are per-category, not per-product — no changes to `server/catalog-static.json`'s
   196-product schema.
 - Model files and the viewer HTML/JS are server-served from the existing `assets/` static route
-  (`server/src/index.js:166`) — zero server code changes, only new files under `assets/`.
+  (`server/src/index.js:166`) — new files under `assets/` only.
+  **Deviation (found during Stage 0 Task 0.2's standalone-browser verification):** Helmet's
+  default CSP (`script-src 'self'`, no eval; `connect-src` falling back to `default-src 'self'`)
+  blocked `<model-viewer>` from instantiating the WASM Draco/KTX2 decoders real-world compressed
+  glTF assets need, and from fetching its own internally generated `blob:` URL (used for default
+  IBL/environment lighting). Neither is fixable client-side. `server/src/index.js`'s `helmet()`
+  call now explicitly sets `script-src: ["'self'", "'wasm-unsafe-eval'"]` and
+  `connect-src: ["'self'", "blob:"]`, preserving every other Helmet default. Verified via a
+  clean, error-free load (Chrome DevTools Protocol: `customElements.get("model-viewer")` defined,
+  `viewer.loaded === true`, `viewer.modelIsVisible === true`, zero console errors) before
+  proceeding to React Native integration.
 - Model URLs resolved client-side via the existing `getApiBaseUrl()` helper
   (`src/config/api.js`), the same pattern `FeaturedProductsStrip.jsx` already uses for images.
 - Testing platform order: Android first, fully validated, then iOS, matching every prior stage
@@ -137,7 +147,7 @@ instead — the exact version doesn't matter, any current stable release works.
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Product 3D Viewer</title>
-  <script src="model-viewer.min.js"></script>
+  <script type="module" src="model-viewer.min.js"></script>
   <style>
     html, body {
       margin: 0;
@@ -161,34 +171,45 @@ instead — the exact version doesn't matter, any current stable release works.
     shadow-intensity="1"
     exposure="1"
   ></model-viewer>
-  <script>
-    function postToNative(payload) {
-      if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
-        window.ReactNativeWebView.postMessage(JSON.stringify(payload));
-      }
-    }
-
-    var params = new URLSearchParams(window.location.search);
-    var modelUrl = params.get("model");
-    var viewer = document.getElementById("viewer");
-
-    if (!modelUrl) {
-      postToNative({ type: "error", reason: "missing model param" });
-    } else {
-      viewer.addEventListener("load", function () {
-        postToNative({ type: "loaded" });
-      });
-      viewer.addEventListener("error", function (event) {
-        postToNative({ type: "error", reason: String(event && event.detail && event.detail.type) });
-      });
-      viewer.src = modelUrl;
-    }
-  </script>
+  <script type="module" src="product-3d-viewer.js"></script>
 </body>
 </html>
 ```
 
-- [ ] **Step 3: Verify standalone in a desktop browser, against a known-good public sample model**
+```js
+// assets/viewer/product-3d-viewer.js
+function postToNative(payload) {
+  if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+    window.ReactNativeWebView.postMessage(JSON.stringify(payload));
+  }
+}
+
+var params = new URLSearchParams(window.location.search);
+var modelUrl = params.get("model");
+var viewer = document.getElementById("viewer");
+
+if (!modelUrl) {
+  postToNative({ type: "error", reason: "missing model param" });
+} else {
+  viewer.addEventListener("load", function () {
+    postToNative({ type: "loaded" });
+  });
+  viewer.addEventListener("error", function (event) {
+    postToNative({ type: "error", reason: String(event && event.detail && event.detail.type) });
+  });
+  viewer.src = modelUrl;
+}
+```
+
+**Deviation from the original single-file design:** the bridge script must live in its own
+`assets/viewer/product-3d-viewer.js` file, loaded via `<script type="module" src="...">`, not
+inline in the HTML. Two reasons, both found during Step 3's verification below: (1) Helmet's
+default CSP (`script-src 'self'`) blocks inline `<script>` blocks outright — only same-origin
+external scripts are allowed; (2) unpkg's `model-viewer.min.js` build is an ES module (uses
+top-level `export`), so it must be loaded with `type="module"`, and for load order to stay
+correct the bridge script needs the same `type="module"` treatment.
+
+- [ ] **Step 3: Verify standalone in a desktop browser, against a same-origin sample model**
 
 Start the server if it isn't already running:
 
@@ -196,28 +217,61 @@ Start the server if it isn't already running:
 cd server && npm run start:baseline
 ```
 
+Download a known-good public sample model to a temporary, same-origin path (not committed —
+this is verification-only, not one of the real category assets):
+
+```bash
+mkdir -p assets/viewer/_smoketest
+curl -L -o assets/viewer/_smoketest/sample.glb https://modelviewer.dev/shared-assets/models/Astronaut.glb
+```
+
 In a desktop browser, open:
 
 ```
-http://localhost:5001/assets/viewer/product-3d-viewer.html?model=https://modelviewer.dev/shared-assets/models/Astronaut.glb
+http://localhost:5001/assets/viewer/product-3d-viewer.html?model=http://localhost:5001/assets/viewer/_smoketest/sample.glb
 ```
 
 Expected: the page loads, and within a few seconds a 3D astronaut model appears, auto-rotating,
-draggable with the mouse to orbit, and scrollable to zoom. This is Khronos/Google's standard
-`<model-viewer>` demo asset, used here purely to prove the vendored library and page work at all,
-independent of anything category-specific. If this doesn't render, do not proceed to Stage 1 —
-the problem is in the vendored library or page markup, not in anything React Native will add
-later.
+draggable with the mouse to orbit, and scrollable to zoom, with zero console errors. Use a
+same-origin URL rather than the external `modelviewer.dev` URL directly — the architecture's own
+CSP (`connect-src`/`default-src 'self'`) will legitimately block a cross-origin fetch, and real
+category models are always same-origin, so testing cross-origin would produce a false failure
+that has nothing to do with the real pipeline.
+
+**If you see `SyntaxError: Unexpected token 'export'` in the console:** `model-viewer.min.js`
+wasn't loaded with `type="module"` — fix the `<script>` tag in Step 2's HTML.
+
+**If you see a CSP `script-src` violation naming an inline script:** the bridge script is still
+inline in the HTML instead of in its own `product-3d-viewer.js` file — fix per Step 2 above.
+
+**If you see a CSP `script-src` violation naming `WebAssembly.instantiate` /
+`'unsafe-eval'`:** `<model-viewer>` needs `'wasm-unsafe-eval'` in the server's CSP `script-src`
+to instantiate its WASM Draco/KTX2 decoders — apply the Global Constraints' documented
+`server/src/index.js` deviation (adds `'wasm-unsafe-eval'` to `script-src` and `blob:` to
+`connect-src`, nothing else changes) before continuing.
+
+Once the model renders with zero console errors, delete the temporary sample:
+
+```bash
+rm -rf assets/viewer/_smoketest
+```
+
+If any of this doesn't render cleanly, do not proceed to Stage 1 — the problem is in the vendored
+library, the page markup, or the server's CSP configuration, not in anything React Native will
+add later.
 
 - [ ] **Step 4: Commit**
 
 ```bash
-git add assets/viewer/model-viewer.min.js assets/viewer/product-3d-viewer.html
+git add assets/viewer/model-viewer.min.js assets/viewer/product-3d-viewer.html assets/viewer/product-3d-viewer.js server/src/index.js
 git commit -m "feat: vendor model-viewer and add static 3D viewer page
 
-Verified standalone in a desktop browser against modelviewer.dev's public
-Astronaut.glb sample before any React Native integration -- de-risks the
-new rendering technology in isolation."
+Verified standalone in a desktop browser (same-origin sample model, via
+Chrome DevTools Protocol) before any React Native integration -- de-risks
+the new rendering technology in isolation. Required a minimal, narrowly
+scoped Helmet CSP change (script-src wasm-unsafe-eval, connect-src blob:)
+for model-viewer's WASM decoders and internal blob: fetch to work; every
+other CSP default is unchanged."
 ```
 
 ---

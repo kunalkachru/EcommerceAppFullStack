@@ -144,7 +144,24 @@ function authMiddleware(req, res, next) {
 }
 
 const app = express();
-app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
+// scriptSrc adds 'wasm-unsafe-eval' (not the broader 'unsafe-eval') so the
+// product-3d-viewer.html page's <model-viewer> can instantiate the WASM
+// Draco/KTX2 decoders it needs for real-world compressed glTF assets.
+// connectSrc adds blob: so the same page can fetch its own internally
+// generated blob: URLs (used for the default IBL/environment lighting
+// texture) -- every other default Helmet directive is preserved unchanged.
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", "'wasm-unsafe-eval'"],
+        "connect-src": ["'self'", "blob:"],
+      },
+    },
+  })
+);
 app.use(cors());
 app.use(express.json({ limit: "12mb" }));
 app.use(morgan((tokens, req, res) => {
