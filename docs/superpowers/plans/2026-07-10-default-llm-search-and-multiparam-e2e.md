@@ -2864,7 +2864,32 @@ all 5 positive fixtures + the no-match fixture."
 
 ### Task C6: iOS `ml-multiparameter-search-llm.yaml` (LLM-reasoning path via Ollama)
 
-**Status:** Not Started
+**Status:** Done
+
+**Deviation notes:**
+- Note: the Entry Criteria below describing an iOS-specific `10.0.2.2`-vs-`127.0.0.1` base-URL
+  branch in `llmProviders.js` is stale — Task C3 already removed that Android-only conditional
+  entirely (the LLM call is proxied through the server, which always needs its own loopback
+  regardless of client device; see Task C3's deviation notes). No iOS-specific base-URL handling
+  was needed here.
+- Reused Task C5's paste-based text-entry fix for `voice-typed-query-input` (long-press +
+  `tapOn: "Paste"`, OS pasteboard pre-set via `xcrun simctl pbcopy` before invoking `maestro
+  test`) — same apostrophe-truncation problem, same fix.
+- **The Android provider-chip swipe recipe does not transfer to iOS.** Android's
+  `swipe: start/end` used a y-percentage (~39%) derived from analyzing screenshot pixel
+  positions, and that same percentage applied to iOS had *zero* effect on the scroll position
+  (confirmed directly, repeated identically across 3 different swipe/scroll attempts — raw
+  swipe, `scrollUntilVisible: direction: RIGHT`, and element-anchored `swipe: element:/direction:`
+  all produced no visible change). Root cause, confirmed via `maestro hierarchy`: iOS/XCTest's
+  swipe coordinates map to POINTS, not the pixels a screenshot is captured at — this simulator
+  reports a 440x956-point root view while capturing 1320x2868-pixel screenshots (a 3x scale).
+  `maestro hierarchy`'s own element bounds are also in points, and comparing the actual mounted
+  provider chips' bounds to the total point-space height gave the real center: ~56%, not ~39%.
+  Recalibrated `ml-multiparameter-search-llm.yaml`'s swipe to `56%` and it worked immediately.
+  Any future iOS flow needing a raw-coordinate swipe/tap should calibrate from `maestro
+  hierarchy` bounds, not from screenshot pixel positions.
+- All 5 positive fixtures verified live on the iPhone 17 Pro Max simulator, each passing on the
+  first attempt (no non-determinism-driven retries needed this time, unlike Android's fixture 4).
 
 **Entry Criteria:** Task C5 Exit Criteria met. Local Ollama running, reachable from the iOS
 Simulator at `http://127.0.0.1:11434/v1` (per `src/config/llmProviders.js`'s iOS branch —
