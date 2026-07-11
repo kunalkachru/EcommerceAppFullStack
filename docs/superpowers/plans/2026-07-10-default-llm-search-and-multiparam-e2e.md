@@ -2746,7 +2746,36 @@ git commit -m "docs: mark Android Stage C tasks complete, gate passed for iOS st
 
 ### Task C5: iOS `ml-multiparameter-search.yaml` (rule-based search box)
 
-**Status:** Not Started
+**Status:** Done
+
+**Deviation notes:**
+- **Major finding:** text entry cannot use `inputText` (nor Maestro's own `pasteText`) on iOS
+  for any of these fixtures. Every query in `golden-multiparam-queries.json` contains an
+  apostrophe (`"I'm looking for..."`), and confirmed directly (screenshot evidence, multiple
+  isolated repro attempts) that XCTest's synthetic typing — which both `inputText` and
+  `pasteText` appear to go through on iOS — silently drops every character after the first
+  apostrophe, with no error. Only the field's own value was left as a single leading letter
+  (`"I"` from `"I'm..."`).
+  - First attempted fix: disable autocorrect/spellCheck on the input, suspecting iOS's
+    QuickType predictive-text bar was desyncing the synthetic keystrokes. This is good practice
+    regardless (search boxes shouldn't autocorrect) and was applied to both
+    `product-search-input` and `voice-typed-query-input` via TDD, but did not fix the truncation.
+  - Real fix: native long-press on the field to trigger the OS "Paste" callout, then
+    `tapOn: "Paste"` by its literal button text — this bypasses synthetic keyboard typing
+    entirely.
+  - Maestro's own `setClipboard` command proved unreliable as the paste source: it worked
+    correctly for 2 of 5 fixtures, then silently left a stale prior query's text in the OS
+    pasteboard for a 3rd (confirmed directly via `xcrun simctl pbpaste`, with waits up to 3s
+    added with no effect) — no error surfaced, the flow just silently searched the wrong query
+    and failed later, at the product-not-found assertion, in a way that looked unrelated.
+  - Final, reliable recipe: the caller sets the simulator's real OS pasteboard directly via
+    `printf "%s" "$QUERY" | xcrun simctl pbcopy <udid>` *before* invoking `maestro test`, and the
+    flow itself only does `longPressOn` + `tapOn: "Paste"`. This mirrors the existing
+    pre-seeded-external-state pattern already used by `photo-search.yaml` (its gallery photo is
+    seeded via a script before the flow runs, not from inside the YAML).
+- All 5 positive fixtures plus the no-match fixture (`ml-multiparameter-search-no-match.yaml`,
+  same paste recipe) verified live on the iPhone 17 Pro Max simulator (iOS 26.5), each after
+  fresh `xcrun simctl pbcopy` of that fixture's exact query.
 
 **Entry Criteria:** Task C4 Exit Criteria met. iOS Simulator booted (kill the Android emulator
 first if memory is tight, per this project's established "one platform at a time" practice).
