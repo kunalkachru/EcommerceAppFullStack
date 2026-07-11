@@ -12,8 +12,10 @@ import { useNavigation } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import SimilarProductsStrip from "../components/SimilarProductsStrip";
+import Product3DViewer from "../components/Product3DViewer";
 import { LuxuryErrorBanner, LuxuryLoadingState, LuxurySuccessConfirmation } from "../components/LuxuryStateIndicators";
 import { fetchSimilarProducts } from "../services/visualSearchService";
+import { resolveCategoryModelUrl } from "../config/category3DModels";
 import { colors, radius, shadows, spacing, typography } from "../theme/tokens";
 
 function buildPriceStory(price) {
@@ -59,6 +61,8 @@ const ProductDetailScreen = ({ route }) => {
     return merged.length ? merged : [product.image];
   }, [product]);
   const [activeImage, setActiveImage] = useState(productImages[0]);
+  const has3DModel = Boolean(resolveCategoryModelUrl(product.category));
+  const [viewMode, setViewMode] = useState("2d");
 
   const productKey = String(product.id);
   const isCartPendingForProduct = useSelector(
@@ -173,43 +177,72 @@ const ProductDetailScreen = ({ route }) => {
           <Text style={styles.heroBadgeText}>Product detail</Text>
         </View>
 
-        <Image
-          testID="pdp-hero-image"
-          source={{ uri: activeImage }}
-          style={styles.image}
-          resizeMode="contain"
-        />
-
-        {productImages.length > 1 ? (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.galleryRow}
-          >
-            {productImages.map((imageUrl, index) => {
-              const selected = imageUrl === activeImage;
-              return (
-                <TouchableOpacity
-                  key={`${product.id}-${imageUrl}-${index}`}
-                  testID={`pdp-gallery-thumb-${index}`}
-                  accessibilityRole="button"
-                  accessibilityLabel={`View gallery image ${index + 1}`}
-                  onPress={() => setActiveImage(imageUrl)}
-                  style={[
-                    styles.galleryThumbButton,
-                    selected && styles.galleryThumbButtonSelected,
-                  ]}
-                >
-                  <Image
-                    source={{ uri: imageUrl }}
-                    style={styles.galleryThumbImage}
-                    resizeMode="cover"
-                  />
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
+        {has3DModel ? (
+          <View style={styles.viewToggleRow}>
+            <TouchableOpacity
+              testID="pdp-view-toggle-photos"
+              style={[styles.viewToggleButton, viewMode === "2d" && styles.viewToggleButtonActive]}
+              onPress={() => setViewMode("2d")}
+            >
+              <Text style={[styles.viewToggleText, viewMode === "2d" && styles.viewToggleTextActive]}>
+                Photos
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              testID="pdp-view-toggle-3d"
+              style={[styles.viewToggleButton, viewMode === "3d" && styles.viewToggleButtonActive]}
+              onPress={() => setViewMode("3d")}
+            >
+              <Text style={[styles.viewToggleText, viewMode === "3d" && styles.viewToggleTextActive]}>
+                3D
+              </Text>
+            </TouchableOpacity>
+          </View>
         ) : null}
+
+        {viewMode === "3d" && has3DModel ? (
+          <Product3DViewer category={product.category} />
+        ) : (
+          <>
+            <Image
+              testID="pdp-hero-image"
+              source={{ uri: activeImage }}
+              style={styles.image}
+              resizeMode="contain"
+            />
+
+            {productImages.length > 1 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.galleryRow}
+              >
+                {productImages.map((imageUrl, index) => {
+                  const selected = imageUrl === activeImage;
+                  return (
+                    <TouchableOpacity
+                      key={`${product.id}-${imageUrl}-${index}`}
+                      testID={`pdp-gallery-thumb-${index}`}
+                      accessibilityRole="button"
+                      accessibilityLabel={`View gallery image ${index + 1}`}
+                      onPress={() => setActiveImage(imageUrl)}
+                      style={[
+                        styles.galleryThumbButton,
+                        selected && styles.galleryThumbButtonSelected,
+                      ]}
+                    >
+                      <Image
+                        source={{ uri: imageUrl }}
+                        style={styles.galleryThumbImage}
+                        resizeMode="cover"
+                      />
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            ) : null}
+          </>
+        )}
 
         <Text style={styles.name}>{product.title}</Text>
         <Text style={styles.price}>${product.price}</Text>
@@ -335,6 +368,30 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     backgroundColor: colors.surfaceMuted,
     marginBottom: spacing.lg,
+  },
+  viewToggleRow: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginBottom: spacing.md,
+  },
+  viewToggleButton: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
+  },
+  viewToggleButtonActive: {
+    backgroundColor: colors.accentStrong,
+    borderColor: colors.accentStrong,
+  },
+  viewToggleText: {
+    fontWeight: "700",
+    color: colors.textMuted,
+  },
+  viewToggleTextActive: {
+    color: colors.white,
   },
   galleryRow: {
     gap: spacing.sm,
