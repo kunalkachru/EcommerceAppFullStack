@@ -2666,7 +2666,42 @@ run, per the existing execution-boundary constraint."
 
 ### Task C4: Android Stage C regression gate
 
-**Status:** Not Started
+**Status:** Done
+
+**Deviation notes:**
+- `login.yaml` x3, both `photo-search.yaml` samples (mens-clothing sample-1 and sample-2), and
+  a re-run of both Task C2/C3 flows all passed. The native gallery-picker "no crash, no dialog,
+  picker just never opens" flake (already documented in `photo-search.yaml`'s own comments) showed
+  up repeatedly during this gate — `adb shell am force-stop com.ecommerceappfullstack` before each
+  `maestro test` invocation reliably cleared it; a bare retry without force-stopping first did not
+  reliably help. Recommend force-stopping before any flow that opens the gallery picker.
+- `ml-features-comprehensive.yaml` required the same force-stop treatment for its embedded photo
+  search step, plus passing `--env EXPECTED_PRODUCT_TITLE=...` matching whatever sample is
+  currently seeded on the device (the flow doesn't set this itself, unlike `photo-search.yaml`'s
+  other callers).
+- `complete-e2e-clean.yaml` had a real, previously-undiscovered break: it hardcoded an assumption
+  that "Essence Mascara Lash Princess" appears in the initial product-browse viewport, which the
+  Phase 1 static-catalog rebuild invalidated (the default browse-all order now starts with
+  clothing). Because the tap was `optional: true`, the flow silently no-opted instead of failing
+  loudly at that step, then failed later at the non-optional "Add to Cart" assertion. Fixed by
+  searching for the product instead of assuming its position — this surfaced two further findings
+  worth recording for any future flow on this app:
+  1. Both `pressKey: back` and `hideKeyboard` pop this app's Products tab back to Home once that
+     tab has no further stack history (the bottom-tab navigator treats hardware back — which
+     `hideKeyboard` appears to implement via a back-equivalent press on this Maestro/Android
+     combination — as "return to Home"). Neither should be used to dismiss the keyboard on any
+     screen other than a stack root.
+  2. A text selector for the search result ambiguously matches the search box's own typed-query
+     text node, not just the actual result card, since the box renders the query as literal text.
+     Target the result by its stable `product-list-item-<id>` testID instead (verified against
+     `catalog-static.json`'s id for the product), not by title text — and use `centerElement: true`
+     on the preceding `scrollUntilVisible`, since a sliver-only-visible list item (as when it's the
+     last row scrolled just past the bottom nav bar) can silently miss the tap, matching a pattern
+     already seen in `photo-search.yaml`.
+- Full regression re-run after all fixes: `login.yaml` x3 ✅, `photo-search.yaml` both samples ✅,
+  `ml-features-comprehensive.yaml` ✅, `complete-e2e-clean.yaml` (`npm run maestro:android`) ✅,
+  one fixture each re-verified for both C2's rule-based and C3's LLM-reasoning flows ✅, `npm test`
+  → 188 passed, 1 known pre-existing failure (`goldenFixtures.test.js`, unrelated).
 
 **Entry Criteria:** Tasks C1-C3 committed.
 
