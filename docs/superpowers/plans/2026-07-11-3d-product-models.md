@@ -1997,6 +1997,32 @@ rm -f .maestro/android/_tmp-verify-3d.yaml
 
 Expected: all 8 exit 0.
 
+**Deviation (found while verifying the `automotive` category):** `automotive` products were
+completely unreachable through the app's product list UI — not via text search (the
+"Refined from your intent" banner reported real match counts, e.g. "Showing 6 matches for
+'Generic Motorcycle'", but the results area below rendered "No products match your search"),
+not via the plain browse-all list (scrolled 20s looking for `product-list-item-dj-114`, never
+found), and not via a category chip (automotive isn't in the top-8-by-count categories that
+get chips). Root-caused via the live server's own `/api/catalog/products` endpoint (confirmed
+it returns all 196 products, including all 10 automotive items, with zero server-side
+filtering) plus a read of `src/screens/ProductListScreen.jsx`: `filteredProducts` unconditionally
+applied `product.price >= priceRange[0] && product.price <= priceRange[1]` using a hardcoded
+`const PRICE_MAX = 2000;` default ceiling — a value that can only ever shrink (line 159's
+`Math.min(PRICE_MAX, priceMax)` clamp), never grow. Since automotive is the only category whose
+entire price range sits above $2000 ($2999.99–$36999.99), every automotive product was silently
+dropped from every view, regardless of search or category selection. This is a genuine,
+pre-existing bug unrelated to the 3D-models feature itself — automotive's `.glb` asset and
+`resolveCategoryModelUrl("automotive")` were already confirmed working via CDP and the Jest
+all-12-categories test — but it blocked this task's Maestro verification for that one category,
+so it was fixed here rather than deferred. Fix (TDD, `__tests__/ProductListScreen.priceCeiling.test.js`):
+replaced the hardcoded `PRICE_MAX` with a `catalogMaxPrice` derived from the actual loaded
+catalog's max price (`useMemo` over `products`, floor `DEFAULT_PRICE_MAX = 2000` for the
+pre-load/empty state), widened via an effect whenever the catalog's max grows and the user
+hasn't manually touched the price slider (tracked via `priceRangeTouchedRef`, set by a new
+`handlePriceChange` wrapper passed to `UnifiedFilterPanel`'s `onPriceChange`). Full regression
+(`npx jest`) confirmed no other test depended on the old fixed `2000` ceiling and the only
+failure is the pre-existing unrelated `goldenFixtures.test.js` fixture-file gap.
+
 - [ ] **Step 2: Full Android regression**
 
 Same commands as Stage 4 Task 4.1 Step 4.

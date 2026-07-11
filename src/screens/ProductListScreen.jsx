@@ -30,7 +30,12 @@ import { buildAmbientSearchBanner } from "../utils/ambientAiNarratives";
 import { colors, radius, shadows, spacing, typography } from "../theme/tokens";
 
 const sortOptions = ["Default", "Price: Low to High", "Price: High to Low"];
-const PRICE_MAX = 2000;
+// Fallback ceiling before the catalog has loaded any products. Once products
+// are available, the real ceiling is derived from their actual max price
+// (see catalogMaxPrice below) -- a fixed value here previously made any
+// product priced above it (e.g. every automotive listing, $2999.99+)
+// permanently unreachable via browse or search.
+const DEFAULT_PRICE_MAX = 2000;
 
 const ProductListScreen = ({ navigation }) => {
   const route = useRoute();
@@ -52,7 +57,27 @@ const ProductListScreen = ({ navigation }) => {
 
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOption, setSortOption] = useState("Default");
-  const [priceRange, setPriceRange] = useState([0, PRICE_MAX]);
+  const [priceRange, setPriceRange] = useState([0, DEFAULT_PRICE_MAX]);
+  const priceRangeTouchedRef = useRef(false);
+
+  const catalogMaxPrice = useMemo(() => {
+    if (!products.length) return DEFAULT_PRICE_MAX;
+    const highest = products.reduce(
+      (max, product) => Math.max(max, Number(product.price) || 0),
+      0
+    );
+    return Math.max(DEFAULT_PRICE_MAX, Math.ceil(highest));
+  }, [products]);
+
+  useEffect(() => {
+    if (priceRangeTouchedRef.current) return;
+    setPriceRange([0, catalogMaxPrice]);
+  }, [catalogMaxPrice]);
+
+  const handlePriceChange = useCallback((range) => {
+    priceRangeTouchedRef.current = true;
+    setPriceRange(range);
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("all");
   const [visualSearching, setVisualSearching] = useState(false);
@@ -156,7 +181,8 @@ const ProductListScreen = ({ navigation }) => {
           setSelectedCategory("All");
           const priceMax = result.parsed?.priceMax;
           if (Number.isFinite(priceMax) && priceMax < 1e6) {
-            setPriceRange([0, Math.min(PRICE_MAX, priceMax)]);
+            priceRangeTouchedRef.current = true;
+            setPriceRange([0, Math.min(catalogMaxPrice, priceMax)]);
           }
         } else {
           setVoiceBanner({
@@ -174,7 +200,7 @@ const ProductListScreen = ({ navigation }) => {
         setSearchSearching(false);
       }
     },
-    [searchQuery, products, clearSmartSearch, userId]
+    [searchQuery, products, clearSmartSearch, userId, catalogMaxPrice]
   );
 
   useEffect(() => {
@@ -481,8 +507,8 @@ const ProductListScreen = ({ navigation }) => {
           sortOption={sortOption}
           onSortChange={setSortOption}
           priceRange={priceRange}
-          onPriceChange={setPriceRange}
-          priceMax={PRICE_MAX}
+          onPriceChange={handlePriceChange}
+          priceMax={catalogMaxPrice}
           searchCategory={searchCategory}
           onSearchCategoryChange={setSearchCategory}
         />
@@ -494,6 +520,8 @@ const ProductListScreen = ({ navigation }) => {
       searchQuery,
       sortOption,
       priceRange,
+      catalogMaxPrice,
+      handlePriceChange,
       isOfflineFallback,
       error,
       refetch,
