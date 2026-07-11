@@ -1,0 +1,38 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# Companion to ml-multiparameter-search.yaml for the deliberate no-match fixture --
+# verifies a graceful empty state, not a crash or irrelevant results. iOS equivalent
+# of .maestro/android/ml-multiparameter-search-no-match.yaml.
+#
+# The caller must pre-populate the simulator's OS pasteboard with ${QUERY} before
+# invoking this flow (see ml-multiparameter-search.yaml's header comment for why
+# inputText/pasteText/setClipboard are all unreliable here):
+#   printf "%s" "$QUERY" | xcrun simctl pbcopy <udid>
+#
+# Requires env: QUERY - the no-match fixture's query text (also expected to already
+# be on the simulator's pasteboard, see above).
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+- tapOn:
+    id: "product-search-input"
+
+- longPressOn:
+    id: "product-search-input"
+
+- tapOn: "Paste"
+
+- pressKey: enter
+
+- extendedWaitUntil:
+    visible:
+      text: "No close intent match yet"
+    timeout: 15000
+
+- assertVisible:
+    text: "No close intent match yet"

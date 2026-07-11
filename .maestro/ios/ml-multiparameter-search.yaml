@@ -1,0 +1,64 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# Multi-parameter search via the plain "Search products" box -- iOS equivalent of
+# .maestro/android/ml-multiparameter-search.yaml. Uses pressKey: enter (not back --
+# iOS has no hardware back key; see this project's ml-features-comprehensive.yaml fix
+# for why pressKey: back is wrong here).
+#
+# Text entry uses long-press + tapOn "Paste", not inputText: every
+# golden-multiparam-queries.json query contains an apostrophe (contraction), and
+# XCTest's synthetic typeText -- which inputText uses under the hood on iOS --
+# silently drops everything after an apostrophe (confirmed directly: typing
+# "I'm looking for..." leaves only "I" in the field).
+#
+# The caller must pre-populate the simulator's OS pasteboard with ${QUERY}
+# BEFORE invoking this flow, e.g.:
+#   printf "%s" "$QUERY" | xcrun simctl pbcopy <udid>
+# Maestro's own `setClipboard` command is NOT used here -- it proved unreliable
+# in practice (confirmed directly: it worked for two fixtures, then silently
+# failed to update the real OS pasteboard for a third, leaving a stale prior
+# query in place with no error). Maestro's `pasteText` command was also tried
+# and has the same apostrophe-truncation problem as inputText (it appears to
+# go through the same synthetic-typing path). Only tapping the native "Paste"
+# callout menu by its literal button text, backed by a pasteboard set via
+# `simctl pbcopy` directly, reliably inserts the full query.
+#
+# Requires env: QUERY - a natural-language query from
+# scripts/fixtures/golden-multiparam-queries.json (also expected to already be
+# on the simulator's pasteboard, see above), EXPECTED_PRODUCT_TITLE - that same
+# fixture's expectedProductTitle.
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+- tapOn:
+    id: "product-search-input"
+
+- longPressOn:
+    id: "product-search-input"
+
+- tapOn: "Paste"
+
+- pressKey: enter
+
+- scrollUntilVisible:
+    element:
+      text: "${EXPECTED_PRODUCT_TITLE}"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+- assertVisible:
+    text: "${EXPECTED_PRODUCT_TITLE}"
+
+- tapOn:
+    text: "${EXPECTED_PRODUCT_TITLE}"
+
+- extendedWaitUntil:
+    visible:
+      id: "pdp-add-to-cart"
+    timeout: 10000
