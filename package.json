@@ -21,7 +21,7 @@
     "e2e:android": "node scripts/test-android.mjs",
     "e2e:ios": "node scripts/test-ios.mjs",
     "maestro:android": "~/.maestro/bin/maestro test .maestro/android/complete-e2e-clean.yaml",
-    "maestro:ios": "~/.maestro/bin/maestro test .maestro/ios/complete-e2e-clean.yaml --device $(xcrun simctl list devices booted | grep 'iPhone' | head -1 | grep -oE '[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}' | head -1)",
+    "maestro:ios": "UDID=$(xcrun simctl list devices booted | grep 'iPhone' | head -1 | grep -oE '[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}' | head -1) && printf '%s' 'Essence Mascara Lash Princess' | xcrun simctl pbcopy \"$UDID\" && ~/.maestro/bin/maestro test .maestro/ios/complete-e2e-clean.yaml --device \"$UDID\"",
     "maestro:e2e": "npm run maestro:android && npm run maestro:ios",
     "verify:android-nav": "node scripts/verify-nav-session.mjs",
     "verify:android-ml": "node scripts/verify-emulator-ml.mjs",

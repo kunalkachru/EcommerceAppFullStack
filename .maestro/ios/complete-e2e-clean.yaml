@@ -74,11 +74,13 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
 - tapOn:
     id: "login-submit"
 
+# iOS's actual dialog text is "Save Password?" / "Not Now" (Title Case, with a
+# question mark) -- see login.yaml's identical fix for the full explanation.
 - runFlow:
     when:
-      visible: "Save password"
+      visible: "Save Password\\?"
     commands:
-      - tapOn: "Not now"
+      - tapOn: "Not Now"
 
 - extendedWaitUntil:
     visible:
@@ -96,14 +98,45 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
       id: "tab-products"
     timeout: 8000
 
-- extendedWaitUntil:
-    visible:
-      text: "Essence Mascara"
-    timeout: 15000
+# The default browse-all view starts with clothing, not beauty products, and
+# scrolling through all 196 virtualized items to reach it is unreliable --
+# search for it directly instead (see the Android complete-e2e-clean.yaml's
+# identical fix for the full explanation). Target the result by its stable
+# product-list-item-dj-1 testID (catalog-static.json's id for this product),
+# not by title text: the search box also renders the typed query as literal
+# text, so a text selector ambiguously matches the input itself.
+#
+# Text entry uses long-press + tapOn "Paste", not inputText: confirmed
+# directly that XCTest's synthetic typing on this field only reliably
+# delivers the FIRST character before the rest is silently dropped (observed
+# here with "Essence..." -> "E", no apostrophe involved -- this isn't only an
+# apostrophe problem, see ml-multiparameter-search.yaml's more detailed
+# header comment). Only the native "Paste" callout menu reliably inserts the
+# full text. Maestro's own setClipboard command also proved unreliable here
+# (confirmed directly: it silently failed on a re-run with no error, leaving
+# the field empty and the browse-all list showing instead) -- the npm script
+# invoking this flow (package.json's "maestro:ios") pre-populates the
+# simulator's real OS pasteboard via `xcrun simctl pbcopy` before Maestro
+# even starts, matching ml-multiparameter-search.yaml's proven pattern.
+- tapOn:
+    id: "product-search-input"
+    optional: true
+
+- longPressOn:
+    id: "product-search-input"
+
+- tapOn: "Paste"
+
+- scrollUntilVisible:
+    element:
+      id: "product-list-item-dj-1"
+    direction: DOWN
+    timeout: 10000
+    centerElement: true
     optional: true
 
 - tapOn:
-    text: "Essence Mascara Lash Princess"
+    id: "product-list-item-dj-1"
     optional: true
 
 # ============================================================================
