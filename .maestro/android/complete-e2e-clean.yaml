@@ -90,16 +90,36 @@ appId: com.ecommerceappfullstack
       id: "tab-products"
     timeout: 8000
 
-# Wait for product list to load
-- extendedWaitUntil:
-    visible:
-      text: "Essence Mascara"
-    timeout: 15000
+# The default browse-all view starts with clothing, not beauty products, and
+# scrolling through all 196 virtualized items to reach it is unreliable --
+# search for it directly instead, matching this project's other flows.
+# Note: both pressKey: back AND hideKeyboard pop the Products tab back to
+# Home on this device/Maestro version (this app's bottom-tab navigator
+# treats hardware back -- which hideKeyboard appears to implement via a
+# back-equivalent press on Android -- as "return to Home tab" once a tab
+# has no further stack history). The FlatList uses
+# keyboardShouldPersistTaps="handled", so list items are tappable without
+# dismissing the keyboard first -- no need to close it at all. Target the
+# result by its product-list-item testID (dj-1, catalog-static.json's id
+# for this product), not by title text: the search box also renders the
+# typed query as literal text, so a text selector matches the input itself
+# instead of the result card.
+- tapOn:
+    id: "product-search-input"
     optional: true
 
-# Tap first product
+- inputText: "Essence Mascara Lash Princess"
+
+- scrollUntilVisible:
+    element:
+      id: "product-list-item-dj-1"
+    direction: DOWN
+    timeout: 10000
+    centerElement: true
+    optional: true
+
 - tapOn:
-    text: "Essence Mascara Lash Princess"
+    id: "product-list-item-dj-1"
     optional: true
 
 # ============================================================================
