@@ -1,5 +1,12 @@
 # 3D Product Models Implementation Plan
 
+**STATUS: COMPLETE.** All 12 catalog categories (footwear, electronics, watches,
+bags-accessories, home-kitchen, mens-clothing, womens-clothing, beauty-fragrances,
+sports-fitness, automotive, groceries, jewelry) have a real, freely-licensed 3D model, viewable
+via the Photos/3D toggle on every product's PDP, verified via Maestro on both Android and iOS,
+with full regression suites green on both platforms (modulo the one known pre-existing
+`goldenFixtures.test.js` gap).
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. This plan is executed inline and sequentially (no subagent dispatch) per this project's standing convention — proceed stage-by-stage without pausing for check-ins, and stop only for a genuine major design question, not for routine confirmation.
 
 **Goal:** Add a real, in-app 3D viewer (rotate/zoom, no AR) to the product detail screen, backed
@@ -2052,17 +2059,38 @@ git commit -m "docs: mark Task 6.2 complete -- Android Phase 2 verification + re
 
 **Files:** None (verification only, reusing `.maestro/ios/product-3d-viewer.yaml` from Stage 5).
 
-- [ ] **Step 1: Run the flow once per new category**
+- [x] **Step 1: Run the flow once per new category**
 
-Same pattern as Task 6.2 Step 1, using `.maestro/ios/product-3d-viewer.yaml` and iOS's `appId`.
+Same pattern as Task 6.2 Step 1, using `.maestro/ios/product-3d-viewer.yaml` and iOS's `appId`,
+paste-based text entry (pasteboard pre-populated via `xcrun simctl pbcopy`) for all 8 categories.
 
-- [ ] **Step 2: Full iOS regression**
+**Result:** all 8 categories passed on the first attempt (home-kitchen/dj-11, mens-clothing/dj-83,
+womens-clothing/dj-162, beauty-fragrances/dj-1, sports-fitness/dj-137, automotive/dj-168,
+groceries/dj-17, jewelry/dj-182) on the `iPhone 17 Pro Max` simulator
+(`7EABE577-D15B-4B90-848F-EDAC9BF2FC7A`), the same device used for Stage 5's Phase 1 iOS
+verification. automotive/dj-168 passing here (same product ID that needed the Task 6.2
+price-ceiling fix on Android) confirms that fix is a shared JS/business-logic fix, not a
+platform-specific one.
+
+- [x] **Step 2: Full iOS regression**
 
 Same commands as Stage 5 Task 5.1 Step 4.
 
 Expected: all green, `npx jest` shows only the known pre-existing failure.
 
-- [ ] **Step 3: Update this plan's status**
+**Result:** `login.yaml` x3 green, no retries needed. `photo-search.yaml` for both samples
+(seeded via `scripts/seed-ios-sim-photos.mjs`) green on first attempt each -- iOS's photo
+picker doesn't share Android's gallery-picker flake. `ml-features-comprehensive.yaml` green on
+first attempt. `complete-e2e-clean.yaml` via `npm run maestro:ios` green on first attempt.
+`npx jest` shows only the known pre-existing `goldenFixtures.test.js` failure (204 tests, 1
+known failure) -- identical result to the Android regression gate.
+
+Before this stage, the Android emulator was shut down (`adb -s emulator-5554 emu kill`) and the
+iOS Simulator booted fresh, per the memory-constraint handoff from earlier in this session (only
+one of {Android emulator, iOS Simulator} can run at a time on this machine) -- managed
+autonomously since the human partner was asleep and had explicitly delegated this switching.
+
+- [x] **Step 3: Update this plan's status**
 
 ```bash
 git add docs/superpowers/plans/2026-07-11-3d-product-models.md
