@@ -66,6 +66,19 @@ jest.mock("@react-native-voice/voice", () => ({
   },
 }));
 
+jest.mock("react-native-webview", () => {
+  const ReactModule = require("react");
+  const RN = require("react-native");
+  return {
+    // No testID on the inner View -- only the composite (found via
+    // findByProps) carries it, so its own onMessage prop is reachable
+    // directly without ambiguity between composite and host matches.
+    WebView: ReactModule.forwardRef(function MockWebView(props, ref) {
+      return ReactModule.createElement(RN.View, {});
+    }),
+  };
+});
+
 jest.mock("./src/redux/api/catalogApi", () => {
   const fallbackProducts =
     require("./src/data/catalog-fallback.json").products?.slice(0, 20) ??

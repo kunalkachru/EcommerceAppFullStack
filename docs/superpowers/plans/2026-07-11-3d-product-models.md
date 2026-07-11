@@ -396,14 +396,16 @@ jest.mock("react-native-webview", () => {
   const ReactModule = require("react");
   const RN = require("react-native");
   return {
-    WebView: React.forwardRef(function MockWebView(props, ref) {
-      return ReactModule.createElement(RN.View, {
-        testID: props.testID,
-        // Expose onMessage so tests can simulate a bridge message by calling
-        // this prop directly, the same way other mocked native components in
-        // this project's tests expose their handlers (see VoiceSearchCard.test.js).
-        onMessageForTest: props.onMessage,
-      });
+    // No testID on the inner View -- only the composite (found via
+    // findByProps) carries it. Giving the host the same testID creates two
+    // matches for the same query; findByProps (singular) then silently
+    // resolves to whichever it finds first (observed: the composite),
+    // which is fine, but only if the host doesn't also claim the testID.
+    // The composite's own props already include the real onMessage handler
+    // Product3DViewer passed in, so no extra indirection prop is needed --
+    // tests call webview.props.onMessage(...) directly.
+    WebView: ReactModule.forwardRef(function MockWebView(props, ref) {
+      return ReactModule.createElement(RN.View, {});
     }),
   };
 });
@@ -449,7 +451,7 @@ describe("Product3DViewer", () => {
 
     const webview = tree.root.findByProps({ testID: "product-3d-webview" });
     act(() => {
-      webview.props.onMessageForTest({
+      webview.props.onMessage({
         nativeEvent: { data: JSON.stringify({ type: "loaded" }) },
       });
     });
@@ -468,7 +470,7 @@ describe("Product3DViewer", () => {
 
     const webview = tree.root.findByProps({ testID: "product-3d-webview" });
     act(() => {
-      webview.props.onMessageForTest({
+      webview.props.onMessage({
         nativeEvent: { data: JSON.stringify({ type: "error", reason: "load failed" }) },
       });
     });
