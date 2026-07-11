@@ -1,5 +1,3 @@
-import { Platform } from "react-native";
-
 /**
  * OpenAI-compatible LLM providers users can bring their own key for.
  * Voice-to-text stays free via device speech (@react-native-voice/voice).
@@ -51,14 +49,11 @@ export const LLM_PROVIDERS = [
     id: "ollama",
     label: "Ollama (local)",
     badge: "Free local",
-    baseUrl:
-      Platform.OS === "android"
-        ? "http://10.0.2.2:11434/v1"
-        : "http://127.0.0.1:11434/v1",
+    baseUrl: "http://127.0.0.1:11434/v1",
     defaultModel: "llama3.2",
     keyHint: "Optional — often leave blank for local Ollama",
     keyUrl: "https://ollama.com",
-    help: "Run `ollama serve` on your Mac/PC. Emulator uses 10.0.2.2 to reach the host.",
+    help: "Run `ollama serve` on the machine running the API server.",
     keyOptional: true,
   },
 ];
@@ -67,11 +62,13 @@ export function getProviderById(id) {
   return LLM_PROVIDERS.find((p) => p.id === id) ?? LLM_PROVIDERS[0];
 }
 
-/** Android emulator reaches the dev machine at 10.0.2.2 */
+/**
+ * The LLM call is proxied through the API server (server/src/voiceQueryLLM.js),
+ * which shares a machine with Ollama regardless of which client device is
+ * testing -- this must always be the server's own loopback, never a
+ * client-device-specific host alias like the Android emulator's 10.0.2.2.
+ */
 export function resolveProviderBaseUrl(provider) {
-  if (provider?.id === "ollama" && Platform.OS === "android") {
-    return "http://10.0.2.2:11434/v1";
-  }
   return provider?.baseUrl ?? "";
 }
 
