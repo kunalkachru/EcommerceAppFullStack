@@ -214,4 +214,26 @@ describe("ProductListScreen search state", () => {
 
     expect(mockSearchCatalog).not.toHaveBeenCalled();
   });
+
+  it("disables autocorrect and spell check on the search input", async () => {
+    // iOS shows a QuickType predictive-text bar for any input with autocorrect
+    // enabled -- fast synthetic typing (Maestro's inputText on iOS) that types
+    // a query containing an apostrophe desyncs against that suggestion bar and
+    // silently drops every character after the apostrophe. Disabling
+    // autocorrect/spellCheck removes the suggestion bar. This also matches
+    // standard UX practice: search queries shouldn't be autocorrected.
+    let tree;
+    await act(async () => {
+      tree = ReactTestRenderer.create(
+        React.createElement(ProductListScreen, {
+          navigation: { navigate: jest.fn() },
+        })
+      );
+    });
+
+    const input = tree.root.findByProps({ testID: "product-search-input" });
+
+    expect(input.props.autoCorrect).toBe(false);
+    expect(input.props.spellCheck).toBe(false);
+  });
 });

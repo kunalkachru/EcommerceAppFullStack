@@ -431,6 +431,8 @@ const ProductListScreen = ({ navigation }) => {
             onSubmitEditing={() => runSmartSearch()}
             returnKeyType="search"
             editable={!searchSearching}
+            autoCorrect={false}
+            spellCheck={false}
           />
           {searchQuery.length > 0 ? (
             <TouchableOpacity

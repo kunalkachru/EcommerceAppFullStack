@@ -574,6 +574,8 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
         onSubmitEditing={submitTyped}
         returnKeyType="search"
         editable={!searching}
+        autoCorrect={false}
+        spellCheck={false}
       />
 
       <TouchableOpacity

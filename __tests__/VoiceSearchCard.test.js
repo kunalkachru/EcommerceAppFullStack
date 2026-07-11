@@ -149,4 +149,26 @@ describe("VoiceSearchCard automation hooks", () => {
       tree.unmount();
     });
   });
+
+  it("disables autocorrect and spell check on the typed-query input", async () => {
+    // iOS shows a QuickType predictive-text bar for any input with autocorrect
+    // enabled -- fast synthetic typing (Maestro's inputText on iOS) that types
+    // a query containing an apostrophe (e.g. golden-multiparam-queries.json's
+    // "I'm looking for...") desyncs against that suggestion bar and silently
+    // drops every character after the apostrophe. Disabling
+    // autocorrect/spellCheck removes the suggestion bar.
+    let tree;
+    await act(async () => {
+      tree = ReactTestRenderer.create(React.createElement(VoiceSearchCard, {}));
+    });
+
+    const input = tree.root.findByProps({ testID: "voice-typed-query-input" });
+
+    expect(input.props.autoCorrect).toBe(false);
+    expect(input.props.spellCheck).toBe(false);
+
+    await act(async () => {
+      tree.unmount();
+    });
+  });
 });
