@@ -976,32 +976,53 @@ acceptance criteria, not "TBD".
 
 - [ ] **Step 1: Search and select one model per category**
 
-For each of the four categories, search **Sketchfab** (sketchfab.com/search, filter results by
-"Downloadable" and license "CC0" or "CC Attribution") and, if nothing suitable turns up,
-**Poly Haven** (polyhaven.com/models, all models there are CC0). Search terms:
+**Deviation from the original Sketchfab-first plan:** Sketchfab's download flow requires an
+authenticated, logged-in session even for CC0/CC-BY models — not scriptable without setting up
+real user credentials, which this project avoids in automated flows. Poly Haven's own catalog is
+overwhelmingly HDRIs/textures/nature props, not consumer retail objects. Two sources turned out
+both scriptable (direct, unauthenticated download URLs) and properly licensed:
 
-- footwear → "sneaker", "shoe"
-- electronics → "smartphone", "laptop" (pick whichever renders more recognizably as a generic
-  product, not a specific branded device)
-- watches → "wristwatch", "watch"
-- bags-accessories → "handbag", "backpack"
+- **Khronos's official glTF-Sample-Assets repo**
+  (`https://github.com/KhronosGroup/glTF-Sample-Assets`) — real, professionally authored
+  reference assets, each with a per-model `LICENSE.md` (CC0 or CC-BY 4.0), direct download via
+  `raw.githubusercontent.com`, no auth.
+- **Poly Pizza** (`poly.pizza`) — a maintained archive of the (now-shut-down) Google Poly
+  library, direct static download URLs (`static.poly.pizza/<uuid>.glb`), each model page states
+  its license (CC-BY 3.0 for the Google Poly assets used here).
 
-Selection criteria, in order: (1) license is CC0 or CC-BY — reject anything else outright, (2)
-format is glTF/GLB, or convertible to GLB via Sketchfab's own download option (Sketchfab offers
-a direct "glTF" download format for CC-licensed models), (3) file size is reasonable for a mobile
-WebView (well under 20MB — reject anything larger, a generic placeholder model doesn't need
-photogrammetry-level detail), (4) visually reads clearly as "a sneaker" / "a phone" / etc. at a
-glance, since it's a generic category stand-in, not a hero asset.
+Selected, and why:
+
+| Category | Model | Source | License | Notes |
+|---|---|---|---|---|
+| footwear | `MaterialsVariantsShoe` | Khronos glTF-Sample-Assets | CC-BY 4.0 | Generic sneaker, 3 color variants, no third-party branding. |
+| electronics | `BoomBox` | Khronos glTF-Sample-Assets | CC0 1.0 | Generic portable speaker, no branding, no credit required. |
+| watches | "Wrist Watch" (`6908NHM0OcR`) | Poly Pizza / Poly by Google | CC-BY 3.0 | Generic wristwatch, low-poly. |
+| bags-accessories | "Laptop bag" (`af_ElXGyq5b`) | Poly Pizza / Poly by Google | CC-BY 3.0 | Generic bag, no branding. |
+
+**Two Khronos assets were found and explicitly rejected**: `ChronographWatch` and
+`SunglassesKhronos` both looked like ideal matches for watches/bags-accessories (correct
+category, CC-BY 4.0, direct download) but their own READMEs disclose they have the "Khronos
+Group", "3D Commerce", and (for the watch) "DGG" logos baked directly into their textures as
+visible decals — real third-party trademarks rendered on the model surface. Displaying those as
+generic products in a retail catalog would misrepresent them as Khronos/DGG-branded merchandise,
+which fails this project's "real, sourced, not misleading" bar for product assets just as surely
+as a fabricated image would. The Poly Pizza alternatives above have no such branding.
+
+Selection criteria used, in order: (1) license is CC0 or CC-BY — reject anything else outright,
+(1a) reject anything with a visible third-party logo/trademark baked into the model, even if the
+copyright license itself is permissive, (2) format is glTF/GLB, (3) file size is reasonable for a
+mobile WebView (well under 20MB — reject anything larger), (4) visually reads clearly as "a
+sneaker" / "a watch" / etc. at a glance, since it's a generic category stand-in, not a hero asset.
 
 - [ ] **Step 2: Download and place each file**
 
 ```bash
 mkdir -p assets/models/footwear assets/models/electronics assets/models/watches assets/models/bags-accessories
-# Move/rename each downloaded .glb into:
-#   assets/models/footwear/model.glb
-#   assets/models/electronics/model.glb
-#   assets/models/watches/model.glb
-#   assets/models/bags-accessories/model.glb
+
+curl -sL -o assets/models/footwear/model.glb "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/MaterialsVariantsShoe/glTF-Binary/MaterialsVariantsShoe.glb"
+curl -sL -o assets/models/electronics/model.glb "https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Assets/main/Models/BoomBox/glTF-Binary/BoomBox.glb"
+curl -sL -o assets/models/watches/model.glb "https://static.poly.pizza/f19112bd-03ad-4f02-9284-2f49ae757fa1.glb"
+curl -sL -o assets/models/bags-accessories/model.glb "https://static.poly.pizza/a52ebbe0-ba29-48b7-9752-33c442702be1.glb"
 ```
 
 - [ ] **Step 3: Verify each model renders, using Stage 0's standalone-browser method**
@@ -1025,21 +1046,32 @@ Step 1 and pick a different source model for that category — do not proceed wi
  * (CC-BY). CC0 models don't need an entry here. Surfaced on CreditsScreen.jsx.
  */
 export const MODEL_3D_CREDITS = [
-  // Example shape -- fill in real values for whichever categories above ended
-  // up CC-BY rather than CC0. Leave this array empty if all four sourced
-  // models turned out to be CC0.
-  // {
-  //   category: "footwear",
-  //   title: "Generic Sneaker",
-  //   author: "Author Name",
-  //   license: "CC-BY 4.0",
-  //   sourceUrl: "https://sketchfab.com/3d-models/...",
-  // },
+  {
+    category: "footwear",
+    title: "Materials Variants Shoe",
+    author: "Khronos Group (glTF-Sample-Assets)",
+    license: "CC-BY 4.0",
+    sourceUrl:
+      "https://github.com/KhronosGroup/glTF-Sample-Assets/tree/main/Models/MaterialsVariantsShoe",
+  },
+  {
+    category: "watches",
+    title: "Wrist Watch",
+    author: "Poly by Google",
+    license: "CC-BY 3.0",
+    sourceUrl: "https://poly.pizza/m/6908NHM0OcR",
+  },
+  {
+    category: "bags-accessories",
+    title: "Laptop bag",
+    author: "Poly by Google",
+    license: "CC-BY 3.0",
+    sourceUrl: "https://poly.pizza/m/af_ElXGyq5b",
+  },
 ];
 ```
 
-Fill in one object per CC-BY model actually selected in Step 1, with the real title, author,
-license, and source URL from that model's Sketchfab/Poly Haven page.
+`electronics` (`BoomBox`) is CC0 and needs no entry. The other three are CC-BY and each has one.
 
 - [ ] **Step 5: Commit**
 
@@ -1047,9 +1079,13 @@ license, and source URL from that model's Sketchfab/Poly Haven page.
 git add assets/models/footwear/model.glb assets/models/electronics/model.glb assets/models/watches/model.glb assets/models/bags-accessories/model.glb src/config/model3DCredits.js
 git commit -m "feat: add Phase 1 3D models (footwear, electronics, watches, bags-accessories)
 
-Sourced from freely-licensed libraries (Sketchfab/Poly Haven), CC0
-preferred. Each verified to render correctly via the standalone viewer page
-before being wired into the app. Non-CC0 attributions recorded in
+Sourced from Khronos's official glTF-Sample-Assets repo and Poly Pizza's
+archived Google Poly library (CC0/CC-BY, direct unauthenticated downloads,
+unlike Sketchfab). Rejected two otherwise-ideal Khronos assets
+(ChronographWatch, SunglassesKhronos) for embedded third-party logos. Each
+model verified to render correctly via the standalone viewer page (Chrome
+DevTools Protocol: loaded===true, modelIsVisible===true, zero console
+errors) before being wired into the app. CC-BY attributions recorded in
 model3DCredits.js for CreditsScreen.jsx."
 ```
 
