@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useRoute } from "@react-navigation/native";
 import {
   View,
@@ -89,6 +89,8 @@ const ProductListScreen = ({ navigation }) => {
     }
   }, [route.params?.category, categories]);
 
+  const skipNextSearchDebounceRef = useRef(false);
+
   useEffect(() => {
     const ids = route.params?.voiceProductIds;
     const vq = route.params?.voiceQuery;
@@ -104,6 +106,13 @@ const ProductListScreen = ({ navigation }) => {
         })
       );
       setSelectedCategory("All");
+      // Setting searchQuery here is for display only (so the search box shows
+      // what was searched) -- it must not also trigger the debounced
+      // search-as-you-type effect below, which would fire a second,
+      // independent search and can silently override these already-correct
+      // results (most visibly with the LLM-reasoning path, where the same
+      // query can non-deterministically parse differently on a second call).
+      skipNextSearchDebounceRef.current = true;
       setSearchQuery(vq || "");
     }
   }, [route.params?.voiceProductIds, route.params?.voiceQuery, route.params?.matchSource]);
@@ -179,6 +188,12 @@ const ProductListScreen = ({ navigation }) => {
   useEffect(() => {
     const q = searchQuery.trim();
     if (!q) {
+      setSearchPending(false);
+      return undefined;
+    }
+
+    if (skipNextSearchDebounceRef.current) {
+      skipNextSearchDebounceRef.current = false;
       setSearchPending(false);
       return undefined;
     }

@@ -3,9 +3,10 @@ const ReactTestRenderer = require("react-test-renderer");
 const { act } = ReactTestRenderer;
 
 const mockSearchCatalog = jest.fn();
+let mockRouteParams = {};
 
 jest.mock("@react-navigation/native", () => ({
-  useRoute: () => ({ params: {} }),
+  useRoute: () => ({ params: mockRouteParams }),
 }));
 
 jest.mock("react-redux", () => ({
@@ -87,6 +88,7 @@ describe("ProductListScreen search state", () => {
   beforeEach(() => {
     jest.useFakeTimers();
     mockSearchCatalog.mockReset();
+    mockRouteParams = {};
   });
 
   afterEach(() => {
@@ -180,5 +182,36 @@ describe("ProductListScreen search state", () => {
       "product-list-item-2",
       "product-list-item-1",
     ]);
+  });
+
+  it("does not re-run a fresh search after receiving precomputed voice/photo search results", async () => {
+    // Displaying the query text for precomputed results (voiceProductIds from
+    // navigation params) sets searchQuery for display purposes only -- it must
+    // not also trigger the debounced search-as-you-type effect, which would
+    // fire a second, independent search that can silently override the
+    // already-correct results (most visibly with the LLM-reasoning path,
+    // where the same query can non-deterministically parse differently on a
+    // second call).
+    mockRouteParams = {
+      voiceProductIds: ["2"],
+      voiceQuery: "leather backpack",
+      matchSource: "voice",
+    };
+
+    await act(async () => {
+      ReactTestRenderer.create(
+        React.createElement(ProductListScreen, {
+          navigation: { navigate: jest.fn() },
+        })
+      );
+    });
+
+    await act(async () => {
+      jest.advanceTimersByTime(1000);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(mockSearchCatalog).not.toHaveBeenCalled();
   });
 });
