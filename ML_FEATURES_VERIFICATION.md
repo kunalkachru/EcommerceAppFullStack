@@ -8,7 +8,7 @@
 ### ✅ VERIFIED: OpenAI API Integration
 ```
 ✓ API Key: LOADED from src/.env
-✓ Key Status: sk-proj-T5lrRYISywY2...ACTIVE
+✓ Key Status: [REDACTED]...ACTIVE
 ✓ API Connectivity: CONNECTED ✓
 ✓ Ready for: Live LLM reasoning on searches
 ```
