@@ -158,6 +158,14 @@ app.use(
         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
         "script-src": ["'self'", "'wasm-unsafe-eval'"],
         "connect-src": ["'self'", "blob:"],
+        // Helmet's default directive set includes upgrade-insecure-requests,
+        // which silently upgrades this page's own subresource fetches
+        // (model-viewer.min.js, product-3d-viewer.js) to https:// -- fatal on
+        // a plain-http local dev server, since WKWebView on iOS actually
+        // enforces the upgrade for module-script fetches (Chrome/Android
+        // WebView don't, treating http://localhost as already trustworthy),
+        // so the requests just vanish with no error and no server log entry.
+        "upgrade-insecure-requests": null,
       },
     },
   })
