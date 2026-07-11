@@ -8,11 +8,12 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveApiUrl } from "./lib/cloud-api-url.mjs";
 import { loadTestPhotoBase64 } from "./lib/test-photo-fixtures.mjs";
+import { resolveClipIndexTarget } from "./lib/verify-ml-thresholds.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const API = resolveApiUrl();
-const MIN_CATALOG = 200;
-const MIN_INDEX = 200;
+const MIN_CATALOG = 350;
+const MIN_INDEX = 300;
 
 const results = [];
 
@@ -83,10 +84,27 @@ async function main() {
   }
 
   const categories = new Set(products.map((p) => p.category));
-  if (categories.size >= 10) {
+  if (categories.size >= 15) {
     pass("catalog-categories", `${categories.size} distinct categories`);
   } else {
     fail("catalog-categories", `Only ${categories.size} categories`);
+  }
+
+  const enrichedProducts = products.filter(
+    (p) =>
+      p.slug &&
+      p.sku &&
+      p.currency === "USD" &&
+      typeof p.inventoryCount === "number" &&
+      Array.isArray(p.colors) &&
+      Array.isArray(p.materials) &&
+      Array.isArray(p.keywords) &&
+      p.imageAlt
+  );
+  if (enrichedProducts.length >= 350) {
+    pass("catalog-enriched-metadata", `${enrichedProducts.length} enriched products`);
+  } else {
+    fail("catalog-enriched-metadata", `Only ${enrichedProducts.length} enriched products`);
   }
 
   const hay = (p) =>
@@ -118,11 +136,39 @@ async function main() {
     );
   }
 
-  const status = await waitForIndex(MIN_INDEX);
-  if (status.indexCount >= MIN_INDEX) {
+  const fragrancesBudget = products.filter(
+    (p) => /perfume|fragrance|cologne/.test(hay(p)) && p.price <= 90
+  );
+  if (fragrancesBudget.length >= 2) {
+    pass("catalog-coverage-fragrance-under-90", `${fragrancesBudget.length} fragrances under $90`);
+  } else {
+    fail("catalog-coverage-fragrance-under-90", `Only ${fragrancesBudget.length} fragrances under $90`);
+  }
+
+  const backpacksBudget = products.filter(
+    (p) => /backpack|bag|luggage/.test(hay(p)) && p.price <= 120
+  );
+  if (backpacksBudget.length >= 2) {
+    pass("catalog-coverage-backpack-under-120", `${backpacksBudget.length} backpack/bag matches under $120`);
+  } else {
+    fail("catalog-coverage-backpack-under-120", `Only ${backpacksBudget.length} backpack/bag matches under $120`);
+  }
+
+  const clipTarget = resolveClipIndexTarget({
+    minIndex: MIN_INDEX,
+    catalogCount: total || products.length,
+  });
+  if (clipTarget < MIN_INDEX) {
+    console.log(
+      `ℹ clip-index target adjusted to ${clipTarget} because catalog currently exposes ${total || products.length} products`
+    );
+  }
+
+  const status = await waitForIndex(clipTarget);
+  if (status.indexCount >= clipTarget) {
     pass("clip-index", `Indexed ${status.indexCount} products`);
   } else {
-    fail("clip-index", `Only ${status.indexCount} indexed (target ≥${MIN_INDEX})`);
+    fail("clip-index", `Only ${status.indexCount} indexed (target ≥${clipTarget})`);
   }
 
   let imageBase64 = null;

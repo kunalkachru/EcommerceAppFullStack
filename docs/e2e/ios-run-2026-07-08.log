@@ -1,0 +1,170 @@
+
+> ecommerceappfullstack@0.0.1 e2e:parallel
+> node scripts/e2e-parallel.mjs --ios
+
+
+┌────────────────────────────────────────────────┐
+│ E2E Test Orchestrator - Running Tests in Parallel │
+└────────────────────────────────────────────────┘
+
+
+[══════════════════════════════════════════════════]
+[IOS] Starting test suite...
+[══════════════════════════════════════════════════]
+
+
+> ecommerceappfullstack@0.0.1 verify:e2e-ios
+> node scripts/run-e2e-ios.mjs
+
+=== iOS E2E on 7EABE577-D15B-4B90-848F-EDAC9BF2FC7A (API: http://127.0.0.1:5001) ===
+
+=== API health ===
+✓ api-health: GET /health ok
+
+=== API credentials ===
+✓ credentials: test@example.com works via API
+✓ api-cart-clear: Cart cleared before Maestro flow
+
+=== CLIP warmup (cloud) ===
+✓ clip-warm: skipped (local API)
+
+=== Live LLM reasoning (API) ===
+Live LLM reasoning: http://127.0.0.1:5001
+
+✓ server-health: CLIP index 352
+✓ openrouter-key-present: OPENROUTER_API_KEY loaded (not logged)
+✓ openrouter-headphones: intent=llm, 7 matches, top="JBL Tune Flex Wireless Earbuds"
+✓ openai-key-present: OPENAI_API_KEY loaded (not logged)
+✓ openai-conversational-jacket: intent=llm, 1 matches, top="Classic White Tee - Timeless Style and C"
+✓ openai-jumbled-headphones: intent=llm, 7 matches, top="Sleek Wireless Headphone & Inked Earbud "
+  … skip groq (no GROQ_API_KEY in /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/src/.env)
+  … skip gemini (no GEMINI_API_KEY in /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/src/.env)
+
+--- Live LLM: 6/6 passed ---
+✓ llm-live: verify:llm-live passed
+
+=== Maestro: commerce flow (login → cart → checkout) ===
+  … Maestro demo-app-flow.yaml failed (exit 1); recovering simulator…
+  … rebooting simulator 7EABE577-D15B-4B90-848F-EDAC9BF2FC7A
+
+=== Maestro demo-app-flow.yaml: recovery attempt 2/2 ===
+✗ maestro-commerce: [UNKNOWN] Maestro demo-app-flow.yaml exit 1
+ETED
+  Run flow when "Sign in ↓" is visible... COMPLETED
+  Assert that "Sign in" is visible... COMPLETED
+  Run login-only.yaml...
+    Scrolling DOWN until id: login-email is visible with speed 40, visibility percentage 100%, timeout 12000 ms, with centering disabled... COMPLETED
+    Assert that id: login-email is visible... COMPLETED
+    Tap on id: login-email... COMPLETED
+    Double tap on id: login-email... COMPLETED
+    Erase text... COMPLETED
+    Input text test@example.com... COMPLETED
+    Tap on id: login-password... COMPLETED
+    Double tap on id: login-password... COMPLETED
+    Erase text... COMPLETED
+    Input text secret123... COMPLETED
+    Scrolling DOWN until id: login-submit is visible with speed 40, visibility percentage 100%, timeout 10000 ms, with centering disabled... COMPLETED
+    Tap on id: login-submit... COMPLETED
+    Run dismiss-save-password.yaml...
+      Run flow when "Save Password?" is visible...
+      Run flow when "Save Password?" is visible... SKIPPED
+    Run dismiss-save-password.yaml... COMPLETED
+    Assert that (Optional) "Start with how you think" is visible... WARNED
+    Run dismiss-save-password.yaml...
+      Run flow when "Save Password?" is visible...
+      Run flow when "Save Password?" is visible... SKIPPED
+    Run dismiss-save-password.yaml... COMPLETED
+    Assert that "Start with how you think" is visible... FAILED
+  Run login-only.yaml... FAILED
+Run shared/login.yaml... FAILED
+
+Assertion is false: "Start with how you think" is visible
+
+Assertion '"Start with how you think" is visible' failed. Check the UI hierarchy in debug artifacts to verify the element state and properties.
+
+Possible causes:
+- Element selector may be incorrect - check if there are similar elements with slightly different names/properties.
+- Element may be temporarily unavailable due to loading state
+- This could be a real regression that needs to be addressed
+
+==== Debug output (logs & screenshots) ====
+
+/Users/kunalkachru/.maestro/tests/2026-07-08_171701
+✓ backend-cart-after-order: Cart empty after checkout (API)
+
+=== iOS photo seed (ML demo gallery) ===
+Seeding 15 photos to simulator 7EABE577-D15B-4B90-848F-EDAC9BF2FC7A…
+✓ iOS simulator photos seeded
+✓ ios-photo-seed: Gallery seeded for ML demo
+
+=== Maestro: ML smoke (catalog, photo, text search) ===
+✓ maestro-llm-key: LLM key loaded from local env for Maestro (not logged)
+  … Maestro demo-ml-features.yaml failed (exit 1); recovering simulator…
+  … rebooting simulator 7EABE577-D15B-4B90-848F-EDAC9BF2FC7A
+
+=== Maestro demo-ml-features.yaml: recovery attempt 2/2 ===
+! maestro-ml-smoke: [UNKNOWN] Maestro demo-ml-features.yaml exit 1 (LLM steps optional without DEMO_LLM_API_KEY)
+Tap on id: login-password... COMPLETED
+    Double tap on id: login-password... COMPLETED
+    Erase text... COMPLETED
+    Input text secret123... COMPLETED
+    Scrolling DOWN until id: login-submit is visible with speed 40, visibility percentage 100%, timeout 10000 ms, with centering disabled... COMPLETED
+    Tap on id: login-submit... COMPLETED
+    Run dismiss-save-password.yaml...
+      Run flow when "Save Password?" is visible...
+      Run flow when "Save Password?" is visible... SKIPPED
+    Run dismiss-save-password.yaml... COMPLETED
+    Assert that (Optional) "Start with how you think" is visible... WARNED
+    Run dismiss-save-password.yaml...
+      Run flow when "Save Password?" is visible...
+      Run flow when "Save Password?" is visible... SKIPPED
+    Run dismiss-save-password.yaml... COMPLETED
+    Assert that "Start with how you think" is visible... FAILED
+  Run login-only.yaml... FAILED
+Run shared/login.yaml... FAILED
+
+Assertion is false: "Start with how you think" is visible
+
+Assertion '"Start with how you think" is visible' failed. Check the UI hierarchy in debug artifacts to verify the element state and properties.
+
+Possible causes:
+- Element selector may be incorrect - check if there are similar elements with slightly different names/properties.
+- Element may be temporarily unavailable due to loading state
+- This could be a real regression that needs to be addressed
+
+==== Debug output (logs & screenshots) ====
+
+/Users/kunalkachru/.maestro/tests/2026-07-08_171914
+
+=== API ML status ===
+✓ clip-cloud: CLIP index 352 on Railway
+✓ catalog-cloud: 398 products
+
+=== SUMMARY ===
+PASS: 10  FAIL: 1  WARN: 1
+  [PASS] api-health: GET /health ok
+  [PASS] credentials: test@example.com works via API
+  [PASS] api-cart-clear: Cart cleared before Maestro flow
+  [PASS] clip-warm: skipped (local API)
+  [PASS] llm-live: verify:llm-live passed
+  [FAIL] maestro-commerce: [UNKNOWN] Maestro demo-app-flow.yaml exit 1
+  [PASS] backend-cart-after-order: Cart empty after checkout (API)
+  [PASS] ios-photo-seed: Gallery seeded for ML demo
+  [PASS] maestro-llm-key: LLM key loaded from local env for Maestro (not logged)
+  [WARN] maestro-ml-smoke: [UNKNOWN] Maestro demo-ml-features.yaml exit 1 (LLM steps optional without DEMO_LLM_API_KEY)
+  [PASS] clip-cloud: CLIP index 352 on Railway
+  [PASS] catalog-cloud: 398 products
+
+
+════════════════════════════════════════════════════════════
+TEST RESULTS SUMMARY
+════════════════════════════════════════════════════════════
+
+[IOS] ❌ FAIL (exit code: 1)
+
+────────────────────────────────────────────────────────────
+✗ Some tests failed
+────────────────────────────────────────────────────────────
+
+⚠️  Check output above for details.
+

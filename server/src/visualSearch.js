@@ -20,6 +20,29 @@ const { validateQueryImage } = require("./search/visual/imageQualityGate");
 const MODEL_ID = "Xenova/clip-vit-base-patch32";
 const CACHE_MODEL_KEY = `${MODEL_ID}-catalog-v3`;
 const EMBED_CACHE_PATH = path.join(__dirname, "..", "data", "clip-embeddings.json");
+const REPO_ROOT = path.join(__dirname, "..", "..");
+
+/**
+ * Static-catalog products (CATALOG_MODE=static) only carry an `images`
+ * array, not the singular `image` field the legacy live-fetch schema
+ * (CATALOG_MODE=live) always set. Falls back to `.image` for live-mode
+ * compatibility.
+ */
+function productImageRef(product) {
+  return product?.images?.[0] || product?.image || null;
+}
+
+/**
+ * Resolves a product image reference to something RawImage.read() can load.
+ * Remote https:// URLs (CATALOG_MODE=live) pass through unchanged; repo-
+ * relative local paths (CATALOG_MODE=static, e.g. "assets/products/x/1.jpg")
+ * resolve to an absolute filesystem path.
+ */
+function resolveImageSource(imageRef) {
+  if (!imageRef) return imageRef;
+  if (/^https?:\/\//i.test(imageRef)) return imageRef;
+  return path.join(REPO_ROOT, imageRef);
+}
 
 let clipReady = null;
 let visionModel;
@@ -75,19 +98,17 @@ const CATEGORY_GROUPS = {
     "clothes",
     "men's clothing",
     "women's clothing",
-    "womens-dresses",
-    "mens-shirts",
-    "tops",
-    "shoesk",
+    "shoes",
+    "bags",
   ],
   electronics: [
     "electronics",
     "laptops",
     "smartphones",
     "mobile-accessories",
-    "tablets",
+    "watches",
   ],
-  beauty: ["beauty", "fragrances", "skin-care"],
+  beauty: ["beauty", "fragrances", "jewelry"],
   home: ["furniture", "home-decoration", "kitchen-accessories"],
   groceries: ["groceries"],
   sports: ["sports-accessories"],
@@ -95,16 +116,16 @@ const CATEGORY_GROUPS = {
 
 const PROBE_CATEGORY_BOOST = {
   jacket: ["clothes", "men's clothing", "women's clothing"],
-  shirt: ["clothes", "men's clothing", "women's clothing", "mens-shirts"],
-  dress: ["clothes", "women's clothing", "womens-dresses"],
+  shirt: ["clothes", "men's clothing", "women's clothing"],
+  dress: ["clothes", "women's clothing"],
   pants: ["clothes", "men's clothing", "women's clothing"],
-  backpack: ["clothes", "sports-accessories"],
-  jewelry: ["jewelery", "beauty"],
-  watch: ["mens-watches", "electronics"],
+  backpack: ["bags", "sports-accessories", "clothes"],
+  jewelry: ["jewelry", "beauty"],
+  watch: ["watches", "electronics"],
   monitor: ["electronics", "laptops"],
   storage: ["electronics"],
   phone: ["smartphones", "mobile-accessories", "electronics"],
-  shoes: ["shoesk", "clothes"],
+  shoes: ["shoes", "clothes"],
 };
 
 const OFF_INVENTORY_PROBE_IDS = new Set(["pet", "car"]);
@@ -151,7 +172,7 @@ async function loadClip() {
 
 async function embedImageFromUrl(url) {
   await loadClip();
-  const image = await RawImage.read(url);
+  const image = await RawImage.read(resolveImageSource(url));
   const inputs = await processor(image);
   const { image_embeds } = await visionModel(inputs);
   return l2Normalize(Array.from(image_embeds.data));
@@ -252,9 +273,10 @@ async function buildProductVectors(products) {
   for (const product of products) {
     const id = String(product.id);
     const textBlob = productTextBlob(product);
+    const imageRef = productImageRef(product);
     const cachedRow = byId.get(id);
     if (
-      cachedRow?.imageUrl === product.image &&
+      cachedRow?.imageUrl === imageRef &&
       cachedRow?.textBlob === textBlob &&
       cachedRow?.imageVec?.length &&
       cachedRow?.textVec?.length
@@ -270,10 +292,10 @@ async function buildProductVectors(products) {
 
     try {
       const [imageVec, textVec] = await Promise.all([
-        embedImageFromUrl(product.image),
+        embedImageFromUrl(imageRef),
         embedText(textBlob),
       ]);
-      entries.push({ id, product, imageVec, textVec, imageUrl: product.image, textBlob });
+      entries.push({ id, product, imageVec, textVec, imageUrl: imageRef, textBlob });
       built += 1;
       if (built % 25 === 0) {
         console.log(`[visual-search] Indexed ${entries.length}/${products.length} products…`);
@@ -286,7 +308,7 @@ async function buildProductVectors(products) {
   saveEmbeddingCache(
     entries.map((e) => ({
       id: e.id,
-      imageUrl: e.product.image,
+      imageUrl: productImageRef(e.product),
       textBlob: productTextBlob(e.product),
       imageVec: e.imageVec,
       textVec: e.textVec,
@@ -508,7 +530,7 @@ async function searchByImageBase64(
           id: bestProduct.product.id,
           title: bestProduct.product.title,
           category: bestProduct.product.category,
-          image: bestProduct.product.image,
+          image: productImageRef(bestProduct.product),
           matchScore: Math.round(bestProductScore * 1000) / 1000,
           matchPercent: Math.min(99, Math.round(bestProductScore * 100)),
         }

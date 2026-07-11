@@ -28,6 +28,37 @@ jest.mock("../src/services/ordersService", () => ({
   createOrder: jest.fn(),
 }));
 
+jest.mock("../src/components/LuxuryPrimitives", () => {
+  const ReactModule = require("react");
+  return {
+    LuxuryEyebrow: (props) => ReactModule.createElement(ReactModule.Fragment, null),
+    LuxuryDisplayTitle: (props) => ReactModule.createElement(ReactModule.Fragment, null),
+    LuxuryBodyText: (props) => ReactModule.createElement(ReactModule.Fragment, null),
+    LuxuryMetricCard: (props) => ReactModule.createElement(ReactModule.Fragment, null),
+    LuxurySectionCard: (props) => ReactModule.createElement(ReactModule.Fragment, null, props.children),
+  };
+});
+
+jest.mock("../src/components/LuxuryStateIndicators", () => {
+  const ReactModule = require("react");
+  return {
+    LuxuryErrorBanner: (props) => ReactModule.createElement(ReactModule.Fragment, null),
+    LuxuryLoadingState: (props) => ReactModule.createElement(ReactModule.Fragment, null),
+    LuxurySuccessConfirmation: (props) => ReactModule.createElement(ReactModule.Fragment, null),
+  };
+});
+
+jest.mock("../src/components/LuxuryTextInput", () => {
+  const ReactModule = require("react");
+  const RN = require("react-native");
+  return function LuxuryTextInputMock(props) {
+    return ReactModule.createElement(RN.TextInput, {
+      ...props,
+      placeholder: props.placeholder,
+    });
+  };
+});
+
 const CheckoutScreen = require("../src/screens/CheckoutScreen").default;
 
 describe("CheckoutScreen", () => {
@@ -51,7 +82,7 @@ describe("CheckoutScreen", () => {
 
     const textInputs = tree.root.findAllByType(TextInput);
     const phoneInput = textInputs.find(
-      (node) => node.props.placeholder === "Phone Number"
+      (node) => node.props.placeholder === "Enter your phone number"
     );
     expect(phoneInput).toBeTruthy();
 

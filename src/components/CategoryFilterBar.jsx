@@ -1,18 +1,22 @@
 import React from "react";
 import {
-  View,
   Text,
   ScrollView,
   Pressable,
   StyleSheet,
 } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { colors, radius, shadows, spacing } from "../theme/tokens";
 
 const CATEGORY_META = {
   All: { icon: "grid-outline", shortLabel: "All" },
   "men's clothing": { icon: "man-outline", shortLabel: "Men's" },
   "women's clothing": { icon: "woman-outline", shortLabel: "Women's" },
   clothes: { icon: "shirt-outline", shortLabel: "Clothes" },
+  shoes: { icon: "footsteps-outline", shortLabel: "Shoes" },
+  bags: { icon: "bag-handle-outline", shortLabel: "Bags" },
+  jewelry: { icon: "diamond-outline", shortLabel: "Jewelry" },
+  watches: { icon: "time-outline", shortLabel: "Watches" },
   jewelery: { icon: "diamond-outline", shortLabel: "Jewelry" },
   electronics: { icon: "phone-portrait-outline", shortLabel: "Tech" },
   beauty: { icon: "sparkles-outline", shortLabel: "Beauty" },
@@ -26,6 +30,7 @@ const CATEGORY_META = {
   "mobile-accessories": { icon: "headset-outline", shortLabel: "Accessories" },
   "home-decoration": { icon: "home-outline", shortLabel: "Home" },
   shoesk: { icon: "footsteps-outline", shortLabel: "Shoes" },
+  automotive: { icon: "car-sport-outline", shortLabel: "Auto" },
 };
 
 function metaFor(category) {
@@ -68,7 +73,7 @@ const CategoryFilterBar = ({ categories, selectedCategory, onSelect }) => (
           <Ionicons
             name={icon}
             size={22}
-            color={selected ? "#fff" : "#007BFF"}
+            color={selected ? colors.white : colors.accent}
           />
           <Text
             style={[styles.chipLabel, selected && styles.chipLabelSelected]}
@@ -84,39 +89,40 @@ const CategoryFilterBar = ({ categories, selectedCategory, onSelect }) => (
 
 const styles = StyleSheet.create({
   row: {
-    gap: 10,
-    paddingVertical: 4,
-    paddingRight: 8,
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+    paddingRight: spacing.xs,
   },
   chip: {
     width: 88,
-    minHeight: 76,
+    minHeight: 84,
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 10,
-    borderRadius: 14,
-    backgroundColor: "#fff",
+    paddingHorizontal: spacing.xs,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: "#dde2e8",
+    borderColor: colors.line,
+    ...shadows.soft,
   },
   chipSelected: {
-    backgroundColor: "#007BFF",
-    borderColor: "#007BFF",
+    backgroundColor: colors.accentStrong,
+    borderColor: colors.accentStrong,
   },
   chipPressed: {
-    opacity: 0.85,
+    opacity: 0.92,
   },
   chipLabel: {
-    marginTop: 6,
+    marginTop: spacing.xs,
     fontSize: 11,
     fontWeight: "600",
-    color: "#1a1a2e",
+    color: colors.text,
     textAlign: "center",
     lineHeight: 14,
   },
   chipLabelSelected: {
-    color: "#fff",
+    color: colors.white,
   },
 });
 

@@ -1,0 +1,89 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# iOS-specific login flow
+# CRITICAL: iOS requires explicit keyboard dismissal between fields to prevent concatenation
+
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: "ShopEase"
+    timeout: 20000
+
+- runFlow:
+    when:
+      visible: "Sign in ↓"
+    commands:
+      - tapOn: "Sign in ↓"
+
+- extendedWaitUntil:
+    visible: "Sign in"
+    timeout: 8000
+
+# iOS login - explicit field taps with AGGRESSIVE keyboard dismissal
+- scrollUntilVisible:
+    element:
+      id: "login-email"
+    direction: DOWN
+    timeout: 12000
+
+- extendedWaitUntil:
+    visible:
+      id: "login-email"
+    timeout: 5000
+
+- tapOn:
+    id: "login-email"
+
+- inputText: "test@example.com"
+
+# iOS: Tap outside or use keyboard dismissal
+- tapOn:
+    text: "Sign in"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      id: "login-password"
+    timeout: 3000
+
+- tapOn:
+    id: "login-password"
+
+- inputText: "secret123"
+
+# Dismiss keyboard on iOS
+- tapOn:
+    text: "Sign in"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      id: "login-submit"
+    timeout: 5000
+
+- scrollUntilVisible:
+    element:
+      id: "login-submit"
+    direction: DOWN
+    timeout: 3000
+
+- tapOn:
+    id: "login-submit"
+
+# Skip password save dialog. iOS's actual dialog text is "Save Password?" /
+# "Not Now" (Title Case, with a question mark) -- the previous "Save password" /
+# "Not now" matcher never matched it, so this dialog silently blocked every
+# subsequent step whenever the Simulator had no saved credential yet (i.e. on
+# every fresh clearState:true run).
+- runFlow:
+    when:
+      visible: "Save Password\\?"
+    commands:
+      - tapOn: "Not Now"
+
+# Verify login success
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 15000

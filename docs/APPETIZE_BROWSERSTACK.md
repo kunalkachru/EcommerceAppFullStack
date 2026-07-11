@@ -108,8 +108,8 @@ flowchart LR
 
 ## Prerequisites
 
-1. **Railway API live** — `npm run verify:cloud:all` green.
-2. **`API_TARGET_MODE = "cloud"`** in `src/config/apiTarget.js` (checked automatically).
+1. **Railway API live enough for demo smoke** — `npm run verify:cloud` green. The stricter parity target remains `npm run verify:cloud:all`, which may still fail on catalog-size/enrichment drift until Railway catches up.
+2. **Cloud app target selected via wrapper scripts** (checked automatically); repo default stays local in `config/app-target.json`.
 3. **Cloud host** in `config/cloud-api.json` (single source for app + scripts).
 4. **Optional upload tokens** in `src/.env` (see `src/.env.example`).
 

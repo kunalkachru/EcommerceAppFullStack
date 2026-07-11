@@ -37,51 +37,29 @@ import {
   setSessionLlmKey,
   clearSessionLlmKey,
 } from "../utils/llmSessionStore";
+import { setPersistedLlmKey } from "../utils/secureLlmKeyStorage";
+import { resolveDefaultLlmOptions } from "../utils/llmSearchDefaults";
 import {
   LLM_PROVIDERS,
   getProviderById,
   resolveProviderBaseUrl,
+  normalizeProviderBaseUrl,
+  normalizeProviderModel,
 } from "../config/llmProviders";
 import {
   getSearchRuntimeConfig,
   setSearchRuntimeOverride,
 } from "../config/searchRuntime";
+import {
+  buildAmbientUnderstandingLine,
+} from "../utils/ambientAiNarratives";
+import { colors, radius, shadows, spacing, typography } from "../theme/tokens";
 
 const EXAMPLE_HINTS = [
   "Women's shoes under 50",
   "Blue jacket under 50 dollars",
   "Wireless headphones below 100",
 ];
-
-function isKnownProviderBaseUrl(url) {
-  return LLM_PROVIDERS.some((p) => resolveProviderBaseUrl(p) === url);
-}
-
-function isKnownProviderModel(model) {
-  return LLM_PROVIDERS.some((p) => p.defaultModel === model);
-}
-
-function normalizeProviderBaseUrl(provider, rawBaseUrl) {
-  const targetBase = resolveProviderBaseUrl(provider);
-  const current = String(rawBaseUrl || "").trim();
-  if (!current) return targetBase;
-  // If this is a stale default from another provider, auto-correct.
-  if (isKnownProviderBaseUrl(current) && current !== targetBase) {
-    return targetBase;
-  }
-  return current;
-}
-
-function normalizeProviderModel(provider, rawModel) {
-  const targetModel = provider.defaultModel;
-  const current = String(rawModel || "").trim();
-  if (!current) return targetModel;
-  // If this is a stale default from another provider, auto-correct.
-  if (isKnownProviderModel(current) && current !== targetModel) {
-    return targetModel;
-  }
-  return current;
-}
 
 const VoiceSearchCard = ({ onResults, disabled = false }) => {
   const user = useSelector((state) => state.auth.user);
@@ -119,11 +97,16 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
       const provider = getProviderById(prefs.providerId || "groq");
       const normalizedBase = normalizeProviderBaseUrl(provider, prefs.baseUrl);
       const normalizedModel = normalizeProviderModel(provider, prefs.model);
-      setUseLlmReasoning(prefs.useLlmReasoning);
       setProviderId(provider.id);
       setBaseUrl(normalizedBase);
       setModel(normalizedModel);
-      setApiKey(getSessionLlmKey(userId));
+      // resolveDefaultLlmOptions checks the session key first, falls back to secure
+      // storage, and hydrates the session store -- so this single call covers both
+      // "already used this session" and "app was just restarted" cases.
+      const defaults = await resolveDefaultLlmOptions(userId);
+      if (!mounted) return;
+      setUseLlmReasoning(defaults.useLlmReasoning || prefs.useLlmReasoning);
+      setApiKey(defaults.apiKey || getSessionLlmKey(userId));
       await fetchVoiceSearchConfig().catch(() => null);
     })();
     return () => {
@@ -178,6 +161,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
       setError(null);
       try {
         setSessionLlmKey(apiKey, userId);
+        await setPersistedLlmKey(apiKey, userId);
         await persistPreferences({ useLlmReasoning, providerId, baseUrl, model });
         const result = await searchCatalog(q, products, llmPayload());
         setLastParsed(result.parsed);
@@ -206,6 +190,8 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
       useLlmReasoning,
       providerId,
       apiKey,
+      baseUrl,
+      model,
       userId,
       products,
       onResults,
@@ -317,6 +303,7 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
   const onApiKeyChange = (value) => {
     setApiKey(value);
     setSessionLlmKey(value, userId);
+    setPersistedLlmKey(value, userId);
   };
 
   const clearKey = () => {
@@ -331,23 +318,18 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
     setError(null);
   };
 
-  const intentLabel =
-    lastIntentSource === "llm"
-      ? "AI reasoning"
-      : lastIntentSource === "rules-fallback" || lastIntentSource === "local-fallback"
-        ? "Smart rules (AI unavailable)"
-        : lastIntentSource === "rules" || lastIntentSource?.includes("local")
-          ? "Smart rules"
-          : lastIntentSource === "api"
-            ? "AI search"
-            : null;
+  const understandingLine = buildAmbientUnderstandingLine({
+    summary: lastParsed?.summary,
+    source: lastIntentSource,
+  });
 
   return (
     <View style={styles.card} testID="voice-search-card">
-      <Text style={styles.title}>Shop with your voice</Text>
+      <Text style={styles.eyebrow}>Ambient AI concierge</Text>
+      <Text style={styles.title}>Speak naturally. Let the catalog narrow itself.</Text>
       <Text style={styles.hint}>
-        Mic → free on-device speech-to-text. Turn on AI reasoning and paste your
-        own API key for smarter product understanding (billed to your account).
+        Use the mic for on-device speech capture, then let ShopEase refine price,
+        category, and intent with optional LLM reasoning when you want extra help.
       </Text>
 
       {user?.email ? (
@@ -383,9 +365,8 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
       {useLlmReasoning ? (
         <View style={styles.keySection}>
           <Text style={styles.keyHint}>
-            Gmail/Google login on OpenAI or Google AI Studio websites — then copy
-            the API key here. ChatGPT Plus ≠ API access; each provider bills your
-            key separately.
+            Paste your provider key for this session only. The key stays in memory,
+            clears on logout, and any live LLM cost is billed by that provider.
           </Text>
 
           <Text style={styles.providerLabel}>AI provider</Text>
@@ -441,7 +422,11 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
                   editable={!searching}
                 />
                 {apiKey ? (
-                  <TouchableOpacity style={styles.clearKeyBtn} onPress={clearKey}>
+                  <TouchableOpacity
+                    testID="voice-api-key-clear"
+                    style={styles.clearKeyBtn}
+                    onPress={clearKey}
+                  >
                     <Ionicons name="close-circle" size={22} color="#9aa3af" />
                   </TouchableOpacity>
                 ) : null}
@@ -589,6 +574,8 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
         onSubmitEditing={submitTyped}
         returnKeyType="search"
         editable={!searching}
+        autoCorrect={false}
+        spellCheck={false}
       />
 
       <TouchableOpacity
@@ -602,13 +589,9 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
         </Text>
       </TouchableOpacity>
 
-      {lastParsed?.summary ? (
+      {understandingLine ? (
         <Text style={styles.parsed}>
-          Understood: {lastParsed.summary}
-          {intentLabel ? ` · ${intentLabel}` : ""}
-          {Number.isFinite(lastParsed.priceMax) && lastParsed.priceMax < 1e6
-            ? ` · max $${lastParsed.priceMax}`
-            : ""}
+          {understandingLine}
         </Text>
       ) : null}
 
@@ -634,43 +617,53 @@ const VoiceSearchCard = ({ onResults, disabled = false }) => {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    padding: 18,
-    marginBottom: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 3,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    marginBottom: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.line,
+    ...shadows.card,
+  },
+  eyebrow: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: typography.eyebrowSpacing,
+    textTransform: "uppercase",
+    color: colors.accentWarm,
+    marginBottom: spacing.xs,
   },
   title: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "700",
-    color: "#1a1a2e",
+    color: colors.text,
+    fontFamily: typography.displayFamily,
+    lineHeight: 31,
   },
   hint: {
     fontSize: 14,
-    color: "#5c6370",
-    marginTop: 6,
+    color: colors.textMuted,
+    marginTop: spacing.xs,
     lineHeight: 20,
-    marginBottom: 8,
+    marginBottom: spacing.xs,
   },
   sessionNote: {
     fontSize: 12,
-    color: "#2c5282",
-    marginBottom: 10,
+    color: colors.info,
+    marginBottom: spacing.sm,
     fontWeight: "500",
   },
   llmRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#f7f3ff",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 10,
+    backgroundColor: colors.infoSoft,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    marginBottom: spacing.sm,
+    borderWidth: 1,
+    borderColor: colors.accentSoft,
   },
   llmLabelWrap: {
     flexDirection: "row",
@@ -681,38 +674,39 @@ const styles = StyleSheet.create({
   llmLabel: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#4a3b8f",
+    color: colors.accentStrong,
   },
   keySection: {
-    marginBottom: 12,
+    marginBottom: spacing.sm,
   },
   stickySearchBar: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginBottom: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    backgroundColor: "#ede9fe",
-    borderRadius: 12,
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.xs,
+    backgroundColor: colors.accentSoft,
+    borderRadius: radius.md,
     borderWidth: 1,
-    borderColor: "#c4b5fd",
+    borderColor: colors.line,
   },
   stickyQueryInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: "#c4b5fd",
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderColor: colors.lineStrong,
+    borderRadius: radius.sm,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
     fontSize: 15,
-    backgroundColor: "#fff",
+    backgroundColor: colors.white,
+    color: colors.text,
   },
   stickySearchBtn: {
-    backgroundColor: "#6b46c1",
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    borderRadius: 10,
+    backgroundColor: colors.accentStrong,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
   },
   stickySearchBtnText: {
     color: "#fff",
@@ -721,18 +715,19 @@ const styles = StyleSheet.create({
   },
   keyHint: {
     fontSize: 12,
-    color: "#5c6370",
+    color: colors.textMuted,
     lineHeight: 17,
-    marginBottom: 8,
+    marginBottom: spacing.xs,
   },
   keyInput: {
     borderWidth: 1,
-    borderColor: "#c4b5fd",
-    borderRadius: 10,
-    padding: 12,
+    borderColor: colors.lineStrong,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
     fontSize: 15,
-    backgroundColor: "#faf8ff",
-    marginBottom: 6,
+    backgroundColor: colors.surfaceMuted,
+    color: colors.text,
+    marginBottom: spacing.xs,
   },
   keyInputFlex: {
     flex: 1,
@@ -741,8 +736,8 @@ const styles = StyleSheet.create({
   keyRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
-    marginBottom: 6,
+    gap: spacing.xs,
+    marginBottom: spacing.xs,
   },
   clearKeyBtn: {
     padding: 4,
@@ -750,174 +745,179 @@ const styles = StyleSheet.create({
   providerLabel: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#1a1a2e",
-    marginBottom: 8,
+    color: colors.text,
+    marginBottom: spacing.xs,
   },
   providerRow: {
-    marginBottom: 8,
+    marginBottom: spacing.xs,
   },
   providerChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    backgroundColor: "#eef2f7",
-    marginRight: 8,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.md,
+    backgroundColor: colors.surfaceMuted,
+    marginRight: spacing.xs,
     minWidth: 100,
+    borderWidth: 1,
+    borderColor: colors.line,
   },
   providerChipActive: {
-    backgroundColor: "#6b46c1",
+    backgroundColor: colors.accentStrong,
+    borderColor: colors.accentStrong,
   },
   providerChipText: {
     fontSize: 13,
     fontWeight: "700",
-    color: "#1a1a2e",
+    color: colors.text,
   },
   providerChipTextActive: {
-    color: "#fff",
+    color: colors.white,
   },
   providerBadge: {
     fontSize: 10,
-    color: "#5c6370",
+    color: colors.textMuted,
     marginTop: 2,
   },
   providerBadgeActive: {
-    color: "#e9d8fd",
+    color: colors.backgroundAccent,
   },
   providerHelp: {
     fontSize: 12,
-    color: "#5c6370",
+    color: colors.textMuted,
     lineHeight: 17,
-    marginBottom: 10,
+    marginBottom: spacing.sm,
   },
   getKeyLink: {
     fontSize: 13,
-    color: "#007BFF",
+    color: colors.accent,
     fontWeight: "600",
-    marginBottom: 8,
+    marginBottom: spacing.xs,
   },
   ollamaNote: {
     fontSize: 13,
-    color: "#2c5282",
-    marginBottom: 8,
+    color: colors.info,
+    marginBottom: spacing.xs,
     fontStyle: "italic",
   },
   advancedToggle: {
     flexDirection: "row",
     alignItems: "center",
     gap: 4,
-    marginBottom: 8,
+    marginBottom: spacing.xs,
   },
   advancedToggleText: {
     fontSize: 13,
-    color: "#007BFF",
+    color: colors.accent,
     fontWeight: "600",
   },
   runtimeToggle: {
-    marginTop: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 10,
+    marginTop: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.sm,
     borderWidth: 1,
-    borderColor: "#cbd5e1",
-    backgroundColor: "#f8fafc",
+    borderColor: colors.line,
+    backgroundColor: colors.surfaceMuted,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   runtimeToggleLabel: {
     fontSize: 13,
-    color: "#475569",
+    color: colors.textMuted,
     fontWeight: "600",
   },
   runtimeToggleValue: {
     fontSize: 13,
-    color: "#0f172a",
+    color: colors.text,
     fontWeight: "700",
   },
   micRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginBottom: 12,
+    gap: spacing.sm,
+    marginBottom: spacing.sm,
   },
   micBtn: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "#007BFF",
+    backgroundColor: colors.accentStrong,
     alignItems: "center",
     justifyContent: "center",
   },
   micBtnActive: {
-    backgroundColor: "#dc3545",
+    backgroundColor: colors.error,
   },
   transcriptBox: {
     flex: 1,
-    backgroundColor: "#f0f4f8",
-    borderRadius: 10,
-    padding: 10,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.md,
+    padding: spacing.sm,
     minHeight: 56,
   },
   transcriptLabel: {
     fontSize: 11,
     fontWeight: "600",
-    color: "#5c6370",
+    color: colors.textMuted,
     marginBottom: 4,
   },
   transcript: {
     fontSize: 14,
-    color: "#1a1a2e",
+    color: colors.text,
     lineHeight: 18,
   },
   input: {
     borderWidth: 1,
-    borderColor: "#dde2e8",
-    borderRadius: 10,
-    padding: 12,
+    borderColor: colors.line,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
     fontSize: 15,
-    backgroundColor: "#fafbfc",
-    marginBottom: 10,
+    backgroundColor: colors.surfaceMuted,
+    color: colors.text,
+    marginBottom: spacing.sm,
   },
   searchBtn: {
-    backgroundColor: "#1a1a2e",
-    paddingVertical: 12,
-    borderRadius: 10,
+    backgroundColor: colors.surfaceInverse,
+    paddingVertical: spacing.sm,
+    borderRadius: radius.sm,
     alignItems: "center",
+    ...shadows.soft,
   },
   searchBtnDisabled: {
     opacity: 0.6,
   },
   searchBtnText: {
-    color: "#fff",
+    color: colors.white,
     fontWeight: "700",
     fontSize: 15,
   },
   parsed: {
-    marginTop: 10,
+    marginTop: spacing.sm,
     fontSize: 13,
-    color: "#2c5282",
+    color: colors.info,
     fontStyle: "italic",
   },
   error: {
-    marginTop: 8,
+    marginTop: spacing.xs,
     fontSize: 13,
-    color: "#dc3545",
+    color: colors.error,
   },
   examples: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
-    marginTop: 12,
+    gap: spacing.xs,
+    marginTop: spacing.sm,
   },
   exampleChip: {
-    backgroundColor: "#e8f4fd",
-    paddingHorizontal: 10,
+    backgroundColor: colors.accentSoft,
+    paddingHorizontal: spacing.sm,
     paddingVertical: 6,
-    borderRadius: 16,
+    borderRadius: radius.pill,
   },
   exampleText: {
     fontSize: 12,
-    color: "#007BFF",
+    color: colors.accentStrong,
     fontWeight: "600",
   },
 });

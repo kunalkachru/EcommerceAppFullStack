@@ -1,0 +1,49 @@
+appId: com.ecommerceappfullstack
+---
+# Android-specific product browsing flow
+# Tests: Product discovery, AI-powered search, product selection
+
+# Navigate to products tab
+- tapOn:
+    id: "tab-products"
+
+# Wait for products screen to load
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+# Wait for a product to appear
+- extendedWaitUntil:
+    visible:
+      text: "Essence Mascara"
+    timeout: 12000
+    optional: true
+
+# Tap on product (any product that appears)
+- tapOn:
+    text: "Essence Mascara Lash Princess"
+    optional: true
+
+# If specific product not found, try finding another product
+- runFlow:
+    when:
+      visible:
+        text: "Eyeshadow"
+    commands:
+      - tapOn:
+          text: "Eyeshadow Palette with Mirror"
+
+# Wait for product detail - any product should have "Add to Cart"
+- extendedWaitUntil:
+    visible:
+      text: "Add to Cart"
+    timeout: 10000
+    optional: true
+
+# Alternative: look for testID on product detail page
+- extendedWaitUntil:
+    visible:
+      id: "pdp-add-to-cart"
+    timeout: 8000
+    optional: true

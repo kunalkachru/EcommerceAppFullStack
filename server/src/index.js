@@ -144,7 +144,32 @@ function authMiddleware(req, res, next) {
 }
 
 const app = express();
-app.use(helmet());
+// scriptSrc adds 'wasm-unsafe-eval' (not the broader 'unsafe-eval') so the
+// product-3d-viewer.html page's <model-viewer> can instantiate the WASM
+// Draco/KTX2 decoders it needs for real-world compressed glTF assets.
+// connectSrc adds blob: so the same page can fetch its own internally
+// generated blob: URLs (used for the default IBL/environment lighting
+// texture) -- every other default Helmet directive is preserved unchanged.
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", "'wasm-unsafe-eval'"],
+        "connect-src": ["'self'", "blob:"],
+        // Helmet's default directive set includes upgrade-insecure-requests,
+        // which silently upgrades this page's own subresource fetches
+        // (model-viewer.min.js, product-3d-viewer.js) to https:// -- fatal on
+        // a plain-http local dev server, since WKWebView on iOS actually
+        // enforces the upgrade for module-script fetches (Chrome/Android
+        // WebView don't, treating http://localhost as already trustworthy),
+        // so the requests just vanish with no error and no server log entry.
+        "upgrade-insecure-requests": null,
+      },
+    },
+  })
+);
 app.use(cors());
 app.use(express.json({ limit: "12mb" }));
 app.use(morgan((tokens, req, res) => {
@@ -160,6 +185,42 @@ app.use(morgan((tokens, req, res) => {
     "ms",
   ].join(" ");
 }));
+
+// Serve the static catalog's local product images (server/catalog-static.json
+// stores repo-relative paths like "assets/products/<slug>/1.jpg").
+app.use("/assets", express.static(path.join(__dirname, "..", "..", "assets")));
+
+/**
+ * The static catalog stores product images as repo-relative paths, not full
+ * URLs (CATALOG_MODE=live products still carry absolute https:// URLs from
+ * their source APIs and pass through unchanged). Every response gets a
+ * generic recursive rewrite instead of patching each endpoint individually --
+ * this covers catalog list/detail, visual-search matches/similar, and any
+ * cart/order snapshot that embeds a product image, without needing to track
+ * down every call site by hand.
+ */
+function absolutizeAssetPaths(value, baseUrl) {
+  if (typeof value === "string") {
+    return /^assets\//.test(value) ? `${baseUrl}/${value}` : value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => absolutizeAssetPaths(item, baseUrl));
+  }
+  if (value && typeof value === "object") {
+    const out = {};
+    for (const [key, val] of Object.entries(value)) {
+      out[key] = absolutizeAssetPaths(val, baseUrl);
+    }
+    return out;
+  }
+  return value;
+}
+
+app.use((req, res, next) => {
+  const originalJson = res.json.bind(res);
+  res.json = (body) => originalJson(absolutizeAssetPaths(body, `${req.protocol}://${req.get("host")}`));
+  next();
+});
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

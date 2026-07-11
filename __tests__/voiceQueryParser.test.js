@@ -46,7 +46,7 @@ describe("parseVoiceQuery", () => {
     expect(intent.gender).toBe("women");
     expect(intent.categoryGroups).toContain("footwear");
     expect(intent.categoryFilters).toEqual(
-      expect.arrayContaining(["womens-shoes"])
+      expect.arrayContaining(["footwear"])
     );
     expect(intent.semanticQuery).toMatch(/women/i);
     expect(intent.semanticQuery).toMatch(/shoes/i);

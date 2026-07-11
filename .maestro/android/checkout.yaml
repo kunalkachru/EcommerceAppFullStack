@@ -1,0 +1,104 @@
+appId: com.ecommerceappfullstack
+---
+# Android-specific checkout flow
+# Tests: Add to cart, checkout form with AI-assisted field filling, order placement
+
+# Add to cart using testID (most reliable)
+- tapOn:
+    id: "pdp-add-to-cart"
+    optional: true
+
+# Alternative: tap text button
+- runFlow:
+    when:
+      visible:
+        text: "Add to Cart"
+    commands:
+      - tapOn:
+          text: "Add to Cart"
+
+# Wait for confirmation
+- extendedWaitUntil:
+    visible:
+      text: "Added to cart"
+    timeout: 5000
+    optional: true
+
+# Navigate to cart tab
+- tapOn:
+    id: "tab-cart"
+
+# Wait for cart screen
+- extendedWaitUntil:
+    visible:
+      id: "tab-cart"
+    timeout: 10000
+    optional: true
+
+# Tap Proceed to Checkout
+- tapOn:
+    text: "Proceed to Checkout"
+    optional: true
+
+# Wait for checkout form
+- extendedWaitUntil:
+    visible:
+      text: "Checkout"
+    timeout: 10000
+    optional: true
+
+# Fill checkout form - with AI-assisted autofill ready
+# Full name field
+- tapOn:
+    id: "checkout-field-fullname"
+    optional: true
+
+- inputText: "Test User Android"
+
+# Dismiss keyboard
+- pressKey: back
+
+# Address field
+- tapOn:
+    id: "checkout-field-address"
+    optional: true
+
+- inputText: "123 Test Street"
+
+# City field
+- tapOn:
+    id: "checkout-field-city"
+    optional: true
+
+- inputText: "Austin"
+
+# Zip code field
+- tapOn:
+    id: "checkout-field-zip"
+    optional: true
+
+- inputText: "78701"
+
+# Phone field
+- tapOn:
+    id: "checkout-field-phone"
+    optional: true
+
+- inputText: "5551234567"
+
+# Select payment method
+- tapOn:
+    id: "checkout-payment-credit-card"
+    optional: true
+
+# Place Order
+- tapOn:
+    id: "checkout-place-order"
+    optional: true
+
+# Verify order placed
+- extendedWaitUntil:
+    visible:
+      text: "Order Summary"
+    timeout: 12000
+    optional: true

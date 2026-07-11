@@ -18,5 +18,7 @@ test('renders correctly', async () => {
     tree = ReactTestRenderer.create(<App />);
   });
   expect(tree).toBeTruthy();
-  tree.unmount();
+  await act(async () => {
+    tree.unmount();
+  });
 });

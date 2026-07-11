@@ -37,6 +37,7 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 |-----|---------|
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | System design, data flows, API surface |
 | [ML_SEARCH.md](./ML_SEARCH.md) | Text, voice, photo search pipelines |
+| [ROADMAP_STATUS.md](./ROADMAP_STATUS.md) | 4-phase roadmap progress against current repo truth |
 | [TESTING_STATUS.md](./TESTING_STATUS.md) | Gates, coverage, review checklist |
 | [CLOUD_REGRESSION.md](./CLOUD_REGRESSION.md) | Verify & E2E scripts |
 | [E2E_TEST_MATRIX.md](./E2E_TEST_MATRIX.md) | Maestro scenario matrix |
@@ -77,6 +78,7 @@ Central index for reviewers, recruiters, and developers. **Start on the [README]
 | [DEPLOYMENT.md](./DEPLOYMENT.md) | Deployment model (local, Railway, Appetize) |
 | [ARCHITECTURE.md](./ARCHITECTURE.md) | Architecture and API summary |
 | [ML_SEARCH.md](./ML_SEARCH.md) | Multimodal search design |
+| [ROADMAP_STATUS.md](./ROADMAP_STATUS.md) | Current 4-phase roadmap progress |
 | [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) | Railway hosting |
 | [CLOUD_REGRESSION.md](./CLOUD_REGRESSION.md) | Cloud verify & E2E |
 | [E2E_TEST_MATRIX.md](./E2E_TEST_MATRIX.md) | Maestro scenario matrix |

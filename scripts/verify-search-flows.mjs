@@ -50,6 +50,34 @@ async function main() {
     { q: "shoes women", min: 3, check: () => true },
     { q: "blue jacket under 50 dollars", min: 1, check: () => true },
     { q: "wireless headphones below 100", min: 1, check: () => true },
+    {
+      q: "perfume under 90",
+      min: 2,
+      check: (m) =>
+        m.every((p) => p.price <= 90) &&
+        m.some((p) => /perfume|fragrance|cologne/i.test(`${p.title} ${p.description}`)),
+    },
+    {
+      q: "backpack under 120",
+      min: 2,
+      check: (m) =>
+        m.every((p) => p.price <= 120) &&
+        m.some((p) => /backpack|bag|luggage/i.test(`${p.title} ${p.description}`)),
+    },
+    {
+      q: "women sneakers under 50",
+      min: 2,
+      check: (m) =>
+        m.every((p) => p.price <= 50) &&
+        m.some((p) => /shoe|sneaker|sandal/i.test(`${p.title} ${p.description}`)),
+    },
+    {
+      q: "watch under 500",
+      min: 1,
+      check: (m) =>
+        m.every((p) => p.price <= 500) &&
+        m.some((p) => /watch/i.test(`${p.title} ${p.description}`)),
+    },
     { q: "between 20 and 40", min: 3, check: (m) => m.every((p) => p.price >= 20 && p.price <= 40) },
     { q: "lipstick under 20", min: 1, check: (m) => m.every((p) => p.price <= 20) },
   ];
@@ -98,6 +126,18 @@ async function main() {
     ["below 45", (m) => m.length > 0 && m.every((p) => p.price <= 45)],
     ["Below 45", (m) => m.length > 0 && m.every((p) => p.price <= 45)],
     ["shoes women", (m) => m.length > 0],
+    [
+      "perfume under 90",
+      (m) => m.length > 0 && m.every((p) => p.price <= 90),
+    ],
+    [
+      "backpack under 120",
+      (m) => m.length > 0 && m.every((p) => p.price <= 120),
+    ],
+    [
+      "watch under 500",
+      (m) => m.length > 0 && m.every((p) => p.price <= 500),
+    ],
     ["xyzqwerty", (m) => m.length === 0],
   ];
   for (const [q, check] of localCases) {

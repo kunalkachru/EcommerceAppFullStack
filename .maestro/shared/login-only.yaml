@@ -1,20 +1,25 @@
 appId: ${APP_ID}
 ---
 # Credentials only — caller must already be on login screen
+- scrollUntilVisible:
+    element:
+      id: "login-email"
+    direction: DOWN
+    timeout: 12000
 - extendedWaitUntil:
     visible:
       id: "login-email"
-    timeout: 12000
+    timeout: 5000
 - tapOn:
     id: "login-email"
-- eraseText
 - inputText: "test@example.com"
-- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "login-password"
+    timeout: 3000
 - tapOn:
     id: "login-password"
-- eraseText
 - inputText: "secret123"
-- hideKeyboard
 - scrollUntilVisible:
     element:
       id: "login-submit"
@@ -24,10 +29,10 @@ appId: ${APP_ID}
     id: "login-submit"
 - runFlow: dismiss-save-password.yaml
 - extendedWaitUntil:
-    visible: "What are you shopping for today?"
+    visible: "Start with how you think"
     timeout: 5000
     optional: true
 - runFlow: dismiss-save-password.yaml
 - extendedWaitUntil:
-    visible: "What are you shopping for today?"
+    visible: "Start with how you think"
     timeout: 15000

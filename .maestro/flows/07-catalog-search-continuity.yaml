@@ -1,0 +1,36 @@
+appId: ${APP_ID}
+---
+- runFlow: ../shared/login.yaml
+- tapOn:
+    id: "tab-products"
+- extendedWaitUntil:
+    visible:
+      id: "screen-product-list"
+    timeout: 12000
+
+# No-match typed search should not leave broad stale catalog items visible.
+- tapOn:
+    id: "product-search-input"
+- inputText: "purple velvet trench"
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "product-search-clear-button"
+    timeout: 12000
+- assertVisible: "No close intent match yet"
+
+# Clear should restore broad browsing before the next search story.
+- tapOn:
+    id: "product-search-clear-button"
+- extendedWaitUntil:
+    visible: "Essence Mascara Lash Princess"
+    timeout: 12000
+
+# Typed search should land on a believable curated result set.
+- tapOn:
+    id: "product-search-input"
+- inputText: "wireless headphones below 100"
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "Anker Soundcore Over-Ear Headphones"
+    timeout: 12000

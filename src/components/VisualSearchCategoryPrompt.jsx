@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, ScrollView, Pressable, StyleSheet } from "react-native";
 import { VISUAL_SEARCH_GROUPS } from "../services/visualSearchService";
+import { colors, radius, spacing } from "../theme/tokens";
 
 const VisualSearchCategoryPrompt = ({ value, onChange }) => (
   <View style={styles.wrap}>
@@ -15,6 +16,9 @@ const VisualSearchCategoryPrompt = ({ value, onChange }) => (
         return (
           <Pressable
             key={group.id}
+            testID={`visual-search-chip-${group.id}`}
+            accessibilityRole="button"
+            accessibilityLabel={`Narrow visual search to ${group.label}`}
             onPress={() => onChange(group.id)}
             style={[styles.chip, selected && styles.chipSelected]}
           >
@@ -30,37 +34,37 @@ const VisualSearchCategoryPrompt = ({ value, onChange }) => (
 
 const styles = StyleSheet.create({
   wrap: {
-    marginBottom: 12,
+    marginBottom: spacing.sm,
   },
   label: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#5c6370",
-    marginBottom: 8,
+    color: colors.textMuted,
+    marginBottom: spacing.xs,
   },
   row: {
-    gap: 8,
-    paddingRight: 8,
+    gap: spacing.xs,
+    paddingRight: spacing.xs,
   },
   chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: "#f0f4f8",
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.pill,
+    backgroundColor: colors.surfaceMuted,
     borderWidth: 1,
-    borderColor: "#dde2e8",
+    borderColor: colors.line,
   },
   chipSelected: {
-    backgroundColor: "#007BFF",
-    borderColor: "#007BFF",
+    backgroundColor: colors.accentStrong,
+    borderColor: colors.accentStrong,
   },
   chipText: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#1a1a2e",
+    color: colors.text,
   },
   chipTextSelected: {
-    color: "#fff",
+    color: colors.white,
   },
 });
 

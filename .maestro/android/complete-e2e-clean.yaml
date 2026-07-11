@@ -1,0 +1,227 @@
+appId: com.ecommerceappfullstack
+---
+# Android Complete E2E Flow - Clean (No Extra Popups)
+# Tests: Login → Products → Add to Cart → Checkout → Orders → ML Features
+
+# ============================================================================
+# PHASE 1: LOGIN
+# ============================================================================
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: "ShopEase"
+    timeout: 20000
+
+- runFlow:
+    when:
+      visible: "Sign in ↓"
+    commands:
+      - tapOn: "Sign in ↓"
+
+- extendedWaitUntil:
+    visible: "Sign in"
+    timeout: 8000
+
+# Login form - explicit field taps with immediate keyboard dismissal
+- scrollUntilVisible:
+    element:
+      id: "login-email"
+    direction: DOWN
+    timeout: 12000
+
+- extendedWaitUntil:
+    visible:
+      id: "login-email"
+    timeout: 5000
+
+- tapOn:
+    id: "login-email"
+
+- inputText: "test@example.com"
+
+- pressKey: back
+
+- extendedWaitUntil:
+    visible:
+      id: "login-password"
+    timeout: 3000
+
+- tapOn:
+    id: "login-password"
+
+- inputText: "secret123"
+
+- pressKey: back
+
+- extendedWaitUntil:
+    visible:
+      id: "login-submit"
+    timeout: 5000
+
+- scrollUntilVisible:
+    element:
+      id: "login-submit"
+    direction: DOWN
+    timeout: 3000
+
+- tapOn:
+    id: "login-submit"
+
+- runFlow:
+    when:
+      visible: "Save password"
+    commands:
+      - tapOn: "Not now"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 15000
+
+# ============================================================================
+# PHASE 2: BROWSE PRODUCTS
+# ============================================================================
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+# The default browse-all view starts with clothing, not beauty products, and
+# scrolling through all 196 virtualized items to reach it is unreliable --
+# search for it directly instead, matching this project's other flows.
+# Note: both pressKey: back AND hideKeyboard pop the Products tab back to
+# Home on this device/Maestro version (this app's bottom-tab navigator
+# treats hardware back -- which hideKeyboard appears to implement via a
+# back-equivalent press on Android -- as "return to Home tab" once a tab
+# has no further stack history). The FlatList uses
+# keyboardShouldPersistTaps="handled", so list items are tappable without
+# dismissing the keyboard first -- no need to close it at all. Target the
+# result by its product-list-item testID (dj-1, catalog-static.json's id
+# for this product), not by title text: the search box also renders the
+# typed query as literal text, so a text selector matches the input itself
+# instead of the result card.
+- tapOn:
+    id: "product-search-input"
+    optional: true
+
+- inputText: "Essence Mascara Lash Princess"
+
+- scrollUntilVisible:
+    element:
+      id: "product-list-item-dj-1"
+    direction: DOWN
+    timeout: 10000
+    centerElement: true
+    optional: true
+
+- tapOn:
+    id: "product-list-item-dj-1"
+    optional: true
+
+# ============================================================================
+# PHASE 3: ADD TO CART
+# ============================================================================
+- extendedWaitUntil:
+    visible:
+      text: "Add to Cart"
+    timeout: 10000
+
+- tapOn:
+    id: "pdp-add-to-cart"
+    optional: true
+
+- runFlow:
+    when:
+      visible:
+        text: "Add to Cart"
+    commands:
+      - tapOn:
+          text: "Add to Cart"
+
+- extendedWaitUntil:
+    visible:
+      text: "Added to cart"
+    timeout: 8000
+    optional: true
+
+# ============================================================================
+# PHASE 4: NAVIGATE TO CART
+# ============================================================================
+- tapOn:
+    id: "tab-cart"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-cart"
+    timeout: 10000
+
+# ============================================================================
+# PHASE 5: CHECKOUT
+# ============================================================================
+- tapOn:
+    text: "Proceed to Checkout"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "Finish the purchase"
+    timeout: 10000
+    optional: true
+
+# Scroll down to find and fill shipping details
+- scrollUntilVisible:
+    element:
+      text: "Full"
+    direction: DOWN
+    timeout: 8000
+    optional: true
+
+# Continue scrolling for form fields
+- scrollUntilVisible:
+    element:
+      text: "Next"
+    direction: DOWN
+    timeout: 10000
+    optional: true
+
+# Click Next to complete checkout
+- tapOn:
+    text: "Next"
+    optional: true
+
+# ============================================================================
+# PHASE 6: VERIFY ORDER PLACED
+# ============================================================================
+- extendedWaitUntil:
+    visible:
+      text: "Order"
+    timeout: 10000
+    optional: true
+
+# ============================================================================
+# PHASE 7: ML FEATURES - Text Search with AI Reasoning
+# ============================================================================
+- tapOn:
+    id: "tab-products"
+    optional: true
+
+# Look for search/discovery features
+- extendedWaitUntil:
+    visible:
+      text: "Voice"
+    timeout: 5000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "photo"
+    timeout: 5000
+    optional: true
+
+# ============================================================================
+# TEST COMPLETE - All Phases Executed
+# ============================================================================

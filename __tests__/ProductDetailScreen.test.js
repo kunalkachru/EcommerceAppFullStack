@@ -1,7 +1,7 @@
 const React = require("react");
 const ReactTestRenderer = require("react-test-renderer");
 const { act } = ReactTestRenderer;
-const { Text, View, TouchableOpacity } = require("react-native");
+const { Text, TouchableOpacity } = require("react-native");
 
 jest.mock("@react-navigation/native", () => ({
   useNavigation: () => ({
@@ -26,18 +26,16 @@ jest.mock("../src/services/visualSearchService", () => ({
 }));
 
 jest.mock("../src/components/SimilarProductsStrip", () => {
-  const React = require("react");
-  const { Text, View } = require("react-native");
+  const ReactModule = require("react");
+  const RN = require("react-native");
   return function SimilarProductsStripMock() {
-    return React.createElement(
-      View,
+    return ReactModule.createElement(
+      RN.View,
       null,
-      React.createElement(Text, null, "More like this")
+      ReactModule.createElement(RN.Text, null, "More like this")
     );
   };
 });
-
-jest.mock("react-native-vector-icons/FontAwesome", () => "Icon");
 
 const ProductDetailScreen = require("../src/screens/ProductDetailScreen").default;
 

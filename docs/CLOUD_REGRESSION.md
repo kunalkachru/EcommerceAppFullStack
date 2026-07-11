@@ -1,8 +1,8 @@
 # Cloud regression & verification scripts
 
-**Last updated:** 2026-07-06
+**Last updated:** 2026-07-07
 
-How to run automated checks against the **Railway cloud API** and on **Android emulator / iOS simulator** with the mobile app pointed at cloud (`USE_CLOUD_API=1` or `API_TARGET_MODE = "cloud"`).
+How to run automated checks against the **Railway cloud API** and on **Android emulator / iOS simulator** with the mobile app pointed at cloud (`USE_CLOUD_API=1` or the temporary API-target wrapper scripts).
 
 **Start here for local deploy + full E2E:** [LOCAL_RUN.md](./LOCAL_RUN.md)
 
@@ -17,7 +17,7 @@ Related: [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) (hosting) · [DEPLOYMENT.md](.
 | Device | AVD running (`adb devices`) | Simulator booted (`npm run ios` once) |
 | App | Installed, Metro optional if bundle embedded | Same |
 | Cloud API | Railway live — see [RAILWAY_DEPLOY.md](./RAILWAY_DEPLOY.md) | Same |
-| Mobile config | `API_TARGET_MODE = "cloud"` in `src/config/apiTarget.js` | Same |
+| Mobile config | Prefer `USE_CLOUD_API=1` / wrapper scripts; manual fallback is `config/app-target.json` → `{"mode":"cloud"}` before rebuild | Same |
 | Extra (iOS Maestro) | — | [Maestro](https://maestro.mobile.dev) on PATH (`~/.maestro/bin/maestro`) |
 
 **Test user (all E2E):** `test@example.com` / `secret123`

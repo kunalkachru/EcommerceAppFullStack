@@ -138,7 +138,7 @@ async function main() {
   try {
     await loginIfNeeded({ email: EMAIL, password: PASSWORD });
     screenshot("02-after-login");
-    waitForText("What are you shopping for today?");
+    waitForText("Start with how you think");
     pass("ui-login", "Landed on Home after login");
     token = (await login(EMAIL, PASSWORD)) || token;
   } catch (e) {
@@ -178,14 +178,18 @@ async function main() {
   tap(firstProduct.center.x, firstProduct.center.y);
     sleep(2500);
     screenshot("04-product-detail");
-    const detailXml = dumpUi();
-    const addBtn = findNodes(detailXml, { text: "ADD TO CART" });
-    if (!addBtn.length) {
-      const alt = findNodes(detailXml, { text: "Add to Cart" });
-      if (alt.length) tap(alt[0].center.x, alt[0].center.y);
-      else throw new Error("Add to Cart not found");
-    } else {
-      tap(addBtn[0].center.x, addBtn[0].center.y);
+    try {
+      tapTestId("pdp-add-to-cart");
+    } catch {
+      const detailXml = dumpUi();
+      const addBtn = findNodes(detailXml, { text: "ADD TO CART" });
+      if (!addBtn.length) {
+        const alt = findNodes(detailXml, { text: "Add to Cart" });
+        if (alt.length) tap(alt[0].center.x, alt[0].center.y);
+        else throw new Error("Add to Cart not found");
+      } else {
+        tap(addBtn[0].center.x, addBtn[0].center.y);
+      }
     }
     sleep(1500);
     dismissAlertIfPresent();

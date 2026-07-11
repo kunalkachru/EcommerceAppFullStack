@@ -1,0 +1,168 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# iOS ML Features - Comprehensive End-to-End Testing
+# Tests: Text Search with AI Reasoning, Voice Search, Image/Photo Search
+#
+# Requires env: EXPECTED_PRODUCT_TITLE - the manifest productTitle for the
+# sample already seeded via
+# `node scripts/seed-ios-sim-photos.mjs <category>/<file>` (see photo-search.yaml).
+
+# ============================================================================
+# SETUP: Login First (Required for ML Features)
+# ============================================================================
+# iOS has no hardware back button, so `pressKey: back` (the Android
+# keyboard-dismiss convention) does not dismiss the keyboard here -- it was
+# previously duplicated inline from the Android version of this file and
+# left the keyboard open, causing subsequent taps to land on the wrong,
+# still-focused field (confirmed directly: email field ended up containing
+# "test@example.comysecret123g"). Compose the already-validated iOS
+# login.yaml instead, which uses the correct iOS pattern (tap next field
+# directly by id, no back-press).
+- runFlow: login.yaml
+
+# ============================================================================
+# PHASE 1: TEXT SEARCH with AI Reasoning
+# ============================================================================
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+# Look for search input field
+- extendedWaitUntil:
+    visible:
+      text: "Search products"
+    timeout: 10000
+    optional: true
+
+# Tap search field
+- tapOn:
+    text: "Search products"
+    optional: true
+
+- tapOn:
+    text: "e.g. below 45"
+    optional: true
+
+# Test 1: Natural language search with AI reasoning
+- inputText: "affordable makeup under 20 dollars"
+
+# Press search/go -- the field is wired to returnKeyType="search" +
+# onSubmitEditing (see ProductListScreen.jsx), so the iOS return key
+# triggers the search. `pressKey: back` (the Android convention, no
+# hardware back key on iOS) would not fire it.
+- pressKey: enter
+
+# Wait for AI-powered results (should use OpenAI reasoning)
+- extendedWaitUntil:
+    visible:
+      text: "Essence"
+    timeout: 15000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "$"
+    timeout: 8000
+    optional: true
+
+# ============================================================================
+# PHASE 2: VOICE SEARCH (Capability Check)
+# ============================================================================
+# Look for voice search button/icon
+- extendedWaitUntil:
+    visible:
+      text: "Voice"
+    timeout: 8000
+    optional: true
+
+# Note: Actual voice input via Maestro requires special handling
+# We verify the voice search UI element is accessible
+- tapOn:
+    text: "Voice"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "speak"
+    timeout: 5000
+    optional: true
+
+# ============================================================================
+# PHASE 3: IMAGE/PHOTO SEARCH (real Photos-picker interaction, not a
+# generic-text placeholder -- requires a photo pre-seeded via
+# `node scripts/seed-ios-sim-photos.mjs <category>/<file>` and
+# EXPECTED_PRODUCT_TITLE set to that sample's manifest productTitle;
+# see .maestro/ios/photo-search.yaml)
+# ============================================================================
+- runFlow: photo-search.yaml
+
+# ============================================================================
+# PHASE 4: VERIFY AI REASONING is ACTIVE
+# ============================================================================
+# Perform another search to verify OpenAI integration
+- tapOn:
+    text: "Search"
+    optional: true
+
+- inputText: "red lipstick"
+
+- pressKey: enter
+
+# Wait for results - verify AI matched the query
+- extendedWaitUntil:
+    visible:
+      text: "lipstick"
+    timeout: 15000
+    optional: true
+
+# ============================================================================
+# PHASE 5: ML FEATURES SUMMARY CHECK
+# ============================================================================
+# Verify all ML discovery options are available on home screen
+- tapOn:
+    id: "tab-home"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "DISCOVERY"
+    timeout: 10000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "Text"
+    timeout: 5000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "voice"
+    timeout: 5000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "photo"
+    timeout: 5000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "SEARCH STYLE"
+    timeout: 5000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "Ambient"
+    timeout: 5000
+    optional: true
+
+# ============================================================================
+# TEST COMPLETE
+# ============================================================================

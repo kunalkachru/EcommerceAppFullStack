@@ -20,6 +20,15 @@ const {
   hasPriceConstraint,
 } = require("./search/text/semanticTextReranker");
 
+// A relative-only threshold (topScore * factor) can never reject a query outright --
+// the top-ranked row always clears a fraction of its own score. Genuinely irrelevant
+// queries (empirically ~0.62-0.64 composite score against this catalog, vs. ~0.70-0.82
+// for real matches -- see docs/superpowers/plans/2026-07-10-default-llm-search-and-
+// multiparam-e2e.md's Stage C notes) still need to be rejected outright, the way real
+// e-commerce search ("no results found for ...") does. 0.65 sits in the gap between the
+// two observed clusters.
+const ABSOLUTE_MIN_SCORE = 0.65;
+
 async function searchSemanticFirst(text, deps, options = {}) {
   const { ensureIndex, loadClip, embedText, cosine, CACHE_MODEL_KEY } = deps;
   const { limit = 30, minScore = 0.07, llmOptions = {} } = options;
@@ -51,7 +60,7 @@ async function searchSemanticFirst(text, deps, options = {}) {
   let ranked = [...scored].sort((a, b) => b.score - a.score);
   ranked = refineRankedResults(ranked, intent);
 
-  const threshold = Math.max(minScore, ranked[0]?.score * 0.55 ?? minScore);
+  const threshold = Math.max(minScore, ABSOLUTE_MIN_SCORE, ranked[0]?.score * 0.55 ?? minScore);
   const matches = ranked
     .filter((row) => row.score >= threshold)
     .slice(0, limit)

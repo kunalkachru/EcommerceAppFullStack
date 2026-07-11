@@ -1,41 +1,36 @@
 # E2E validation — 2026-07-06
 
-**Scope:** Option A (Maestro hardening) + Option B (product affordances) for F18 live LLM reasoning. Local emulator/simulator only — CI unchanged.
+**Scope:** Refreshed local-first validation after premium-shell rebasing, catalog realism updates, and normalized default local API routing on `:5001`. Local emulator only in this snapshot; CI remains unchanged.
 
 ## Commands run
 
 ```bash
 npm run test:scripts
-npm test -- --runInBand --forceExit
-npm run verify:llm-live
-USE_CLOUD_API=1 npm run verify:cloud:llm
-
-# Maestro F18 (standalone)
-node scripts/... # via runMaestroFlow / runMaestroFlowAndroid on 06-llm-reasoning.yaml
-
-# Full matrix (recommended for reviewers)
-USE_CLOUD_API=1 npm run verify:e2e-all
-USE_CLOUD_API=1 npm run verify:e2e-all:ios
-USE_CLOUD_API=1 npm run verify:e2e-all:android
+npm test -- --watchman=false --runInBand --forceExit
+npm run verify:search
+npm run verify:ml
+npm run verify:emulator
+npm run verify:e2e-android
 ```
 
 ## Results
 
-| Gate | iOS | Android |
-|------|-----|---------|
-| Unit (`npm test`) | 85/85 | — |
-| Script unit tests | 8/8 | — |
-| `verify:llm-live` | 6/6 PASS | — |
-| `verify:cloud:llm` | 6/6 PASS | — |
-| Maestro F18 (`06-llm-reasoning.yaml`) | **PASS** | **PASS** |
-| Maestro F01–F05 | PASS (prior runs) | PASS (prior runs) |
-| F14 photo → PDP | Occasional flake (gallery coordinate) | Same |
+| Gate | Result |
+|------|--------|
+| Unit (`npm test`) | **101/101 PASS** |
+| Script unit tests | **14/14 PASS** |
+| `npm run verify:search` | **27/27 PASS** |
+| `npm run verify:ml` | **16/16 PASS** |
+| `npm run verify:emulator` | **7/7 PASS** |
+| `npm run verify:e2e-android` | **19/19 PASS** |
+| Embedded live LLM gate inside `verify:e2e-android` | **6/6 PASS** (OpenAI + OpenRouter; Groq/Gemini skipped without keys) |
 
-## Product changes validated
+## Product state validated
 
-- `home-scroll` testID on inner wrapper View (`HomeScreen.jsx`)
-- Sticky LLM search bar: `voice-llm-sticky-search`, `voice-typed-query-sticky`, `voice-search-button-sticky`
-- Maestro flow: sticky path + fallbacks; 90s LLM wait; no premature `when notVisible` interrupt
+- Premium home shell, product list, PDP, cart, checkout, orders, profile, login, and signup all passed on the default local path
+- Local app + script defaults now align on baseline API `http://127.0.0.1:5001`
+- Catalog realism validated at **394 merged products** with **20** curated demo-coverage products and **377** indexed CLIP entries
+- Photo search, category filtering, PDP similar-items, quantity updates, checkout, orders, logout, and signup navigation all passed in the Android verifier
 
 ## CI
 

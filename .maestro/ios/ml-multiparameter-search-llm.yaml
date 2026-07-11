@@ -1,0 +1,94 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# iOS equivalent of .maestro/android/ml-multiparameter-search-llm.yaml -- LLM-reasoning
+# path via Ollama (credential-free, safe for the agent to run itself). Never run this
+# style of flow with a real OpenAI/OpenRouter/Groq/Gemini key loaded.
+#
+# Text entry uses long-press + tapOn "Paste", not inputText -- see
+# ml-multiparameter-search.yaml's header comment for the full explanation (XCTest's
+# synthetic typing silently drops everything after an apostrophe on iOS; every
+# golden-multiparam-queries.json query contains one). The caller must pre-populate
+# the simulator's OS pasteboard with ${QUERY} before invoking this flow:
+#   printf "%s" "$QUERY" | xcrun simctl pbcopy <udid>
+#
+# Requires env: QUERY - a natural-language query from
+# scripts/fixtures/golden-multiparam-queries.json (also expected to already be on the
+# simulator's pasteboard, see above), EXPECTED_PRODUCT_TITLE - that fixture's
+# expectedProductTitle.
+- tapOn:
+    id: "tab-home"
+
+- scrollUntilVisible:
+    element:
+      id: "llm-reasoning-switch"
+    direction: DOWN
+    timeout: 15000
+    centerElement: true
+
+- tapOn:
+    id: "llm-reasoning-switch"
+
+- extendedWaitUntil:
+    visible:
+      id: "voice-api-key-input"
+    timeout: 10000
+    optional: true
+
+- scrollUntilVisible:
+    element:
+      id: "voice-provider-groq"
+    direction: DOWN
+    timeout: 10000
+    centerElement: true
+
+# Unlike Android (where swipe coordinates map to screen pixels, matching a
+# screenshot-based percentage estimate), iOS/XCTest's swipe coordinates map to
+# POINTS, not the pixels a screenshot is captured at (this device: 440x956
+# points vs. a 1320x2868-pixel screenshot, a 3x scale) -- confirmed directly
+# via `maestro hierarchy`, whose bounds are also in points. A percentage
+# derived from screenshot pixels (e.g. Android's ~39%) lands nowhere near the
+# actual row here; the real row center is ~56% of the point-space height.
+- swipe:
+    start: "90%, 56%"
+    end: "5%, 56%"
+    duration: 600
+
+- extendedWaitUntil:
+    visible:
+      id: "voice-provider-ollama"
+    timeout: 5000
+    optional: true
+
+- tapOn:
+    id: "voice-provider-ollama"
+
+- scrollUntilVisible:
+    element:
+      id: "voice-typed-query-input"
+    direction: DOWN
+    timeout: 15000
+    centerElement: true
+
+- tapOn:
+    id: "voice-typed-query-input"
+
+- longPressOn:
+    id: "voice-typed-query-input"
+
+- tapOn: "Paste"
+
+- pressKey: enter
+
+# The LLM-reasoning path can rank results slightly differently than the
+# rule-based path (e.g. a near-tied semantic score putting a different shirt
+# first) -- the expected product can still be present but not top-ranked, so
+# scroll for it rather than only waiting on the initial viewport.
+- scrollUntilVisible:
+    element:
+      text: "${EXPECTED_PRODUCT_TITLE}"
+    direction: DOWN
+    timeout: 45000
+    centerElement: true
+
+- assertVisible:
+    text: "${EXPECTED_PRODUCT_TITLE}"

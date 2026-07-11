@@ -47,5 +47,41 @@
       "minMatches": 1,
       "maxPrice": 60
     }
+  },
+  {
+    "id": "fragrance-budget",
+    "query": "perfume under 90",
+    "expectation": {
+      "minMatches": 2,
+      "maxPrice": 90,
+      "mustIncludeWords": ["perfume", "fragrance", "cologne"]
+    }
+  },
+  {
+    "id": "backpack-budget",
+    "query": "backpack under 120",
+    "expectation": {
+      "minMatches": 2,
+      "maxPrice": 120,
+      "mustIncludeWords": ["backpack", "bag", "luggage"]
+    }
+  },
+  {
+    "id": "women-sneakers-budget",
+    "query": "women sneakers under 50",
+    "expectation": {
+      "minMatches": 2,
+      "maxPrice": 50,
+      "mustIncludeWords": ["shoe", "sneaker", "sandal"]
+    }
+  },
+  {
+    "id": "watch-budget",
+    "query": "watch under 500",
+    "expectation": {
+      "minMatches": 1,
+      "maxPrice": 500,
+      "mustIncludeWords": ["watch"]
+    }
   }
 ]

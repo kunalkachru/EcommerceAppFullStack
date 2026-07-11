@@ -1,0 +1,84 @@
+appId: com.ecommerceappfullstack
+---
+# Multi-parameter search via the LLM-reasoning path (Home screen's "Ambient AI
+# concierge" voice card), using Ollama (credential-free, keyOptional: true) so
+# this flow is safe for the agent to run itself -- never run this style of
+# flow with a real OpenAI/OpenRouter/Groq/Gemini key loaded.
+#
+# Requires env: QUERY - a natural-language query from
+# scripts/fixtures/golden-multiparam-queries.json, EXPECTED_PRODUCT_TITLE - that
+# fixture's expectedProductTitle.
+- tapOn:
+    id: "tab-home"
+
+- scrollUntilVisible:
+    element:
+      id: "llm-reasoning-switch"
+    direction: DOWN
+    timeout: 15000
+    centerElement: true
+
+- tapOn:
+    id: "llm-reasoning-switch"
+
+- extendedWaitUntil:
+    visible:
+      id: "voice-api-key-input"
+    timeout: 10000
+    optional: true
+
+# The AI-provider row is its own horizontal ScrollView nested inside the
+# vertically-scrolling page; Android's react-native ScrollView only mounts
+# off-screen-to-the-right children (openrouter/ollama) once actually scrolled
+# into view. Anchor the horizontal swipe to a currently-visible provider chip
+# after centering that row vertically -- centerElement consistently lands the
+# target around ~39% of screen height (not exactly 50%), so the swipe's y
+# must match that, not a naive midpoint.
+- scrollUntilVisible:
+    element:
+      id: "voice-provider-groq"
+    direction: DOWN
+    timeout: 10000
+    centerElement: true
+
+- swipe:
+    start: "90%, 39%"
+    end: "5%, 39%"
+    duration: 600
+
+- extendedWaitUntil:
+    visible:
+      id: "voice-provider-ollama"
+    timeout: 5000
+    optional: true
+
+- tapOn:
+    id: "voice-provider-ollama"
+
+- scrollUntilVisible:
+    element:
+      id: "voice-typed-query-input"
+    direction: DOWN
+    timeout: 15000
+    centerElement: true
+
+- tapOn:
+    id: "voice-typed-query-input"
+
+- inputText: "${QUERY}"
+
+- pressKey: Enter
+
+# The LLM-reasoning path can rank results slightly differently than the
+# rule-based path (e.g. a near-tied semantic score putting a different shirt
+# first) -- the expected product can still be present but not top-ranked, so
+# scroll for it rather than only waiting on the initial viewport.
+- scrollUntilVisible:
+    element:
+      text: "${EXPECTED_PRODUCT_TITLE}"
+    direction: DOWN
+    timeout: 45000
+    centerElement: true
+
+- assertVisible:
+    text: "${EXPECTED_PRODUCT_TITLE}"

@@ -66,6 +66,7 @@ jest.mock("../src/config/searchRuntime", () => ({
 jest.mock("react-native-vector-icons/Ionicons", () => "Icon");
 
 const VoiceSearchCard = require("../src/components/VoiceSearchCard").default;
+const { searchCatalog } = require("../src/services/catalogSearchService");
 
 describe("VoiceSearchCard automation hooks", () => {
   it("exposes stable test ids for llm controls", async () => {
@@ -92,6 +93,79 @@ describe("VoiceSearchCard automation hooks", () => {
     expect(apiKeyInput.props.autoComplete).toBe("off");
     expect(apiKeyInput.props.importantForAutofill).toBe("no");
     expect(apiKeyInput.props.textContentType).toBe("oneTimeCode");
+
+    await act(async () => {
+      tree.unmount();
+    });
+  });
+
+  it("renders the shared ambient understanding line after a successful search", async () => {
+    searchCatalog.mockResolvedValueOnce({
+      parsed: {
+        summary: "women · shoes · under $50",
+        priceMax: 50,
+      },
+      source: "llm",
+      matches: [{ id: 1, title: "Golden Shoes Woman" }],
+    });
+
+    const onResults = jest.fn();
+    let tree;
+
+    await act(async () => {
+      tree = ReactTestRenderer.create(
+        React.createElement(VoiceSearchCard, {
+          onResults,
+        })
+      );
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const input = tree.root.findByProps({ testID: "voice-typed-query-input" });
+    const submit = tree.root.findByProps({ testID: "voice-search-button" });
+
+    await act(async () => {
+      input.props.onChangeText("women's shoes under 50");
+    });
+
+    await act(async () => {
+      await submit.props.onPress();
+    });
+
+    const renderedText = tree.root
+      .findAll((node) => typeof node.props?.children === "string")
+      .map((node) => node.props.children)
+      .join(" ");
+
+    expect(onResults).toHaveBeenCalled();
+    expect(renderedText).toContain(
+      "Refined for women · shoes · under $50 · AI reasoning"
+    );
+
+    await act(async () => {
+      tree.unmount();
+    });
+  });
+
+  it("disables autocorrect and spell check on the typed-query input", async () => {
+    // iOS shows a QuickType predictive-text bar for any input with autocorrect
+    // enabled -- fast synthetic typing (Maestro's inputText on iOS) that types
+    // a query containing an apostrophe (e.g. golden-multiparam-queries.json's
+    // "I'm looking for...") desyncs against that suggestion bar and silently
+    // drops every character after the apostrophe. Disabling
+    // autocorrect/spellCheck removes the suggestion bar.
+    let tree;
+    await act(async () => {
+      tree = ReactTestRenderer.create(React.createElement(VoiceSearchCard, {}));
+    });
+
+    const input = tree.root.findByProps({ testID: "voice-typed-query-input" });
+
+    expect(input.props.autoCorrect).toBe(false);
+    expect(input.props.spellCheck).toBe(false);
 
     await act(async () => {
       tree.unmount();

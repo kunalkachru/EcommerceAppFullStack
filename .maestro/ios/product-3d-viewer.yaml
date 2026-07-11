@@ -1,0 +1,78 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# iOS equivalent of .maestro/android/product-3d-viewer.yaml. Verifies the 3D
+# product viewer end-to-end: navigate to a product in a category with a
+# model, toggle to 3D, and assert the JS bridge reports a real "loaded"
+# status (not just that the WebView didn't crash).
+#
+# Text entry uses long-press + tapOn "Paste", not inputText: XCTest's
+# synthetic typing silently truncates text on this field (confirmed on both
+# apostrophe-containing and plain queries in this project's other iOS
+# flows), and one of this flow's own titles ("Blue Women's Handbag") has an
+# apostrophe. The caller must pre-populate the simulator's OS pasteboard
+# with ${PRODUCT_TITLE} BEFORE invoking this flow:
+#   printf "%s" "$PRODUCT_TITLE" | xcrun simctl pbcopy <udid>
+#
+# Requires env: PRODUCT_ID (catalog-static.json id, e.g. "dj-88"),
+# PRODUCT_TITLE (that product's title -- also expected to already be on the
+# simulator's pasteboard, see above).
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+- tapOn:
+    id: "product-search-input"
+
+- longPressOn:
+    id: "product-search-input"
+
+- tapOn: "Paste"
+
+- pressKey: enter
+
+- extendedWaitUntil:
+    visible:
+      id: "product-list-item-${PRODUCT_ID}"
+    timeout: 15000
+
+# Same fix as the Android flow: a single search result's card can render
+# mostly hidden behind the floating bottom tab bar, with the LLM-invite
+# banner above it eating up the remaining scroll room. Dismissing the
+# banner (persisted via AsyncStorage) reclaims that space.
+- runFlow:
+    when:
+      visible:
+        id: "llm-invite-banner-dismiss"
+    commands:
+      - tapOn:
+          id: "llm-invite-banner-dismiss"
+
+- tapOn:
+    id: "product-list-item-${PRODUCT_ID}"
+
+- extendedWaitUntil:
+    visible:
+      id: "pdp-view-toggle-3d"
+    timeout: 10000
+
+- tapOn:
+    id: "pdp-view-toggle-3d"
+
+- extendedWaitUntil:
+    visible:
+      id: "product-3d-webview"
+    timeout: 10000
+
+# Asserts the bridge's own status text, not just "no error shown" -- the old
+# assertion (retry button not visible) was trivially satisfied by a viewer
+# stuck permanently on "loading" as much as by a real success, since the
+# retry button only ever appears on an explicit {"type":"error"} message.
+- extendedWaitUntil:
+    visible:
+      id: "product-3d-status"
+      text: "loaded"
+    timeout: 15000

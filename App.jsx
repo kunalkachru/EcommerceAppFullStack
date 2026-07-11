@@ -8,6 +8,10 @@ import { PersistGate } from "redux-persist/integration/react";
 import store, { persistor } from "./src/redux/store";
 import { forceLogoutUser, restoreSession } from "./src/redux/authSlice";
 import { setAuthFailureHandler } from "./src/services/apiClient";
+import { colors } from "./src/theme/tokens";
+import { applyApiTarget } from "./src/config/apiTarget";
+
+applyApiTarget();
 
 const SessionBootstrap = ({ children }) => {
   const dispatch = useDispatch();
@@ -16,10 +20,21 @@ const SessionBootstrap = ({ children }) => {
 
   useEffect(() => {
     let cancelled = false;
+    let timeoutHandle;
 
     async function bootstrap() {
       if (user && token) {
-        await dispatch(restoreSession());
+        // Restore session with 5s timeout - don't block UI rendering if it hangs
+        try {
+          const restorePromise = dispatch(restoreSession());
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("restore_timeout")), 5000)
+          );
+          await Promise.race([restorePromise, timeoutPromise]);
+        } catch (error) {
+          // Silent fail - timeout or error on restore doesn't block app start
+          console.log("Session restore failed or timed out, proceeding with app start");
+        }
       }
       if (!cancelled) {
         setReady(true);
@@ -29,6 +44,7 @@ const SessionBootstrap = ({ children }) => {
     bootstrap();
     return () => {
       cancelled = true;
+      if (timeoutHandle) clearTimeout(timeoutHandle);
     };
   }, [dispatch, token, user]);
 
@@ -46,7 +62,7 @@ const SessionBootstrap = ({ children }) => {
   if (!ready) {
     return (
       <View style={styles.bootstrap}>
-        <ActivityIndicator size="large" color="#007BFF" />
+        <ActivityIndicator size="large" color={colors.accent} />
       </View>
     );
   }
@@ -75,7 +91,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f0f4f8",
+    backgroundColor: colors.background,
   },
 });
 

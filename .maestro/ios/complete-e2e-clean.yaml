@@ -1,0 +1,234 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# iOS Complete E2E Flow - Clean (No Concatenation Issues)
+# Tests: Login → Products → Add to Cart → Checkout → Orders → ML Features
+
+# ============================================================================
+# PHASE 1: LOGIN
+# ============================================================================
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: "ShopEase"
+    timeout: 20000
+
+- runFlow:
+    when:
+      visible: "Sign in ↓"
+    commands:
+      - tapOn: "Sign in ↓"
+
+- extendedWaitUntil:
+    visible: "Sign in"
+    timeout: 8000
+
+# Login form - iOS requires aggressive keyboard dismissal
+- scrollUntilVisible:
+    element:
+      id: "login-email"
+    direction: DOWN
+    timeout: 12000
+
+- extendedWaitUntil:
+    visible:
+      id: "login-email"
+    timeout: 5000
+
+- tapOn:
+    id: "login-email"
+
+- inputText: "test@example.com"
+
+# iOS: Tap outside field to dismiss keyboard
+- tapOn:
+    text: "Sign in"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      id: "login-password"
+    timeout: 3000
+
+- tapOn:
+    id: "login-password"
+
+- inputText: "secret123"
+
+# Dismiss keyboard before tapping login
+- tapOn:
+    text: "Sign in"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      id: "login-submit"
+    timeout: 5000
+
+- scrollUntilVisible:
+    element:
+      id: "login-submit"
+    direction: DOWN
+    timeout: 3000
+
+- tapOn:
+    id: "login-submit"
+
+# iOS's actual dialog text is "Save Password?" / "Not Now" (Title Case, with a
+# question mark) -- see login.yaml's identical fix for the full explanation.
+- runFlow:
+    when:
+      visible: "Save Password\\?"
+    commands:
+      - tapOn: "Not Now"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 15000
+
+# ============================================================================
+# PHASE 2: BROWSE PRODUCTS
+# ============================================================================
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+# The default browse-all view starts with clothing, not beauty products, and
+# scrolling through all 196 virtualized items to reach it is unreliable --
+# search for it directly instead (see the Android complete-e2e-clean.yaml's
+# identical fix for the full explanation). Target the result by its stable
+# product-list-item-dj-1 testID (catalog-static.json's id for this product),
+# not by title text: the search box also renders the typed query as literal
+# text, so a text selector ambiguously matches the input itself.
+#
+# Text entry uses long-press + tapOn "Paste", not inputText: confirmed
+# directly that XCTest's synthetic typing on this field only reliably
+# delivers the FIRST character before the rest is silently dropped (observed
+# here with "Essence..." -> "E", no apostrophe involved -- this isn't only an
+# apostrophe problem, see ml-multiparameter-search.yaml's more detailed
+# header comment). Only the native "Paste" callout menu reliably inserts the
+# full text. Maestro's own setClipboard command also proved unreliable here
+# (confirmed directly: it silently failed on a re-run with no error, leaving
+# the field empty and the browse-all list showing instead) -- the npm script
+# invoking this flow (package.json's "maestro:ios") pre-populates the
+# simulator's real OS pasteboard via `xcrun simctl pbcopy` before Maestro
+# even starts, matching ml-multiparameter-search.yaml's proven pattern.
+- tapOn:
+    id: "product-search-input"
+    optional: true
+
+- longPressOn:
+    id: "product-search-input"
+
+- tapOn: "Paste"
+
+- scrollUntilVisible:
+    element:
+      id: "product-list-item-dj-1"
+    direction: DOWN
+    timeout: 10000
+    centerElement: true
+    optional: true
+
+- tapOn:
+    id: "product-list-item-dj-1"
+    optional: true
+
+# ============================================================================
+# PHASE 3: ADD TO CART
+# ============================================================================
+- extendedWaitUntil:
+    visible:
+      text: "Add to Cart"
+    timeout: 10000
+
+- tapOn:
+    id: "pdp-add-to-cart"
+    optional: true
+
+- runFlow:
+    when:
+      visible:
+        text: "Add to Cart"
+    commands:
+      - tapOn:
+          text: "Add to Cart"
+
+- extendedWaitUntil:
+    visible:
+      text: "Added to cart"
+    timeout: 8000
+    optional: true
+
+# ============================================================================
+# PHASE 4: NAVIGATE TO CART
+# ============================================================================
+- tapOn:
+    id: "tab-cart"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-cart"
+    timeout: 10000
+
+# ============================================================================
+# PHASE 5: CHECKOUT
+# ============================================================================
+- tapOn:
+    text: "Proceed to Checkout"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "Finish the purchase"
+    timeout: 10000
+    optional: true
+
+# Scroll to checkout form
+- scrollUntilVisible:
+    element:
+      text: "Next"
+    direction: DOWN
+    timeout: 10000
+    optional: true
+
+- tapOn:
+    text: "Next"
+    optional: true
+
+# ============================================================================
+# PHASE 6: VERIFY ORDER
+# ============================================================================
+- extendedWaitUntil:
+    visible:
+      text: "Order"
+    timeout: 10000
+    optional: true
+
+# ============================================================================
+# PHASE 7: ML FEATURES
+# ============================================================================
+- tapOn:
+    id: "tab-products"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "Voice"
+    timeout: 5000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "photo"
+    timeout: 5000
+    optional: true
+
+# ============================================================================
+# TEST COMPLETE
+# ============================================================================

@@ -22,16 +22,32 @@ describe("searchCatalog", () => {
     expect(result.source).toBe("rules");
   });
 
-  it("falls back to local filter when API returns empty", async () => {
+  it("falls back to local filter when API returns empty with an unknown/legacy result status", async () => {
     searchProductsByVoice.mockResolvedValue({
       matches: [],
       parsed: { priceMax: 45 },
       intentSource: "rules",
+      resultStatus: "unknown",
     });
     const result = await searchCatalog("below 45", fallback);
     expect(result.matches.length).toBeGreaterThan(0);
     expect(result.source).toBe("local-fallback");
     expect(result.matches.every((p) => p.price <= 45)).toBe(true);
+  });
+
+  it("does not fall back to a broad local filter when the API confidently found no matches", async () => {
+    searchProductsByVoice.mockResolvedValue({
+      matches: [],
+      parsed: { priceMax: 15 },
+      intentSource: "rules",
+      resultStatus: "no_matches",
+    });
+    const result = await searchCatalog(
+      "fluorescent pink size 47 titanium umbrella for my pet dinosaur",
+      fallback
+    );
+    expect(result.matches).toHaveLength(0);
+    expect(result.source).toBe("no_matches");
   });
 
   it("uses local offline when API throws (LLM off)", async () => {

@@ -22,6 +22,8 @@ const CATEGORY_KEYWORDS = {
   groceries: ["grocery", "groceries", "food", "snack", "coffee", "tea"],
   sports: ["sport", "fitness", "gym", "ball", "yoga"],
   jewelry: ["ring", "necklace", "bracelet", "jewelry", "jewellery", "earring", "earrings"],
+  bags: ["bag", "bags", "backpack", "handbag", "purse", "luggage", "sunglasses"],
+  automotive: ["car", "cars", "vehicle", "motorcycle", "motorbike", "scooter", "sedan", "suv", "automotive"],
 };
 
 const COLOR_WORDS = [
@@ -30,20 +32,53 @@ const COLOR_WORDS = [
   "light", "cream", "tan", "maroon", "teal",
 ];
 
+const SIZE_LETTER_WORDS = ["xs", "s", "m", "l", "xl", "xxl", "xxxl"];
+const SIZE_WAIST_NUMBERS = ["28", "29", "30", "31", "32", "33", "34", "36", "38", "40"];
+const SIZE_SHOE_NUMBERS = ["5", "6", "7", "8", "9", "10", "11", "12", "13"];
+
+// Spoken-word -> stored-code canonicalization. Size is the only attribute where the
+// catalog's stored value (XS/S/M/L/XL/XXL) is an abbreviation a person wouldn't actually
+// say out loud -- colors/materials/specifications don't have this gap because the catalog
+// already stores the plain word ("waterproof", "brown") that matches natural speech. If a
+// future attribute is ever added with this same code-vs-word mismatch, reuse this pattern
+// rather than inventing a new one.
+const SIZE_WORD_SYNONYMS = {
+  "extra small": "XS",
+  "small": "S",
+  "medium": "M",
+  "large": "L",
+  "extra large": "XL",
+  "extra-large": "XL",
+  "double extra large": "XXL",
+  "2xl": "XXL",
+};
+
+const SPECIFICATION_WORDS = [
+  "waterproof", "water-resistant", "water resistant",
+  "wireless", "bluetooth",
+  "long-lasting", "long lasting", "longlasting",
+  "breathable", "stretchable", "wrinkle-resistant", "wrinkle resistant",
+  "cruelty-free", "cruelty free", "hypoallergenic",
+  "dishwasher-safe", "dishwasher safe", "microwave-safe", "microwave safe", "non-stick", "nonstick",
+  "slip-resistant", "slip resistant", "adjustable", "organic", "gluten-free", "gluten free",
+];
+
+// Values match the static catalog's 12 category keys (server/scripts/catalogAttributePools.js
+// CATEGORY_TARGETS) -- this used to reference the pre-static-catalog live-fetch taxonomy
+// (e.g. "shoes", "men's clothing", "laptops"), which no longer matches any product's
+// `category` field and silently broke category-boost matching in both this file's
+// categoryMatches()/genderMatches() and semanticTextReranker.js's constraintBoost().
 const CATEGORY_GROUP_MAP = {
-  clothing: [
-    "clothes", "men's clothing", "women's clothing", "womens-dresses", "mens-shirts",
-    "tops", "womens-tops", "mens-shoes",
-  ],
-  footwear: ["womens-shoes", "mens-shoes", "shoesk", "shoes"],
-  electronics: [
-    "electronics", "laptops", "smartphones", "mobile-accessories", "tablets", "watches",
-  ],
-  beauty: ["beauty", "fragrances", "skin-care", "womens-perfumes"],
-  home: ["furniture", "home-decoration", "kitchen-accessories"],
+  clothing: ["mens-clothing", "womens-clothing"],
+  footwear: ["footwear"],
+  electronics: ["electronics", "watches"],
+  beauty: ["beauty-fragrances"],
+  home: ["home-kitchen"],
   groceries: ["groceries"],
-  sports: ["sports-accessories"],
-  jewelry: ["jewellery", "womens-jewellery"],
+  sports: ["sports-fitness"],
+  jewelry: ["jewelry"],
+  bags: ["bags-accessories"],
+  automotive: ["automotive"],
 };
 
 const GENDER_KEYWORDS = {
@@ -141,6 +176,59 @@ function wordMatch(text, word) {
   return new RegExp(`\\b${escaped}\\b`, "i").test(text);
 }
 
+function normalizeSpecWord(raw) {
+  return raw.replace(/[- ]/g, "").toLowerCase();
+}
+
+function extractSize(text) {
+  const lower = String(text).toLowerCase();
+
+  // Spoken-word sizes ("medium", "extra large") take priority. Check longer phrases
+  // first so "extra large" matches before a bare "large" substring inside it would.
+  const sortedSynonyms = Object.keys(SIZE_WORD_SYNONYMS).sort((a, b) => b.length - a.length);
+  for (const phrase of sortedSynonyms) {
+    if (wordMatch(lower, phrase)) {
+      return SIZE_WORD_SYNONYMS[phrase];
+    }
+  }
+
+  // Explicit "size X" / "size X waist" phrasing takes priority over a bare letter.
+  const sizeMatch = lower.match(/\bsize\s+([a-z0-9]+)\b/);
+  if (sizeMatch) {
+    const raw = sizeMatch[1].toUpperCase();
+    if (
+      SIZE_LETTER_WORDS.includes(raw.toLowerCase()) ||
+      SIZE_WAIST_NUMBERS.includes(sizeMatch[1]) ||
+      SIZE_SHOE_NUMBERS.includes(sizeMatch[1])
+    ) {
+      return raw;
+    }
+  }
+
+  // Bare letter size as a standalone word (e.g. "trousers XL brown"). Guard against
+  // contractions like "that's"/"it's": the apostrophe creates a word boundary that would
+  // otherwise let the trailing "s" false-match as size S. The negative lookbehind excludes
+  // any match immediately preceded by an apostrophe. This file runs only in Node.js (server
+  // + Jest), never on-device, so lookbehind support is not a Hermes/React-Native concern.
+  for (const w of ["xxxl", "xxl", "xl", "s", "m", "l", "xs"]) {
+    const escaped = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`(?<!')\\b${escaped}\\b`, "i");
+    if (re.test(lower)) return w.toUpperCase();
+  }
+  return null;
+}
+
+function extractSpecifications(text) {
+  const lower = String(text).toLowerCase();
+  const hits = new Set();
+  for (const spec of SPECIFICATION_WORDS) {
+    if (wordMatch(lower, spec)) {
+      hits.add(normalizeSpecWord(spec));
+    }
+  }
+  return [...hits];
+}
+
 function detectGender(text) {
   const lower = text.toLowerCase();
   const women = GENDER_KEYWORDS.women.some((w) => wordMatch(lower, w));
@@ -169,19 +257,15 @@ function expandedCategories(groups, gender) {
     }
   }
   if (gender === "women") {
-    set.add("womens-shoes");
-    set.add("women's clothing");
-    set.add("womens-dresses");
-    set.add("womens-tops");
-    set.add("womens-jewellery");
-    set.add("womens-bags");
-    set.add("womens-perfumes");
+    set.add("womens-clothing");
+    set.add("footwear");
+    set.add("jewelry");
+    set.add("bags-accessories");
   }
   if (gender === "men") {
-    set.add("mens-shoes");
-    set.add("men's clothing");
-    set.add("mens-shirts");
-    set.add("mens-watches");
+    set.add("mens-clothing");
+    set.add("footwear");
+    set.add("watches");
   }
   return [...set];
 }
@@ -276,6 +360,9 @@ function parseVoiceQuery(text) {
     categoryGroups,
   });
 
+  const size = extractSize(raw);
+  const specifications = extractSpecifications(raw);
+
   return {
     rawQuery: raw,
     searchText: semanticQuery,
@@ -287,6 +374,8 @@ function parseVoiceQuery(text) {
     categoryGroups,
     categoryFilters,
     keywords,
+    size,
+    specifications,
     summary: buildSummary({ priceMin, priceMax, gender, productTypes, categoryGroups, keywords }),
     source: "rules",
   };

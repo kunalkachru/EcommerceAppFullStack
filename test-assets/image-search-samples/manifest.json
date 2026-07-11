@@ -1,0 +1,204 @@
+[
+  {
+    "file": "mens-clothing/sample-1.webp",
+    "productId": "dj-83",
+    "productTitle": "Blue & Black Check Shirt",
+    "category": "mens-clothing",
+    "colors": [
+      "blue",
+      "black"
+    ]
+  },
+  {
+    "file": "mens-clothing/sample-2.webp",
+    "productId": "dj-85",
+    "productTitle": "Man Plaid Shirt",
+    "category": "mens-clothing",
+    "colors": [
+      "red",
+      "black",
+      "white"
+    ]
+  },
+  {
+    "file": "womens-clothing/sample-1.webp",
+    "productId": "dj-162",
+    "productTitle": "Blue Frock",
+    "category": "womens-clothing",
+    "colors": [
+      "blue"
+    ]
+  },
+  {
+    "file": "womens-clothing/sample-2.webp",
+    "productId": "dj-163",
+    "productTitle": "Girl Summer Dress",
+    "category": "womens-clothing",
+    "colors": [
+      "yellow",
+      "pink"
+    ]
+  },
+  {
+    "file": "footwear/sample-1.webp",
+    "productId": "dj-88",
+    "productTitle": "Nike Air Jordan 1 Red And Black",
+    "category": "footwear",
+    "colors": [
+      "red",
+      "black"
+    ]
+  },
+  {
+    "file": "electronics/sample-1.webp",
+    "productId": "dj-78",
+    "productTitle": "Apple MacBook Pro 14 Inch Space Grey",
+    "category": "electronics",
+    "colors": [
+      "gray"
+    ]
+  },
+  {
+    "file": "electronics/sample-2.webp",
+    "productId": "dj-82",
+    "productTitle": "New DELL XPS 13 9300 Laptop",
+    "category": "electronics",
+    "colors": [
+      "white",
+      "gray"
+    ]
+  },
+  {
+    "file": "beauty-fragrances/sample-1.webp",
+    "productId": "dj-1",
+    "productTitle": "Essence Mascara Lash Princess",
+    "category": "beauty-fragrances",
+    "colors": [
+      "black"
+    ]
+  },
+  {
+    "file": "beauty-fragrances/sample-2.webp",
+    "productId": "dj-2",
+    "productTitle": "Eyeshadow Palette with Mirror",
+    "category": "beauty-fragrances",
+    "colors": [
+      "beige",
+      "brown"
+    ]
+  },
+  {
+    "file": "jewelry/sample-1.webp",
+    "productId": "dj-182",
+    "productTitle": "Green Crystal Earring",
+    "category": "jewelry",
+    "colors": [
+      "green"
+    ]
+  },
+  {
+    "file": "jewelry/sample-2.webp",
+    "productId": "dj-184",
+    "productTitle": "Tropical Earring",
+    "category": "jewelry",
+    "colors": [
+      "green",
+      "yellow"
+    ]
+  },
+  {
+    "file": "home-kitchen/sample-1.webp",
+    "productId": "dj-11",
+    "productTitle": "Annibale Colombo Bed",
+    "category": "home-kitchen",
+    "colors": [
+      "brown"
+    ]
+  },
+  {
+    "file": "home-kitchen/sample-2.webp",
+    "productId": "dj-66",
+    "productTitle": "Microwave Oven",
+    "category": "home-kitchen",
+    "colors": [
+      "black",
+      "white"
+    ]
+  },
+  {
+    "file": "groceries/sample-1.webp",
+    "productId": "dj-16",
+    "productTitle": "Apple",
+    "category": "groceries",
+    "colors": [
+      "red",
+      "green"
+    ]
+  },
+  {
+    "file": "sports-fitness/sample-1.webp",
+    "productId": "dj-137",
+    "productTitle": "American Football",
+    "category": "sports-fitness",
+    "colors": [
+      "brown"
+    ]
+  },
+  {
+    "file": "sports-fitness/sample-2.webp",
+    "productId": "dj-144",
+    "productTitle": "Cricket Helmet",
+    "category": "sports-fitness",
+    "colors": [
+      "white",
+      "black"
+    ]
+  },
+  {
+    "file": "bags-accessories/sample-1.webp",
+    "productId": "dj-172",
+    "productTitle": "Blue Women's Handbag",
+    "category": "bags-accessories",
+    "colors": [
+      "blue"
+    ]
+  },
+  {
+    "file": "bags-accessories/sample-2.webp",
+    "productId": "dj-156",
+    "productTitle": "Green and Black Glasses",
+    "category": "bags-accessories",
+    "colors": [
+      "green",
+      "black"
+    ]
+  },
+  {
+    "file": "watches/sample-1.webp",
+    "productId": "dj-93",
+    "productTitle": "Brown Leather Belt Watch",
+    "category": "watches",
+    "colors": [
+      "brown"
+    ]
+  },
+  {
+    "file": "watches/sample-2.webp",
+    "productId": "dj-194",
+    "productTitle": "Women's Wrist Watch",
+    "category": "watches",
+    "colors": [
+      "gray",
+      "pink"
+    ]
+  },
+  {
+    "file": "automotive/sample-1.webp",
+    "productId": "dj-168",
+    "productTitle": "Charger SXT RWD",
+    "category": "automotive",
+    "colors": [
+      "gray"
+    ]
+  }
+]

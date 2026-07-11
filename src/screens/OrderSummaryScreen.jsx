@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
+import { colors, radius, shadows, spacing, typography } from "../theme/tokens";
 
 const OrderSummaryScreen = ({ route }) => {
   const params = route?.params || {};
@@ -22,11 +23,12 @@ const OrderSummaryScreen = ({ route }) => {
 
   return (
     <View style={styles.container} testID="screen-order-summary">
-      <Text style={styles.header}>Order Summary</Text>
+      <Text style={styles.eyebrow}>Order complete</Text>
+      <Text style={styles.header}>Your order has been placed.</Text>
 
       {order && (
         <View style={styles.section}>
-          <Text style={styles.subHeader}>📦 Order Details</Text>
+          <Text style={styles.subHeader}>Order details</Text>
           {orderId && <Text style={styles.detailText}>Order ID: {orderId}</Text>}
           {createdAt && (
             <Text style={styles.detailText}>
@@ -39,25 +41,22 @@ const OrderSummaryScreen = ({ route }) => {
         </View>
       )}
 
-      {/* Shipping Details */}
       <View style={styles.section}>
-        <Text style={styles.subHeader}>📍 Shipping Details</Text>
+        <Text style={styles.subHeader}>Shipping details</Text>
         <Text style={styles.detailText}>{shippingInfo.name}</Text>
         <Text style={styles.detailText}>
           {shippingInfo.address}, {shippingInfo.city} - {shippingInfo.zipCode}
         </Text>
-        <Text style={styles.detailText}>📞 {shippingInfo.phone}</Text>
+        <Text style={styles.detailText}>{shippingInfo.phone}</Text>
       </View>
 
-      {/* Payment Details */}
       <View style={styles.section}>
-        <Text style={styles.subHeader}>💳 Payment Method</Text>
+        <Text style={styles.subHeader}>Payment method</Text>
         <Text style={[styles.paymentMethod, styles.detailText]}>{paymentMethod}</Text>
       </View>
 
-      {/* Order Items */}
       <View style={styles.section}>
-        <Text style={styles.subHeader}>🛒 Ordered Items</Text>
+        <Text style={styles.subHeader}>Ordered items</Text>
         <FlatList
           data={items}
           keyExtractor={(item, index) => item.id || item.productId || String(index)}
@@ -74,23 +73,82 @@ const OrderSummaryScreen = ({ route }) => {
         />
       </View>
 
-      {/* Total Amount */}
-      <Text style={styles.totalText}>💰 Total: ${computedTotal.toFixed(2)}</Text>
+      <Text style={styles.totalText}>Total: ${computedTotal.toFixed(2)}</Text>
     </View>
   );
 };
 
-export default OrderSummaryScreen;
-
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff" },
-  header: { fontSize: 24, fontWeight: "bold", marginBottom: 15, textAlign: "center" },
-  section: { marginBottom: 15, padding: 15, backgroundColor: "#f9f9f9", borderRadius: 10 },
-  subHeader: { fontSize: 18, fontWeight: "bold", marginBottom: 5, color: "#333" },
-  detailText: { fontSize: 16, color: "#555", marginBottom: 3 },
-  paymentMethod: { fontWeight: "bold", color: "#28A745" },
-  itemRow: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 5 },
-  itemText: { fontSize: 16 },
-  itemPrice: { fontSize: 16, fontWeight: "bold", color: "#333" },
-  totalText: { fontSize: 20, fontWeight: "bold", marginTop: 15, textAlign: "right", color: "#28A745" },
+  container: {
+    flex: 1,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.xl,
+    backgroundColor: colors.background,
+  },
+  eyebrow: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: typography.eyebrowSpacing,
+    textTransform: "uppercase",
+    color: colors.accentWarm,
+    marginBottom: 6,
+  },
+  header: {
+    fontSize: 30,
+    fontWeight: "700",
+    marginBottom: spacing.md,
+    color: colors.text,
+    fontFamily: typography.displayFamily,
+  },
+  section: {
+    marginBottom: spacing.md,
+    padding: spacing.lg,
+    backgroundColor: colors.surface,
+    borderRadius: radius.lg,
+    borderWidth: 1,
+    borderColor: colors.line,
+    ...shadows.card,
+  },
+  subHeader: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: spacing.xs,
+    color: colors.text,
+    fontFamily: typography.displayFamily,
+  },
+  detailText: {
+    fontSize: 15,
+    color: colors.textMuted,
+    marginBottom: 4,
+    lineHeight: 21,
+  },
+  paymentMethod: {
+    fontWeight: "700",
+    color: colors.accentStrong,
+  },
+  itemRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: spacing.xs,
+    gap: spacing.sm,
+  },
+  itemText: {
+    flex: 1,
+    fontSize: 15,
+    color: colors.text,
+  },
+  itemPrice: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: colors.accentStrong,
+  },
+  totalText: {
+    fontSize: 24,
+    fontWeight: "700",
+    textAlign: "right",
+    color: colors.text,
+  },
 });
+
+export default OrderSummaryScreen;

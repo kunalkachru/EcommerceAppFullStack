@@ -1,0 +1,41 @@
+appId: com.ecommerceappfullstack
+---
+# Multi-parameter search via the plain "Search products" box on the product list
+# screen -- exercises the rule-based parser (server/src/voiceQueryParser.js), NOT the
+# LLM-reasoning path (see ml-multiparameter-search-llm.yaml for that).
+#
+# Requires env: QUERY - a natural-language query from
+# scripts/fixtures/golden-multiparam-queries.json, EXPECTED_PRODUCT_TITLE - that same
+# fixture's expectedProductTitle (empty/unset for the no-match fixture).
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+- tapOn:
+    id: "product-search-input"
+
+- inputText: "${QUERY}"
+
+- pressKey: Enter
+
+- scrollUntilVisible:
+    element:
+      text: "${EXPECTED_PRODUCT_TITLE}"
+    direction: DOWN
+    timeout: 20000
+    centerElement: true
+
+- assertVisible:
+    text: "${EXPECTED_PRODUCT_TITLE}"
+
+- tapOn:
+    text: "${EXPECTED_PRODUCT_TITLE}"
+
+- extendedWaitUntil:
+    visible:
+      id: "pdp-add-to-cart"
+    timeout: 10000

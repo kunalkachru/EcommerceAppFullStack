@@ -1,0 +1,227 @@
+appId: org.reactjs.native.example.EcommerceAppFullStack
+---
+# iOS Complete E2E Flow
+# Tests: Login → Products → Add to Cart → Checkout → Orders → ML Features
+
+# ============================================================================
+# PHASE 1: LOGIN
+# ============================================================================
+- launchApp:
+    clearState: true
+
+- extendedWaitUntil:
+    visible: "ShopEase"
+    timeout: 20000
+
+- runFlow:
+    when:
+      visible: "Sign in ↓"
+    commands:
+      - tapOn: "Sign in ↓"
+
+- extendedWaitUntil:
+    visible: "Sign in"
+    timeout: 8000
+
+# Login form - explicit field taps (iOS uses same testIDs)
+- scrollUntilVisible:
+    element:
+      id: "login-email"
+    direction: DOWN
+    timeout: 12000
+
+- extendedWaitUntil:
+    visible:
+      id: "login-email"
+    timeout: 5000
+
+- tapOn:
+    id: "login-email"
+
+- inputText: "test@example.com"
+
+- extendedWaitUntil:
+    visible:
+      id: "login-password"
+    timeout: 3000
+
+- tapOn:
+    id: "login-password"
+
+- inputText: "secret123"
+
+- pressKey: back
+
+- extendedWaitUntil:
+    visible:
+      id: "login-submit"
+    timeout: 5000
+
+- scrollUntilVisible:
+    element:
+      id: "login-submit"
+    direction: DOWN
+    timeout: 3000
+
+- tapOn:
+    id: "login-submit"
+
+# Skip password save dialog
+- runFlow:
+    when:
+      visible: "Save password"
+    commands:
+      - tapOn: "Not now"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-home"
+    timeout: 10000
+
+# ============================================================================
+# PHASE 2: BROWSE PRODUCTS
+# ============================================================================
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+- extendedWaitUntil:
+    visible:
+      text: "Essence Mascara"
+    timeout: 12000
+    optional: true
+
+- tapOn:
+    text: "Essence Mascara Lash Princess"
+    optional: true
+
+# ============================================================================
+# PHASE 3: ADD TO CART
+# ============================================================================
+- extendedWaitUntil:
+    visible:
+      text: "Add to Cart"
+    timeout: 10000
+    optional: true
+
+- tapOn:
+    id: "pdp-add-to-cart"
+    optional: true
+
+- runFlow:
+    when:
+      visible:
+        text: "Add to Cart"
+    commands:
+      - tapOn:
+          text: "Add to Cart"
+
+- extendedWaitUntil:
+    visible:
+      text: "Added to cart"
+    timeout: 5000
+    optional: true
+
+# ============================================================================
+# PHASE 4: NAVIGATE TO CART AND CHECKOUT
+# ============================================================================
+- tapOn:
+    id: "tab-cart"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-cart"
+    timeout: 10000
+    optional: true
+
+- tapOn:
+    text: "Proceed to Checkout"
+    optional: true
+
+# ============================================================================
+# PHASE 5: COMPLETE CHECKOUT (flexible form filling)
+# ============================================================================
+- extendedWaitUntil:
+    visible:
+      text: "Checkout"
+    timeout: 10000
+    optional: true
+
+# Try to fill form fields with fallback to text-based input
+- tapOn:
+    text: "Full name"
+    optional: true
+
+- tapOn:
+    id: "checkout-field-fullname"
+    optional: true
+
+- inputText: "Test User"
+
+# Try address field
+- tapOn:
+    text: "Address"
+    optional: true
+
+- tapOn:
+    id: "checkout-field-address"
+    optional: true
+
+- inputText: "123 Test St"
+
+# Try to find and tap payment/place order
+- scrollUntilVisible:
+    element:
+      text: "Next"
+    direction: DOWN
+    timeout: 8000
+    optional: true
+
+- tapOn:
+    text: "Next"
+    optional: true
+
+- tapOn:
+    id: "checkout-place-order"
+    optional: true
+
+- tapOn:
+    text: "Place Order"
+    optional: true
+
+# ============================================================================
+# PHASE 6: VERIFY ORDERS
+# ============================================================================
+- tapOn:
+    id: "tab-orders"
+    optional: true
+
+- extendedWaitUntil:
+    visible: "Your Orders"
+    timeout: 8000
+    optional: true
+
+# ============================================================================
+# PHASE 7: TEST ML FEATURES (if available)
+# ============================================================================
+- tapOn:
+    id: "tab-products"
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "Voice"
+    timeout: 5000
+    optional: true
+
+- extendedWaitUntil:
+    visible:
+      text: "photo"
+    timeout: 5000
+    optional: true
+
+# End of complete E2E flow

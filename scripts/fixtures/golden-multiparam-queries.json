@@ -1,0 +1,58 @@
+[
+  {
+    "id": "multiparam-1",
+    "query": "I'm looking for a extra small blue cotton shirt that's breathable under 35 dollars",
+    "expectedProductTitle": "Blue & Black Check Shirt",
+    "attributesUsed": {
+      "color": "blue",
+      "size": "XS",
+      "material": "cotton"
+    }
+  },
+  {
+    "id": "multiparam-2",
+    "query": "I'm looking for a extra small blue cotton frock that's breathable under 35 dollars",
+    "expectedProductTitle": "Blue Frock",
+    "attributesUsed": {
+      "color": "blue",
+      "size": "XS",
+      "material": "cotton"
+    }
+  },
+  {
+    "id": "multiparam-3",
+    "query": "I'm looking for a size 6 red leather 1 that's breathable under 155 dollars",
+    "expectedProductTitle": "Nike Air Jordan 1 Red And Black",
+    "attributesUsed": {
+      "color": "red",
+      "size": "6",
+      "material": "leather"
+    }
+  },
+  {
+    "id": "multiparam-4",
+    "query": "I'm looking for a gray aluminum space that's wireless under 2005 dollars",
+    "expectedProductTitle": "Apple MacBook Pro 14 Inch Space Grey",
+    "attributesUsed": {
+      "color": "gray",
+      "size": null,
+      "material": "aluminum"
+    }
+  },
+  {
+    "id": "multiparam-5",
+    "query": "I'm looking for a black princess that's waterproof under 15 dollars",
+    "expectedProductTitle": "Essence Mascara Lash Princess",
+    "attributesUsed": {
+      "color": "black",
+      "size": null,
+      "material": null
+    }
+  },
+  {
+    "id": "multiparam-no-match",
+    "query": "I need a fluorescent pink size 47 titanium umbrella for my pet dinosaur",
+    "expectedProductTitle": null,
+    "attributesUsed": {}
+  }
+]

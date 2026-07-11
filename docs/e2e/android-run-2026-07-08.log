@@ -1,0 +1,117 @@
+
+> ecommerceappfullstack@0.0.1 e2e:parallel
+> node scripts/e2e-parallel.mjs --android
+
+
+┌────────────────────────────────────────────────┐
+│ E2E Test Orchestrator - Running Tests in Parallel │
+└────────────────────────────────────────────────┘
+
+
+[══════════════════════════════════════════════════]
+[ANDROID] Starting test suite...
+[══════════════════════════════════════════════════]
+
+
+> ecommerceappfullstack@0.0.1 verify:e2e-android
+> node scripts/run-e2e-android.mjs
+
+=== E2E on emulator-5554 (API: http://127.0.0.1:5001) ===
+=== E2E: API health ===
+✓ api-health: GET /health ok
+
+=== E2E: Login via API (credential check) ===
+✓ credentials: test@example.com / secret123 works via API
+✓ api-cart-clear: Cart cleared before UI test
+
+=== CLIP warmup (cloud) ===
+✓ clip-warm: skipped (local API)
+
+=== Live LLM reasoning (API) ===
+Live LLM reasoning: http://127.0.0.1:5001
+
+✓ server-health: CLIP index 352
+✓ openrouter-key-present: OPENROUTER_API_KEY loaded (not logged)
+✓ openrouter-headphones: intent=llm, 7 matches, top="JBL Tune Flex Wireless Earbuds"
+✓ openai-key-present: OPENAI_API_KEY loaded (not logged)
+✓ openai-conversational-jacket: intent=llm, 1 matches, top="Classic White Tee - Timeless Style and C"
+✓ openai-jumbled-headphones: intent=llm, 7 matches, top="Sleek Wireless Headphone & Inked Earbud "
+  … skip groq (no GROQ_API_KEY in /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/src/.env)
+  … skip gemini (no GEMINI_API_KEY in /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/src/.env)
+
+--- Live LLM: 6/6 passed ---
+✓ llm-live: verify:llm-live passed
+
+=== E2E: UI Login ===
+Success
+screenshot: /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/docs/e2e/01-login-screen.png
+[android] Filling email field with keyboard hide
+[android] Filling field: login-email with value: "test@example.com"
+[android] Field filled successfully: login-email
+[android] Filling password field with keyboard hide
+[android] Filling field: login-password with value: "secret123"
+[android] Field filled successfully: login-password
+[android] Verifying field values before login submit
+[android] Email field value: "test@example.com" (expected: "test@example.com")
+[android] Field verification passed
+screenshot: /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/docs/e2e/02-after-login.png
+✓ ui-login: Landed on Home after login
+
+=== E2E: Home → Products ===
+screenshot: /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/docs/e2e/03-product-list.png
+✓ home-to-products: Product list with search visible
+
+=== E2E: Product detail + add to cart ===
+screenshot: /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/docs/e2e/04-product-detail.png
+✗ add-to-cart: Add to Cart not found
+
+=== E2E: Cart tab ===
+screenshot: /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/docs/e2e/05-cart.png
+! ui-cart-items: Cart state unclear from UI dump
+
+=== E2E: Cart quantity + ===
+screenshot: /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/docs/e2e/06-cart-qty-plus.png
+✗ backend-cart-qty: Expected qty 2, got undefined (waited 20s)
+
+=== E2E: Checkout flow ===
+screenshot: /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/docs/e2e/07-checkout.png
+✓ nav-checkout: Opened checkout screen
+✗ checkout: Credit Card payment option not found
+screenshot: /Users/kunalkachru/Documents/Codex/2026-06-30/i-want-to-set-up-a/work/EcommerceAppFullStack/docs/e2e/07-checkout-failed.png
+
+=== E2E: Profile + logout ===
+✗ profile-logout: Timed out waiting for testID: tab-profile
+
+=== E2E: Signup link navigation ===
+✗ signup-nav: Sign Up link not found
+
+=== SUMMARY ===
+PASS: 8  FAIL: 5  WARN: 1
+  [PASS] api-health: GET /health ok
+  [PASS] credentials: test@example.com / secret123 works via API
+  [PASS] api-cart-clear: Cart cleared before UI test
+  [PASS] clip-warm: skipped (local API)
+  [PASS] llm-live: verify:llm-live passed
+  [PASS] ui-login: Landed on Home after login
+  [PASS] home-to-products: Product list with search visible
+  [FAIL] add-to-cart: Add to Cart not found
+  [WARN] ui-cart-items: Cart state unclear from UI dump
+  [FAIL] backend-cart-qty: Expected qty 2, got undefined (waited 20s)
+  [PASS] nav-checkout: Opened checkout screen
+  [FAIL] checkout: Credit Card payment option not found
+  [FAIL] profile-logout: Timed out waiting for testID: tab-profile
+  [FAIL] signup-nav: Sign Up link not found
+
+
+════════════════════════════════════════════════════════════
+TEST RESULTS SUMMARY
+════════════════════════════════════════════════════════════
+
+[ANDROID] ❌ FAIL (exit code: 1)
+
+────────────────────────────────────────────────────────────
+✗ Some tests failed
+────────────────────────────────────────────────────────────
+
+⚠️  Check output above for details.
+

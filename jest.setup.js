@@ -29,6 +29,24 @@ jest.mock("@react-native-async-storage/async-storage", () => {
   };
 });
 
+jest.mock("react-native-keychain", () => {
+  const store = new Map();
+  return {
+    setGenericPassword: jest.fn((username, password, options) => {
+      store.set(options?.service ?? "default", { username, password });
+      return Promise.resolve(true);
+    }),
+    getGenericPassword: jest.fn((options) => {
+      const entry = store.get(options?.service ?? "default");
+      return Promise.resolve(entry ? { username: entry.username, password: entry.password } : false);
+    }),
+    resetGenericPassword: jest.fn((options) => {
+      store.delete(options?.service ?? "default");
+      return Promise.resolve(true);
+    }),
+  };
+});
+
 jest.mock("react-native-image-picker", () => ({
   launchCamera: jest.fn(),
   launchImageLibrary: jest.fn(),
@@ -47,6 +65,19 @@ jest.mock("@react-native-voice/voice", () => ({
     removeAllListeners: jest.fn(),
   },
 }));
+
+jest.mock("react-native-webview", () => {
+  const ReactModule = require("react");
+  const RN = require("react-native");
+  return {
+    // No testID on the inner View -- only the composite (found via
+    // findByProps) carries it, so its own onMessage prop is reachable
+    // directly without ambiguity between composite and host matches.
+    WebView: ReactModule.forwardRef(function MockWebView(props, ref) {
+      return ReactModule.createElement(RN.View, {});
+    }),
+  };
+});
 
 jest.mock("./src/redux/api/catalogApi", () => {
   const fallbackProducts =

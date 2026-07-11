@@ -48,4 +48,21 @@ describe("catalogTextFilter", () => {
     const result = filterProductsLocally(products, "xyzqwerty nonsense");
     expect(result.length).toBe(0);
   });
+
+  it("filters by size when a size is mentioned and matching products exist", () => {
+    const sized = [
+      { id: "a", title: "Trousers A", price: 40, category: "mens-clothing", description: "", sizes: ["XL"], colors: ["brown"] },
+      { id: "b", title: "Trousers B", price: 40, category: "mens-clothing", description: "", sizes: ["S"], colors: ["brown"] },
+    ];
+    const result = filterProductsLocally(sized, "brown trousers size XL");
+    expect(result.map((p) => p.id)).toEqual(["a"]);
+  });
+
+  it("does not crash and returns all candidates when no product matches the requested size", () => {
+    const sized = [
+      { id: "a", title: "Trousers A", price: 40, category: "mens-clothing", description: "", sizes: ["S"], colors: ["brown"] },
+    ];
+    const result = filterProductsLocally(sized, "brown trousers size XXXL");
+    expect(result.length).toBe(1);
+  });
 });

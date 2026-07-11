@@ -1,0 +1,17 @@
+appId: com.ecommerceappfullstack
+---
+# Android-specific orders verification flow
+
+# Navigate to orders tab
+- tapOn:
+    id: "tab-orders"
+
+- extendedWaitUntil:
+    visible: "Your Orders"
+    timeout: 8000
+
+# Verify order is displayed
+- extendedWaitUntil:
+    visible: "Test User Android"
+    timeout: 5000
+    optional: true

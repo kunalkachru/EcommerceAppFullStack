@@ -39,11 +39,16 @@ import {
   preflightE2E,
 } from "./lib/e2e-infra.mjs";
 import { runLlmLiveVerification } from "./verify-llm-live.mjs";
+import {
+  shouldUseCloudApiTarget,
+  withTemporaryApiTargetMode,
+} from "./lib/api-target-config.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
 const MAESTRO_DIR = join(ROOT, ".maestro");
 const API = resolveApiUrl();
+const USE_CLOUD_APP_TARGET = shouldUseCloudApiTarget();
 const { api, login, waitForCart } = createApiClient(API);
 
 const MAESTRO =
@@ -93,6 +98,10 @@ async function main() {
 
   const udid = getBootedSimulatorUdid();
   console.log(`=== iOS E2E on ${udid} (API: ${API}) ===\n`);
+  if (USE_CLOUD_APP_TARGET) {
+    console.log("=== App relaunch with temporary cloud target ===");
+    launchApp(udid);
+  }
 
   console.log("=== API health ===");
   try {
@@ -203,7 +212,17 @@ async function main() {
   process.exit(failCount > 0 ? 1 : 0);
 }
 
-main().catch((e) => {
-  console.error(e);
-  process.exit(1);
-});
+const runner = () =>
+  main().catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+
+if (USE_CLOUD_APP_TARGET) {
+  withTemporaryApiTargetMode("cloud", runner).catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });
+} else {
+  runner();
+}

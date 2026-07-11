@@ -1,11 +1,19 @@
 #!/usr/bin/env node
 /**
  * Android emulator UI helpers for E2E flows (uiautomator + adb input).
+ *
+ * REFACTORED: Uses shared E2E test action library for unified field operations
+ * and keyboard management across platforms.
  */
 import { execSync, spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import * as TestActions from "./lib/e2e-test-actions.mjs";
+import {
+  isAuthenticatedShell,
+  isLoginScreen,
+} from "./lib/android-e2e-ui-helpers.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, "..");
@@ -32,8 +40,23 @@ export function screenshot(name) {
 }
 
 export function dumpUi() {
-  adb("shell uiautomator dump /sdcard/window_dump.xml");
-  return adb("shell cat /sdcard/window_dump.xml");
+  let lastError;
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      adb("shell uiautomator dump /sdcard/window_dump.xml");
+      return adb("shell cat /sdcard/window_dump.xml");
+    } catch (error) {
+      lastError = error;
+      sleep(0.75 * 1000);
+      try {
+        ensureAppForeground();
+      } catch {
+        /* ignore foreground recovery errors during retries */
+      }
+      sleep(0.5 * 1000);
+    }
+  }
+  throw lastError;
 }
 
 function parseBounds(bounds) {
@@ -153,7 +176,17 @@ export function hideKeyboard() {
 }
 
 export function clearField() {
-  for (let i = 0; i < 60; i++) pressKey(67);
+  // Select all (CTRL+A) then delete for better clearing
+  try {
+    adb("shell input keycombination 113 29");
+    sleep(50);
+  } catch {
+    // fallback
+  }
+  // Press delete key multiple times to ensure clearing
+  for (let i = 0; i < 60; i++) {
+    pressKey(67);  // KEYCODE_DEL = 67
+  }
   sleep(100);
 }
 
@@ -191,21 +224,36 @@ export function selectAllInField() {
   sleep(100);
 }
 
-export function fillTestId(testId, value, { timeoutMs = 8000 } = {}) {
-  tapTestId(testId, { timeoutMs });
-  sleep(400);
-  selectAllInField();
-  clearField();
-  sleep(150);
-  inputText(String(value));
-  sleep(300);
-  hideKeyboard();
-  sleep(400);
+/**
+ * Fill a text field by test ID with optional keyboard management.
+ *
+ * REFACTORED: Delegates to shared test action library for consistency
+ * across Android and iOS platforms. Maintains backward compatibility with
+ * existing call sites.
+ *
+ * @param {string} testId - Test ID of the field to fill
+ * @param {string} value - Text value to input
+ * @param {object} options - Optional parameters
+ * @param {number} options.timeoutMs - Wait timeout in milliseconds (default: 8000)
+ * @param {boolean} options.hideKeyboardAfter - Hide keyboard after filling (default: false)
+ */
+export function fillTestId(
+  testId,
+  value,
+  { timeoutMs = 8000, hideKeyboardAfter = false } = {}
+) {
+  // Delegate to shared library implementation for unified field operations
+  TestActions.fillField(TestActions.PLATFORMS.ANDROID, testId, value, {
+    hideKeyboardAfter,
+    timeoutMs,
+  });
 }
 
 export function readFieldTextByTestId(xml, testId) {
   const node = findByTestId(xml, testId);
-  return node?.text || node?.hint || "";
+  // CRITICAL: Return only the actual text, NOT the placeholder (hint)
+  // If text is empty, the field is empty (don't fallback to hint)
+  return node?.text || "";
 }
 export function clearAndType(value) {
   selectAllInField();
@@ -266,11 +314,7 @@ export function ensureAppForeground() {
 export function recoverToApp({ maxBackPresses = 6 } = {}) {
   for (let i = 0; i < maxBackPresses; i++) {
     const xml = dumpUi();
-    if (
-      findByTestId(xml, "tab-home") ||
-      xml.includes("What are you shopping for today?") ||
-      findByTestId(xml, "voice-search-card")
-    ) {
+    if (isAuthenticatedShell(xml)) {
       return true;
     }
     const homeTab = findNodes(xml).find(
@@ -328,10 +372,19 @@ export function tapBrowseProducts() {
       tap(byText[0].center.x, byText[0].center.y);
       return;
     }
+    const byNewText = findNodes(xml, { text: "Browse the full catalog" });
+    if (byNewText[0]) {
+      tap(byNewText[0].center.x, byNewText[0].center.y);
+      return;
+    }
     swipe(720, 1600, 720, 400, 350);
     sleep(700);
   }
-  tapText("Browse all products");
+  try {
+    tapText("Browse the full catalog");
+  } catch {
+    tapText("Browse all products");
+  }
 }
 
 export function uiIncludes(...needles) {
@@ -382,12 +435,7 @@ export async function loginIfNeeded({
   password = "secret123",
 } = {}) {
   let xml = dumpUi();
-  if (
-    findByTestId(xml, "browse-all-products") ||
-    findByTestId(xml, "voice-search-card") ||
-    findByTestId(xml, "tab-home") ||
-    xml.includes("What are you shopping for today?")
-  ) {
+  if (isAuthenticatedShell(xml)) {
     return false;
   }
 
@@ -400,34 +448,85 @@ export async function loginIfNeeded({
     xml = dumpUi();
   }
 
-  const onLoginScreen =
-    findByTestId(xml, "login-email") ||
-    findByTestId(xml, "login-submit") ||
-    xml.includes("Sign in ↓") ||
-    (xml.includes("Sign in") && xml.includes("Password"));
+  const onLoginScreen = isLoginScreen(xml);
 
   if (!onLoginScreen) {
     return false;
   }
 
   const scrollBtn = findNodes(xml).find((n) => n.text === "Sign in ↓" || n.text === "Sign in");
-  if (scrollBtn?.center) tap(scrollBtn.center.x, scrollBtn.center.y);
-  sleep(1200);
+  if (scrollBtn?.center) {
+    console.log("[android] Found 'Sign in ↓' button, tapping it...");
+    tap(scrollBtn.center.x, scrollBtn.center.y);
+    console.log("[android] Tapped, waiting for form to appear...");
+  } else {
+    console.log("[android] WARNING: Could not find 'Sign in ↓' button");
+  }
+  sleep(2000); // Increased wait for scroll/navigation animation
 
-  fillTestId("login-email", email);
-  fillTestId("login-password", password);
+  // CRITICAL: Check if tap navigated to Signup instead of scrolling to login form
+  // If so, navigate back to Login by clicking "Already have an account? Login" link
+  console.log("[android] Checking if login form is visible after tap...");
+  let postTapXml = dumpUi();
+  const hasLoginEmail = findByTestId(postTapXml, "login-email");
+  const hasSignupLink = findByTestId(postTapXml, "signup-login-link");
+  console.log(`[android] After tap: login-email=${!!hasLoginEmail}, signup-login-link=${!!hasSignupLink}`);
 
+  if (!hasLoginEmail && hasSignupLink) {
+    console.log("[android] Tap navigated to Signup screen instead of showing login form");
+    // Click the "Already have an account? Login" link to navigate back to Login
+    try {
+      tap(hasSignupLink.center.x, hasSignupLink.center.y);
+      console.log("[android] Clicked signup-login-link to navigate to Login screen");
+      sleep(1500);
+      postTapXml = dumpUi();
+    } catch (e) {
+      console.log(`[android] Error tapping signup-login-link: ${e.message}`);
+    }
+  } else if (!hasLoginEmail) {
+    console.log("[android] Login form not visible and no signup link found - trying back key");
+    pressKey(4);
+    sleep(1500);
+    postTapXml = dumpUi();
+  }
+
+  // CRITICAL: Fill email field with keyboard hide to prevent focus bleed
+  console.log("[android] Filling email field with keyboard hide");
+  fillTestId("login-email", email, { hideKeyboardAfter: true });
+  sleep(800);  // Extra wait for keyboard to fully dismiss
+
+  // CRITICAL: Explicitly tap password field before filling (Tab doesn't work in React Native)
+  console.log("[android] Explicitly tapping password field before filling");
+  try {
+    const passwordNode = waitForTestId("login-password", { timeoutMs: 3000 });
+    tap(passwordNode.center.x, passwordNode.center.y);
+    sleep(400);  // Wait for field to focus
+  } catch (e) {
+    console.log(`[android] Warning: Could not tap password field: ${e.message}`);
+  }
+
+  // Fill password field with keyboard hide
+  console.log("[android] Filling password field with keyboard hide");
+  fillTestId("login-password", password, { hideKeyboardAfter: true });
+  sleep(800);
+
+  // Verify both fields before submitting to catch focus mix-up bugs
+  console.log("[android] Verifying field values before login submit");
   const beforeSubmit = dumpUi();
   const emailVal = readFieldTextByTestId(beforeSubmit, "login-email");
+  console.log(`[android] Email field value: "${emailVal}" (expected: "${email}")`);
+
   if (emailVal !== email) {
     throw new Error(
       `Email field wrong before submit — got "${emailVal}", expected "${email}"`
     );
   }
+
   const passNode = findByTestId(beforeSubmit, "login-password");
   if (passNode?.text === email || passNode?.text === "Email") {
     throw new Error("Password value appears in email field — focus mix-up");
   }
+  console.log("[android] Field verification passed");
 
   swipe(720, 2600, 720, 1200, 350);
   sleep(500);
@@ -447,10 +546,7 @@ export async function loginIfNeeded({
   }
   sleep(4000);
   const after = dumpUi();
-  if (
-    !findByTestId(after, "tab-home") &&
-    !after.includes("What are you shopping for today?")
-  ) {
+  if (!isAuthenticatedShell(after)) {
     throw new Error("Login did not reach home screen");
   }
   return true;

@@ -1,0 +1,28 @@
+appId: com.ecommerceappfullstack
+---
+# Companion to ml-multiparameter-search.yaml for the deliberate no-match fixture --
+# verifies a graceful empty state, not a crash or irrelevant results.
+#
+# Requires env: QUERY - the no-match fixture's query text.
+- tapOn:
+    id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
+
+- tapOn:
+    id: "product-search-input"
+
+- inputText: "${QUERY}"
+
+- pressKey: Enter
+
+- extendedWaitUntil:
+    visible:
+      text: "No close intent match yet"
+    timeout: 15000
+
+- assertVisible:
+    text: "No close intent match yet"

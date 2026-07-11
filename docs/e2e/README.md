@@ -1,6 +1,6 @@
 # E2E screenshot gallery
 
-**Last updated:** 2026-07-06
+**Last updated:** 2026-07-07
 
 Manual capture and automation screenshots for reviewers. **Live app:** [Appetize demo](https://appetize.io/app/b_syzdh2dfef37uy3fyeib33aky4) · **Videos:** [demo/videos/README.md](../demo/videos/README.md)
 
@@ -42,6 +42,7 @@ README hero uses [photo-search-results.png](./photo-search-results.png) as ML vi
 
 | Path | Notes |
 |------|-------|
+| [validation-2026-07-07.md](./validation-2026-07-07.md) | Home visual refine + PDP similar rail fixes re-validated locally |
 | [validation-2026-07-06.md](./validation-2026-07-06.md) | F18 LLM PASS iOS + Android |
 | [validation-2026-07-05.md](./validation-2026-07-05.md) | Manual validation log |
 | [manual-2026-07-03/](./manual-2026-07-03/) | Platform-specific ML captures |
