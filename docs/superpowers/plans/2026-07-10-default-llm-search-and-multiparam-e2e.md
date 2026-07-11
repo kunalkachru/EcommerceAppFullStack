@@ -2516,7 +2516,53 @@ scripts/fixtures/golden-multiparam-queries.json."
 
 ### Task C3: Android `ml-multiparameter-search-llm.yaml` (LLM-reasoning path via Ollama)
 
-**Status:** Not Started
+**Status:** Done
+
+**Deviation notes:**
+- The plan's sketched flow (`voice-search-card` → `llm-reasoning-switch` → `voice-provider-ollama`
+  → `voice-search-button`) needed real changes once run against the live app:
+  - Scroll directly to `llm-reasoning-switch` itself (not the outer `voice-search-card`) with
+    `centerElement: true`, or the switch isn't reliably in view.
+  - The AI-provider row is its own horizontal `ScrollView` nested inside the vertically-scrolling
+    page. React Native only mounts children that have been scrolled into view at least once, so
+    `voice-provider-ollama` does not exist in the native tree at all until the row is scrolled
+    right — tapping it directly (as the plan sketched) fails with "element not found" on a fresh
+    load. Fixed by: `scrollUntilVisible` on the still-visible `voice-provider-groq` chip with
+    `centerElement: true` (empirically centers the row at ~39% of screen height, not 50%), then a
+    raw percentage `swipe` from `(90%, 39%)` to `(5%, 39%)`. Maestro's `scrollUntilVisible:
+    direction: RIGHT` and the element-anchored `swipe: element:/direction:` syntax were both tried
+    first and both failed silently (confirmed via `maestro hierarchy` dumps) — only a
+    manually-calibrated raw-coordinate swipe worked.
+  - Final assertion uses `scrollUntilVisible` (45s timeout) instead of the plan's
+    `extendedWaitUntil`, since the LLM-reasoning path can rank the expected product slightly
+    differently than the rule-based path (near-tied semantic scores), so it isn't always in the
+    initial viewport.
+- Found and fixed two real, previously-hidden bugs while building/running this flow (both
+  pre-existing, unrelated to the plan's diff, each fixed via TDD, each committed separately):
+  1. `src/config/llmProviders.js` sent an Android-emulator-specific `10.0.2.2` base URL for the
+     Ollama provider. Wrong: the LLM call is proxied through the Node server
+     (`voiceQueryLLM.js`), which shares a machine with Ollama regardless of which *client* device
+     is testing. `10.0.2.2` is only meaningful inside the emulator's own network namespace, so the
+     server tried (and failed) to fetch its own emulator-only alias. Fixed to always use
+     `http://127.0.0.1:11434/v1`.
+  2. `src/screens/ProductListScreen.jsx`: displaying precomputed voice/photo search results sets
+     `searchQuery` for display purposes only, but a separate debounced search-as-you-type effect
+     unconditionally re-fired `runSmartSearch` whenever `searchQuery` became non-empty for any
+     reason — including this programmatic set — silently firing a redundant second, independent
+     search ~450ms later that could overwrite the already-correct results. This bug pre-existed
+     for the deterministic rule-based path (Task C2) too, but was invisible there since a
+     deterministic query reproduces the same result on the redundant call; the LLM path's
+     non-determinism (`temperature: 0.1` in `voiceQueryLLM.js`) is what made it visible here. Fixed
+     with a one-shot `skipNextSearchDebounceRef` guard.
+- All 5 positive fixtures from `golden-multiparam-queries.json` passed live on the Android
+  emulator. Fixture 4 ("gray aluminum space... under 2005 dollars" → Apple MacBook Pro 14 Inch
+  Space Grey) failed on one attempt after the redundant-search-call fix (a single, correct search
+  call ranked a different product on top) and passed cleanly on retry — confirmed via direct curl
+  against `/api/search/voice` that this is genuine LLM sampling variance (`temperature: 0.1`,
+  local `llama3.2` model) on a near-tied ranking, not a flow or app bug. This mirrors fixture 1's
+  earlier near-tie ("Men Check Shirt" 0.803 vs. expected "Blue & Black Check Shirt" 0.801). A
+  cloud-grade model would likely be more consistent; per the project's execution-boundary
+  constraint, real OpenAI/OpenRouter/Groq/Gemini coverage remains the user's own manual run.
 
 **Entry Criteria:** Task C2 Exit Criteria met. Local Ollama running (`ollama serve`) with a
 model available (per `src/config/llmProviders.js`'s `ollama` provider, default model
