@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../redux/authSlice";
+import { MODEL_3D_CREDITS } from "../config/model3DCredits";
 import { colors, radius, shadows, spacing } from "../theme/tokens";
 import {
   LuxuryBodyText,
@@ -53,6 +54,16 @@ const ProfileScreen = ({ navigation }) => {
           >
             <Text style={styles.secondaryButtonText}>Review orders</Text>
           </TouchableOpacity>
+
+          {MODEL_3D_CREDITS.length > 0 ? (
+            <TouchableOpacity
+              testID="profile-credits-link"
+              style={styles.secondaryButton}
+              onPress={() => navigation.navigate("Credits")}
+            >
+              <Text style={styles.secondaryButtonText}>3D model credits</Text>
+            </TouchableOpacity>
+          ) : null}
 
           <TouchableOpacity testID="profile-logout" style={styles.button} onPress={handleLogout}>
             <Text style={styles.buttonText}>Logout</Text>

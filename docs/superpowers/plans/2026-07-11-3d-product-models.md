@@ -1120,6 +1120,7 @@ model3DCredits.js for CreditsScreen.jsx."
 // __tests__/CreditsScreen.test.js
 const React = require("react");
 const ReactTestRenderer = require("react-test-renderer");
+const { act } = ReactTestRenderer;
 
 jest.mock("../src/config/model3DCredits", () => ({
   MODEL_3D_CREDITS: [
@@ -1137,7 +1138,10 @@ const CreditsScreen = require("../src/screens/CreditsScreen").default;
 
 describe("CreditsScreen", () => {
   it("lists each credited model's title, author, and license", () => {
-    const tree = ReactTestRenderer.create(React.createElement(CreditsScreen, {}));
+    let tree;
+    act(() => {
+      tree = ReactTestRenderer.create(React.createElement(CreditsScreen, {}));
+    });
     const text = tree.root
       .findAll((node) => typeof node.props?.children === "string")
       .map((node) => node.props.children)
@@ -1150,10 +1154,18 @@ describe("CreditsScreen", () => {
 });
 ```
 
+Note: render CreditsScreen.jsx's "Author: X" / "License: X" lines as a single template-literal
+string (`` {`Author: ${credit.author}`} ``), not `Author: {credit.author}` -- JSX splits the
+latter into two separate children (a literal string plus the variable), so this test's
+`typeof node.props?.children === "string"` traversal silently skips it (children would be an
+array, not a string) and the assertions below would fail even though the text is visually
+present on screen.
+
 ```js
 // __tests__/ProfileScreen.creditsLink.test.js
 const React = require("react");
 const ReactTestRenderer = require("react-test-renderer");
+const { act } = ReactTestRenderer;
 
 jest.mock("react-redux", () => ({
   useDispatch: () => jest.fn(),
@@ -1162,32 +1174,51 @@ jest.mock("react-redux", () => ({
 
 jest.mock("../src/redux/authSlice", () => ({ logoutUser: jest.fn() }));
 
-const ProfileScreen = require("../src/screens/ProfileScreen").default;
+jest.mock("../src/config/model3DCredits", () => ({ MODEL_3D_CREDITS: [] }));
+
+const { MODEL_3D_CREDITS } = require("../src/config/model3DCredits");
+const Screen = require("../src/screens/ProfileScreen").default;
 
 describe("ProfileScreen credits link", () => {
+  afterEach(() => {
+    MODEL_3D_CREDITS.length = 0;
+  });
+
   it("shows a credits nav entry when credited models exist", () => {
-    jest.doMock("../src/config/model3DCredits", () => ({
-      MODEL_3D_CREDITS: [{ category: "footwear", title: "x", author: "y", license: "z", sourceUrl: "u" }],
-    }));
-    jest.resetModules();
-    const Screen = require("../src/screens/ProfileScreen").default;
-    const tree = ReactTestRenderer.create(
-      React.createElement(Screen, { navigation: { navigate: jest.fn() } })
-    );
+    MODEL_3D_CREDITS.push({ category: "footwear", title: "x", author: "y", license: "z", sourceUrl: "u" });
+
+    let tree;
+    act(() => {
+      tree = ReactTestRenderer.create(
+        React.createElement(Screen, { navigation: { navigate: jest.fn() } })
+      );
+    });
     expect(() => tree.root.findByProps({ testID: "profile-credits-link" })).not.toThrow();
   });
 
   it("hides the credits nav entry when there are no credited models", () => {
-    jest.doMock("../src/config/model3DCredits", () => ({ MODEL_3D_CREDITS: [] }));
-    jest.resetModules();
-    const Screen = require("../src/screens/ProfileScreen").default;
-    const tree = ReactTestRenderer.create(
-      React.createElement(Screen, { navigation: { navigate: jest.fn() } })
-    );
+    let tree;
+    act(() => {
+      tree = ReactTestRenderer.create(
+        React.createElement(Screen, { navigation: { navigate: jest.fn() } })
+      );
+    });
     expect(() => tree.root.findByProps({ testID: "profile-credits-link" })).toThrow();
   });
 });
 ```
+
+Two deviations from a naive first draft, both found by actually running the tests: (1) every
+`ReactTestRenderer.create(...)` call must be wrapped in `act(...)` — RN's `Animated`-backed host
+components schedule effects, and an un-acted render throws asynchronously after the test function
+returns, which React 19's test renderer then fails to report cleanly (`window.dispatchEvent is
+not a function`) and crashes the whole Jest worker process, not just the one test. (2) toggling
+`MODEL_3D_CREDITS` between the two test cases must NOT use `jest.doMock` + `jest.resetModules()`
+— resetting the module registry mid-file forces React Native's internals (e.g.
+`createAnimatedComponent`) to re-require a *second*, separate `react` module instance than the
+one `react-test-renderer` is already bound to, crashing with `Cannot read properties of null
+(reading 'useReducer')`. Mutating the mocked module's exported array in place
+(`MODEL_3D_CREDITS.push(...)` / `.length = 0`) avoids touching the module registry entirely.
 
 - [ ] **Step 2: Run tests to verify they fail**
 
@@ -1202,7 +1233,7 @@ Expected: FAIL — `CreditsScreen` module not found; `profile-credits-link` not 
 ```jsx
 // src/screens/CreditsScreen.jsx
 import React from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { Text, StyleSheet, ScrollView } from "react-native";
 import { MODEL_3D_CREDITS } from "../config/model3DCredits";
 import { colors, radius, shadows, spacing } from "../theme/tokens";
 import { LuxuryBodyText, LuxuryDisplayTitle, LuxuryEyebrow, LuxurySectionCard } from "../components/LuxuryPrimitives";
@@ -1218,8 +1249,8 @@ const CreditsScreen = () => (
     {MODEL_3D_CREDITS.map((credit) => (
       <LuxurySectionCard key={credit.category} style={styles.card} eyebrow={credit.category}>
         <Text style={styles.title}>{credit.title}</Text>
-        <Text style={styles.detail}>Author: {credit.author}</Text>
-        <Text style={styles.detail}>License: {credit.license}</Text>
+        <Text style={styles.detail}>{`Author: ${credit.author}`}</Text>
+        <Text style={styles.detail}>{`License: ${credit.license}`}</Text>
         <Text style={styles.detail}>{credit.sourceUrl}</Text>
       </LuxurySectionCard>
     ))}

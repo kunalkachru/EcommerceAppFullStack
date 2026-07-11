@@ -8,6 +8,7 @@ import ProductListScreen from "../screens/ProductListScreen";
 import ProductDetailScreen from "../screens/ProductDetailScreen";
 import CartScreen from "../screens/CartScreen";
 import ProfileScreen from "../screens/ProfileScreen";
+import CreditsScreen from "../screens/CreditsScreen";
 import CheckoutScreen from "../screens/CheckoutScreen";
 import OrderSummaryScreen from "../screens/OrderSummaryScreen";
 import OrdersScreen from "../screens/OrdersScreen";
@@ -16,6 +17,7 @@ import { colors, radius, shadows, spacing } from "../theme/tokens";
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 const OrdersStack = createNativeStackNavigator();
+const ProfileStack = createNativeStackNavigator();
 
 function ProductStack() {
   return (
@@ -34,6 +36,15 @@ function OrdersStackScreen() {
       <OrdersStack.Screen name="OrdersList" component={OrdersScreen} />
       <OrdersStack.Screen name="OrderSummary" component={OrderSummaryScreen} />
     </OrdersStack.Navigator>
+  );
+}
+
+function ProfileStackScreen() {
+  return (
+    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+      <ProfileStack.Screen name="ProfileHome" component={ProfileScreen} />
+      <ProfileStack.Screen name="Credits" component={CreditsScreen} />
+    </ProfileStack.Navigator>
   );
 }
 
@@ -115,7 +126,7 @@ const BottomTabNavigator = () => (
     />
     <Tab.Screen name="Cart" component={CartScreen} options={{ tabBarButtonTestID: "tab-cart" }} />
     <Tab.Screen name="Orders" component={OrdersStackScreen} options={{ tabBarButtonTestID: "tab-orders" }} />
-    <Tab.Screen name="Profile" component={ProfileScreen} options={{ tabBarButtonTestID: "tab-profile" }} />
+    <Tab.Screen name="Profile" component={ProfileStackScreen} options={{ tabBarButtonTestID: "tab-profile" }} />
   </Tab.Navigator>
 );
 
