@@ -1,11 +1,49 @@
 # 3D Product Models Implementation Plan
 
-**STATUS: COMPLETE.** All 12 catalog categories (footwear, electronics, watches,
-bags-accessories, home-kitchen, mens-clothing, womens-clothing, beauty-fragrances,
-sports-fitness, automotive, groceries, jewelry) have a real, freely-licensed 3D model, viewable
-via the Photos/3D toggle on every product's PDP, verified via Maestro on both Android and iOS,
-with full regression suites green on both platforms (modulo the one known pre-existing
+**STATUS: COMPLETE** (corrected — see "Post-completion regression found and fixed" below). All
+12 catalog categories (footwear, electronics, watches, bags-accessories, home-kitchen,
+mens-clothing, womens-clothing, beauty-fragrances, sports-fitness, automotive, groceries,
+jewelry) have a real, freely-licensed 3D model, viewable via the Photos/3D toggle on every
+product's PDP, verified via Maestro on both Android and iOS with the corrected assertion, with
+full regression suites green on both platforms (modulo the one known pre-existing
 `goldenFixtures.test.js` gap).
+
+## Post-completion regression found and fixed
+
+Between this plan's original "complete" declaration and merging PR #3, live manual testing on
+the iOS Simulator found the 3D viewer never actually rendered on iOS — the model area stayed
+permanently blank (no model, no error, no retry button) for every category tried.
+
+**Root cause 1 (the bug):** `server/src/index.js`'s Helmet CSP config spread
+`helmet.contentSecurityPolicy.getDefaultDirectives()`, which includes `upgrade-insecure-requests`
+by default. This silently upgraded `product-3d-viewer.html`'s own subresource fetches
+(`model-viewer.min.js`, `product-3d-viewer.js`) to `https://`, which failed dead silently against
+the plain-HTTP local dev server. WKWebView enforces this CSP-driven upgrade; Android's WebView and
+desktop Chrome (used for this plan's earlier CDP-based standalone verification) both treat
+`http://localhost`/`127.0.0.1` as already-trustworthy and never upgrade — which is why this was
+iOS-only and why it never showed up on Android or in the original standalone-browser check.
+Fixed by adding `"upgrade-insecure-requests": null` to the directives object.
+
+**Root cause 2 (why extensive Maestro testing across Stage 5 and Task 6.3 never caught it):**
+`.maestro/ios/product-3d-viewer.yaml`'s success assertion was `extendedWaitUntil: notVisible:
+id: "product-3d-retry"` — the retry button only renders on an explicit `{"type":"error"}` bridge
+message. A viewer permanently stuck on `"loading"` (this bug) never posts an error either, so
+"retry not visible" was trivially true in both the real-success and silent-failure cases. It
+never actually proved `"loaded"` was reached. Fixed by asserting `product-3d-status`'s own
+rendered text equals `"loaded"` directly — applied to both platforms' flows, though Android was
+never actually affected by the CSP bug itself. Making that assertion possible at all also
+required fixing `product-3d-status`'s `hiddenStatus` style: `opacity: 0` was excluded entirely
+from iOS's accessibility-visibility check (confirmed empirically — even a bare `assertVisible` on
+the id failed, despite the model visibly rendering onscreen); changed to `opacity: 0.01`, still
+visually imperceptible to a human but no longer excluded from the accessibility tree.
+
+**Corrected re-verification:** all 12 categories re-run on both iOS and Android with the
+corrected assertion, plus the full existing regression suites (login ×3, photo-search both
+samples, ml-features-comprehensive, complete-e2e-clean, `npx jest`) on both platforms — all
+green modulo the one known pre-existing `goldenFixtures.test.js` gap. See
+`docs/superpowers/specs/2026-07-11-3d-viewer-ios-regression-remediation-design.md` and
+`docs/superpowers/plans/2026-07-11-3d-viewer-ios-regression-remediation.md` for the full
+investigation and fix record.
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. This plan is executed inline and sequentially (no subagent dispatch) per this project's standing convention — proceed stage-by-stage without pausing for check-ins, and stop only for a genuine major design question, not for routine confirmation.
 

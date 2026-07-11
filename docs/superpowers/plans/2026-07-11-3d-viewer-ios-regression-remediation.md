@@ -1,6 +1,6 @@
 # 3D Viewer iOS Regression Remediation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking. This plan is executed inline and sequentially (no subagent dispatch) per this project's standing convention — proceed straight through without pausing for check-ins, and stop only for a genuine blocker, not for routine confirmation.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking. This plan is executed inline and sequentially (no subagent dispatch) per this project's standing convention — proceed straight through without pausing for check-ins, and stop only for a genuine blocker, not for routine confirmation.
 
 **Goal:** Fix the confirmed iOS-only regression where the 3D product viewer silently never
 renders (stuck loading forever), fix the Maestro assertion weakness that let it ship as "plan
@@ -48,7 +48,7 @@ in `docs/superpowers/plans/2026-07-11-3d-product-models.md`.
   longer includes `upgrade-insecure-requests` — every later task in this plan depends on this
   being in place (it's what makes `"loaded"` achievable on iOS at all).
 
-- [ ] **Step 1: Confirm the fix is already in place and the server already has it live**
+- [x] **Step 1: Confirm the fix is already in place and the server already has it live**
 
 ```bash
 grep -n "upgrade-insecure-requests" server/src/index.js
@@ -69,7 +69,7 @@ sleep 2
 curl -s http://localhost:5001/health
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add server/src/index.js
@@ -105,7 +105,7 @@ EOF
   if the bridge actually posted `{"type":"loaded"}` — every later re-verification task (Task 3,
   Task 4) depends on this being a real assertion, not the old trivially-satisfied one.
 
-- [ ] **Step 1: Read the current last block of both files to confirm exact context to replace**
+- [x] **Step 1: Read the current last block of both files to confirm exact context to replace**
 
 ```bash
 tail -10 .maestro/android/product-3d-viewer.yaml
@@ -126,7 +126,7 @@ Expected: both end with
     timeout: 30000
 ```
 
-- [ ] **Step 2: Replace the weak assertion in both files**
+- [x] **Step 2: Replace the weak assertion in both files**
 
 In `.maestro/android/product-3d-viewer.yaml`, replace:
 
@@ -149,7 +149,7 @@ with:
 
 Apply the identical replacement in `.maestro/ios/product-3d-viewer.yaml`.
 
-- [ ] **Step 3: Sanity-check the new assertion against one already-known-good category before trusting it for the full sweep**
+- [x] **Step 3: Sanity-check the new assertion against one already-known-good category before trusting it for the full sweep**
 
 The iOS Simulator is already booted. Run footwear (a Phase-1 category, known to render correctly
 now that Task 1's fix is live):
@@ -172,7 +172,19 @@ Expected: exits 0, with `Assert that id: product-3d-status, text: loaded is visi
 in the output (confirms the new assertion syntax is valid and actually observes the bridge
 reaching `"loaded"`, not just that it doesn't error).
 
-- [ ] **Step 4: Commit**
+**Deviation (found during this sanity check):** the first run FAILED — even a bare
+`assertVisible: id: product-3d-status` (no text constraint) failed, despite a live screenshot
+confirming the model genuinely rendered onscreen. Root-caused to `product-3d-status`'s
+`hiddenStatus` style (`opacity: 0`): iOS's accessibility-visibility check excludes `opacity: 0`
+elements entirely, unlike Android's, which was never exercised against this exact assertion
+before. Fixed by changing `opacity: 0` to `opacity: 0.01` in
+`src/components/Product3DViewer.jsx` — still visually imperceptible to a human, but no longer
+excluded from the accessibility tree. Re-ran after the fix: passed, with the full
+`text: "loaded"` assertion completing correctly. This fix is bundled into this task's commit
+below rather than given its own, since it's a direct prerequisite for this task's own
+step (the assertion strengthening doesn't work at all without it).
+
+- [x] **Step 4: Commit**
 
 ```bash
 git add .maestro/android/product-3d-viewer.yaml .maestro/ios/product-3d-viewer.yaml
@@ -198,7 +210,7 @@ EOF
 - Consumes: the corrected assertion from Task 2.
 - Produces: a pass/fail result per category, feeding Task 6's plan-doc correction.
 
-- [ ] **Step 1: Run the flow once per category**
+- [x] **Step 1: Run the flow once per category**
 
 The iOS Simulator (`7EABE577-D15B-4B90-848F-EDAC9BF2FC7A`) is already booted. For each row below,
 pre-populate the pasteboard with that category's title, then run the flow:
@@ -240,7 +252,7 @@ be reused instead of re-running it here, but every other category must run fresh
 
 Expected: all 12 exit 0, each with the `product-3d-status, text: loaded` assertion completing.
 
-- [ ] **Step 2: Record the result**
+- [x] **Step 2: Record the result**
 
 No commit for this step — the pass/fail table is recorded in Task 6's plan-doc update. If any
 category fails, stop and treat it as a blocker (do not proceed to Task 4) — investigate before
@@ -257,7 +269,7 @@ plan didn't anticipate.
 - Consumes: the corrected assertion from Task 2.
 - Produces: a pass/fail result per category, feeding Task 6's plan-doc correction.
 
-- [ ] **Step 1: Shut down the iOS Simulator, boot the Android emulator**
+- [x] **Step 1: Shut down the iOS Simulator, boot the Android emulator**
 
 ```bash
 xcrun simctl shutdown 7EABE577-D15B-4B90-848F-EDAC9BF2FC7A
@@ -274,7 +286,7 @@ adb devices
 adb shell am force-stop com.ecommerceappfullstack
 ```
 
-- [ ] **Step 2: Run the flow once per category**
+- [x] **Step 2: Run the flow once per category**
 
 Same 12-row table as Task 3.
 
@@ -299,7 +311,7 @@ No live bug is expected here (Android was never affected by the CSP issue), but 
 to prove the new, stronger assertion works correctly on the platform already known-good, and to
 close out full coverage.
 
-- [ ] **Step 3: Record the result**
+- [x] **Step 3: Record the result**
 
 No commit for this step. If any category fails, stop and treat it as a blocker — an Android
 failure here (previously always green under the old weak assertion) would indicate the new
@@ -316,7 +328,7 @@ assertion and re-run before proceeding.
 - Consumes: the app and server as fixed/tested by Tasks 1-4.
 - Produces: confirmation that nothing else broke, feeding Task 6's plan-doc correction.
 
-- [ ] **Step 1: iOS regression gate**
+- [x] **Step 1: iOS regression gate**
 
 ```bash
 UDID="7EABE577-D15B-4B90-848F-EDAC9BF2FC7A"
@@ -348,7 +360,7 @@ npm run maestro:ios
 
 Expected: all exit 0.
 
-- [ ] **Step 2: Android regression gate**
+- [x] **Step 2: Android regression gate**
 
 ```bash
 xcrun simctl shutdown 7EABE577-D15B-4B90-848F-EDAC9BF2FC7A
@@ -383,7 +395,7 @@ npm run maestro:android
 Expected: all exit 0. If the gallery-picker flake recurs (documented pre-existing issue), force-
 stop (`adb shell am force-stop com.ecommerceappfullstack`) and retry — not a regression.
 
-- [ ] **Step 3: Jest**
+- [x] **Step 3: Jest**
 
 ```bash
 npx jest
@@ -402,7 +414,7 @@ No commit for this task — verification only.
 
 **Interfaces:** None (documentation only).
 
-- [ ] **Step 1: Replace the top-of-file STATUS line**
+- [x] **Step 1: Replace the top-of-file STATUS line**
 
 Find the current line near the top of the file:
 
@@ -459,7 +471,7 @@ green modulo the one known pre-existing `goldenFixtures.test.js` gap. See
 investigation and fix record.
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add docs/superpowers/plans/2026-07-11-3d-product-models.md
@@ -473,7 +485,7 @@ EOF
 )"
 ```
 
-- [ ] **Step 3: Mark this remediation plan's own status complete**
+- [x] **Step 3: Mark this remediation plan's own status complete**
 
 ```bash
 git log --oneline -8
