@@ -1630,26 +1630,59 @@ Built fresh for iOS per this project's established convention (no `pressKey: bac
 ```yaml
 appId: org.reactjs.native.example.EcommerceAppFullStack
 ---
-# iOS equivalent of .maestro/android/product-3d-viewer.yaml.
+# iOS equivalent of .maestro/android/product-3d-viewer.yaml. Verifies the 3D
+# product viewer end-to-end: navigate to a product in a category with a
+# model, toggle to 3D, and assert the JS bridge reports a real "loaded"
+# status (not just that the WebView didn't crash).
 #
-# Requires env: CATEGORY, PRODUCT_TITLE (see Android version's header comment).
+# Text entry uses long-press + tapOn "Paste", not inputText: XCTest's
+# synthetic typing silently truncates text on this field (confirmed on both
+# apostrophe-containing and plain queries in this project's other iOS
+# flows), and one of this flow's own titles ("Blue Women's Handbag") has an
+# apostrophe. The caller must pre-populate the simulator's OS pasteboard
+# with ${PRODUCT_TITLE} BEFORE invoking this flow:
+#   printf "%s" "$PRODUCT_TITLE" | xcrun simctl pbcopy <udid>
+#
+# Requires env: PRODUCT_ID (catalog-static.json id, e.g. "dj-88"),
+# PRODUCT_TITLE (that product's title -- also expected to already be on the
+# simulator's pasteboard, see above).
 - tapOn:
     id: "tab-products"
+
+- extendedWaitUntil:
+    visible:
+      id: "tab-products"
+    timeout: 8000
 
 - tapOn:
     id: "product-search-input"
 
-- inputText: "${PRODUCT_TITLE}"
+- longPressOn:
+    id: "product-search-input"
+
+- tapOn: "Paste"
 
 - pressKey: enter
 
 - extendedWaitUntil:
     visible:
-      text: "${PRODUCT_TITLE}"
+      id: "product-list-item-${PRODUCT_ID}"
     timeout: 15000
 
+# Same fix as the Android flow: a single search result's card can render
+# mostly hidden behind the floating bottom tab bar, with the LLM-invite
+# banner above it eating up the remaining scroll room. Dismissing the
+# banner (persisted via AsyncStorage) reclaims that space.
+- runFlow:
+    when:
+      visible:
+        id: "llm-invite-banner-dismiss"
+    commands:
+      - tapOn:
+          id: "llm-invite-banner-dismiss"
+
 - tapOn:
-    text: "${PRODUCT_TITLE}"
+    id: "product-list-item-${PRODUCT_ID}"
 
 - extendedWaitUntil:
     visible:
@@ -1670,31 +1703,41 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
     timeout: 30000
 ```
 
-Note: none of this plan's PDP search queries contain an apostrophe, so `inputText` is safe to
-use directly here — this is not the golden-multiparam-queries.json contraction case that
-required the paste-based workaround in the prior plan.
+**Deviation:** the original draft assumed none of this plan's search queries had an apostrophe
+and used `inputText` directly. That assumption was wrong — "Blue Women's Handbag"
+(bags-accessories) has one — so this flow uses the same paste-based text entry as
+`ml-multiparameter-search.yaml`, for every category, not just the one with an apostrophe (safer
+than special-casing one call site). Also carries over the same `product-list-item-<id>`
+targeting and LLM-banner-dismissal fixes as the Android flow (Task 4.1's deviation notes).
 
 - [ ] **Step 2: Verify with each Phase 1 category**
 
 ```bash
+UDID=<booted-simulator-udid>
 cat > .maestro/ios/_tmp-verify-3d.yaml <<'EOF'
 appId: org.reactjs.native.example.EcommerceAppFullStack
 ---
 - runFlow: login.yaml
 - runFlow: product-3d-viewer.yaml
 EOF
-maestro test .maestro/ios/_tmp-verify-3d.yaml \
-  --env CATEGORY="footwear" \
-  --env PRODUCT_TITLE="<the same real title used for Android>"
+printf '%s' "Nike Air Jordan 1 Red And Black" | xcrun simctl pbcopy "$UDID"
+maestro test .maestro/ios/_tmp-verify-3d.yaml --device "$UDID" \
+  --env PRODUCT_ID="dj-88" \
+  --env PRODUCT_TITLE="Nike Air Jordan 1 Red And Black"
 ```
 
-Expected: exits 0. Repeat for electronics, watches, bags-accessories.
+Expected: exits 0. Repeat for electronics (`dj-78` / "Apple MacBook Pro 14 Inch Space Grey"),
+watches (`dj-93` / "Brown Leather Belt Watch"), and bags-accessories (`dj-172` / "Blue Women's
+Handbag") — re-running `printf ... | xcrun simctl pbcopy "$UDID"` with the new title before each
+`maestro test` invocation, since the pasteboard must hold that exact query when the flow's
+long-press-and-paste step runs.
 
 - [ ] **Step 3: Verify the toggle is absent for a no-model category**
 
-Same pattern as Android Task 4.1 Step 3, adapted with `appId:
-org.reactjs.native.example.EcommerceAppFullStack` and `pressKey: enter` instead of `pressKey:
-Enter`/no back-key equivalent needed.
+Same pattern as Android Task 4.1 Step 3 (groceries / "Beef Steak" / `dj-17`), adapted with
+`appId: org.reactjs.native.example.EcommerceAppFullStack`, `pressKey: enter`, and the same
+paste-based text entry (`longPressOn` + `tapOn: "Paste"`, pasteboard pre-populated via
+`simctl pbcopy` beforehand) instead of `inputText`.
 
 - [ ] **Step 4: Clean up temp files, run full iOS regression**
 
