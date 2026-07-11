@@ -2975,7 +2975,43 @@ appId and no pressKey: back. Real-provider coverage remains user-run."
 
 ### Task C7: iOS Stage C regression gate (final gate for the whole plan)
 
-**Status:** Not Started
+**Status:** Done
+
+**Deviation notes:**
+- `login.yaml` x3 and both `photo-search.yaml` samples passed cleanly — no flakiness at all on
+  iOS's native `PHPickerViewController` (unlike Android's gallery-picker flake), confirming that
+  earlier Android issue really is Android-specific infrastructure flakiness, not a general
+  cross-platform picker problem.
+- `complete-e2e-clean.yaml` had three real, previously-hidden bugs, all fixed and verified with
+  2 consecutive clean runs:
+  1. The "Save Password?" skip matched the stale `"Save password"` text (no question mark,
+     lowercase) — the dialog silently blocked every subsequent step on a fresh `clearState: true`
+     run. `login.yaml` already had the correct `"Save Password\?"` pattern from earlier session
+     work; applied the same fix here.
+  2. Same pre-existing viewport assumption bug as the Android version — "Essence Mascara Lash
+     Princess" isn't in the initial browse-all viewport since the Phase 1 catalog rebuild. Fixed
+     the same way: search for it, target by its stable `product-list-item-dj-1` testID.
+  3. **New finding, broader than previously understood:** XCTest's synthetic typing on this app's
+     search input can drop everything after the very first character even with NO apostrophe
+     involved (confirmed directly: `"Essence Mascara Lash Princess"` typed via `inputText` left
+     only `"E"` in the field). This means the truncation bug found in Tasks C5/C6 isn't
+     specifically an apostrophe/contraction problem — it's a more general synthetic-typing
+     reliability issue on this simulator. Maestro's own `setClipboard` command was tried as the
+     paste source and worked on the first run, then silently failed (no error, browse-all list
+     shown instead) on an immediate re-run — the same unreliability found in Task C5. Since this
+     flow is invoked via a fixed `npm run maestro:ios` one-liner (no room for a companion
+     `--env`-driven pre-step), the clipboard pre-population was moved into the npm script itself
+     (`package.json`'s `maestro:ios` now runs `xcrun simctl pbcopy` before invoking `maestro
+     test`), keeping the proven-reliable external-pasteboard pattern intact for a
+     zero-argument, repeatable command.
+- `ml-features-comprehensive.yaml` passed cleanly on the first attempt (already using the
+  fixture-appropriate `EXPECTED_PRODUCT_TITLE` env var, and iOS's photo picker needed no
+  force-stop workaround unlike Android's).
+- Re-verified both Task C5/C6 flows (one fixture each) after all `complete-e2e-clean.yaml` fixes
+  — still pass. `npm test` → 190 passed, 1 known pre-existing failure
+  (`goldenFixtures.test.js`, unrelated).
+- **This is the final gate for the entire plan.** All three stages (0, A, B, C) across both
+  Android and iOS are now complete.
 
 **Entry Criteria:** Tasks C5-C6 committed.
 

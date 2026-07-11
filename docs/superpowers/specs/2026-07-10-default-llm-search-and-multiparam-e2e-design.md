@@ -228,6 +228,37 @@ for iOS's already-established login/keyboard conventions (`runFlow: login.yaml`,
   `scripts/eval-hybrid-search.mjs`. Found during this investigation, not fixed here (unrelated
   to search architecture).
 
+## Implementation results
+
+All three stages (0, A, B, C) of the implementation plan
+(`docs/superpowers/plans/2026-07-10-default-llm-search-and-multiparam-e2e.md`) are complete, with
+full Android and iOS regression gates green (`npm test` at 190 passed / 1 known pre-existing
+failure throughout). Notable findings during implementation, beyond what this spec anticipated:
+
+- A stale `config/app-target.json` (`"mode": "cloud"`) silently pointed the emulator at the old
+  Railway production backend for a full prior session — every "live verified" claim depending on
+  server-side behavior in that window wasn't actually exercising the code under test. See
+  `feedback_verify_backend_target_before_testing` memory.
+- **iOS text entry**: XCTest's synthetic `inputText` typing on this app's search/query inputs can
+  silently drop everything after the first character — most visibly (but not exclusively) with
+  apostrophes, since every `golden-multiparam-queries.json` fixture is phrased as a contraction
+  ("I'm looking for..."). The reliable fix throughout Stage C's iOS tasks: pre-populate the
+  simulator's real OS pasteboard via `xcrun simctl pbcopy` (either from the invoking script/env,
+  or baked into `package.json`'s `maestro:ios` for the zero-argument regression flow), then do a
+  native long-press + `tapOn: "Paste"` inside the Maestro flow. Maestro's own `setClipboard` and
+  `pasteText` commands were both tried and found unreliable for this.
+- **iOS raw-coordinate swipes use points, not screenshot pixels.** A percentage calibrated from
+  screenshot pixel positions (as Android's provider-chip swipe was) had zero effect on iOS; the
+  actual touch coordinate space matches `maestro hierarchy`'s point-based element bounds, which
+  can differ substantially from a screenshot's pixel dimensions (this project's simulator: 3x
+  scale, 440x956 points vs. 1320x2868 pixels).
+- Two real, previously-hidden application bugs were found and fixed via TDD while building these
+  E2E flows, unrelated to Maestro/test infrastructure: an Android-only Ollama base-URL override
+  that assumed a client-direct LLM call architecture (the call is actually proxied through the
+  server), and a redundant-search-debounce bug where displaying precomputed voice/photo search
+  results could trigger a silent second, independently-parsed search that overwrote the correct
+  one.
+
 ## Out of scope
 
 - Making materials a first-class structured field in the parser (currently they're only
