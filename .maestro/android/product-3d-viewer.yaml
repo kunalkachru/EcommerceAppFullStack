@@ -56,7 +56,13 @@ appId: com.ecommerceappfullstack
 # typical UI transitions -- give it a generous timeout, matching this project's
 # established pattern of longer waits for genuinely slow, real network/render
 # operations (e.g. photo-search.yaml's 60s wait for the CLIP pipeline).
+#
+# Asserts the bridge's own status text, not just "no error shown" -- the old
+# assertion (retry button not visible) was trivially satisfied by a viewer
+# stuck permanently on "loading" as much as by a real success, since the
+# retry button only ever appears on an explicit {"type":"error"} message.
 - extendedWaitUntil:
-    notVisible:
-      id: "product-3d-retry"
-    timeout: 30000
+    visible:
+      id: "product-3d-status"
+      text: "loaded"
+    timeout: 15000

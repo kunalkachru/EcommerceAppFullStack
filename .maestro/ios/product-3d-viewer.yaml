@@ -67,7 +67,12 @@ appId: org.reactjs.native.example.EcommerceAppFullStack
       id: "product-3d-webview"
     timeout: 10000
 
+# Asserts the bridge's own status text, not just "no error shown" -- the old
+# assertion (retry button not visible) was trivially satisfied by a viewer
+# stuck permanently on "loading" as much as by a real success, since the
+# retry button only ever appears on an explicit {"type":"error"} message.
 - extendedWaitUntil:
-    notVisible:
-      id: "product-3d-retry"
-    timeout: 30000
+    visible:
+      id: "product-3d-status"
+      text: "loaded"
+    timeout: 15000
