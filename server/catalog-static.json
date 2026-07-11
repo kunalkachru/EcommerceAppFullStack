@@ -547,7 +547,7 @@
       "priceTier": "premium",
       "imageAlt": "Classic Heather Gray Hoodie in Men's Clothing",
       "images": [
-        "assets/products/classic-heather-gray-hoodie/1.png"
+        "assets/products/classic-heather-gray-hoodie/1.jpg"
       ],
       "colors": [
         "gray"
@@ -591,7 +591,7 @@
       "availability": "in_stock",
       "rating": 4,
       "slug": "classic-heather-gray-hoodie",
-      "image": "assets/products/classic-heather-gray-hoodie/1.png"
+      "image": "assets/products/classic-heather-gray-hoodie/1.jpg"
     },
     {
       "id": "es-4",
@@ -1029,7 +1029,7 @@
     {
       "id": "es-12",
       "title": "Classic Black Baseball Cap",
-      "description": "Elevate your casual wear with this timeless black baseball cap. Made with high-quality, breathable fabric, it features an adjustable strap for the perfect fit. Whether you’re out for a jog or just running errands, this cap adds a touch of style to any outfit.",
+      "description": "Elevate your casual wear with this timeless black baseball cap. Made with high-quality, breathable fabric, it features an adjustable strap for the perfect fit. Whether you\u2019re out for a jog or just running errands, this cap adds a touch of style to any outfit.",
       "brand": "Classic Black",
       "category": "mens-clothing",
       "categoryLabel": "Men's Clothing",
@@ -7193,7 +7193,7 @@
     {
       "id": "dj-52",
       "title": "Carbon Steel Wok",
-      "description": "The Carbon Steel Wok is a versatile cooking pan suitable for stir-frying, sautéing, and deep frying. Its sturdy construction ensures even heat distribution for delicious meals.",
+      "description": "The Carbon Steel Wok is a versatile cooking pan suitable for stir-frying, saut\u00e9ing, and deep frying. Its sturdy construction ensures even heat distribution for delicious meals.",
       "brand": "Carbon Steel",
       "category": "home-kitchen",
       "categoryLabel": "Home & Kitchen",
@@ -8135,7 +8135,7 @@
     {
       "id": "dj-20",
       "title": "Cooking Oil",
-      "description": "Versatile cooking oil suitable for frying, sautéing, and various culinary applications.",
+      "description": "Versatile cooking oil suitable for frying, saut\u00e9ing, and various culinary applications.",
       "brand": "Cooking Oil",
       "category": "groceries",
       "categoryLabel": "Groceries",
