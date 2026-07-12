@@ -20,7 +20,7 @@ const { validateQueryImage } = require("./search/visual/imageQualityGate");
 const MODEL_ID = "Xenova/clip-vit-base-patch32";
 const CACHE_MODEL_KEY = `${MODEL_ID}-catalog-v3`;
 const EMBED_CACHE_PATH = path.join(__dirname, "..", "data", "clip-embeddings.json");
-const REPO_ROOT = path.join(__dirname, "..", "..");
+const REPO_ROOT = path.join(__dirname, "..");
 
 /**
  * Static-catalog products (CATALOG_MODE=static) only carry an `images`
