@@ -6,6 +6,7 @@
  *   API_URL=https://your-app.up.railway.app npm run verify:cloud:clip
  */
 import { DEFAULT_CLOUD_API } from "./lib/cloud-api-url.mjs";
+import { resolveClipIndexTarget } from "./lib/verify-ml-thresholds.mjs";
 
 const BASE = process.env.API_URL || DEFAULT_CLOUD_API;
 const MIN_INDEX = Number(process.env.MIN_CLIP_INDEX || 200);
@@ -24,6 +25,7 @@ async function main() {
 
   const start = Date.now();
   let last = null;
+  let loggedAdjustment = false;
 
   while (Date.now() - start < MAX_WAIT_MS) {
     const { status, body } = await getStatus();
@@ -33,10 +35,17 @@ async function main() {
     }
     last = body;
     const { modelLoaded, indexCount, catalogCount, indexing } = body;
+    const target = resolveClipIndexTarget({ minIndex: MIN_INDEX, catalogCount });
+    if (target < MIN_INDEX && !loggedAdjustment) {
+      console.log(
+        `\nℹ clip-index target adjusted to ${target} because catalog currently exposes ${catalogCount} products`
+      );
+      loggedAdjustment = true;
+    }
     process.stdout.write(
       `  … modelLoaded=${modelLoaded} index=${indexCount}/${catalogCount || "?"} indexing=${indexing}\r`
     );
-    if (modelLoaded && indexCount >= MIN_INDEX) {
+    if (modelLoaded && indexCount >= target) {
       console.log(`\n✓ CLIP ready — ${indexCount} products indexed`);
       process.exit(0);
     }
