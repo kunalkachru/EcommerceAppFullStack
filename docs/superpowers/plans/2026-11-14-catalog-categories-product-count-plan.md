@@ -6,7 +6,6 @@ Checks: AC-1, AC-2, AC-3, AC-4, AC-5
 
 Files:
 - Modify: `server/src/index.js`
-- Modify: `server/src/catalogService.js` (only if a small catalog-derived category helper is needed; keep the endpoint backed by `fetchCatalog` and do not introduce a maintained category list)
 
 Tests:
 - `server/src/catalogCategories.test.js::returns the catalog categories with exact fields and a 200 response`
@@ -19,7 +18,7 @@ How to show:
 - Derive each response entry as exactly `{ slug, label, productCount }`, using the product category slug and `categoryLabel`, with a non-negative integer count.
 - Sort by `productCount` descending and then `slug` ascending, and return `{ categories: [...] }` with HTTP 200.
 - Reuse the catalog routes’ `try/catch` response contract (`{ message: string }`) with HTTP 500 when `fetchCatalog()` rejects.
-- If needed for the integration test, export the Express app and guard startup so importing the app does not open a listening socket; do not alter production startup behavior.
+- Export the Express app and guard startup so importing it for HTTP tests does not open a listening socket; preserve normal production startup behavior.
 
 ## T2: Add focused HTTP contract and failure tests for catalog categories
 
@@ -39,4 +38,3 @@ How to show:
 - Mock the catalog service with representative products, including repeated slugs and tied counts, then issue an actual HTTP GET against the Express app and assert status, JSON shape, exact field sets, labels, counts, ordering, and deterministic repeated results.
 - In a separate failure case, make the mocked catalog loader reject and assert HTTP 500 plus a string `body.message`, without accepting a separately invented error shape.
 - Keep the test isolated from the on-disk catalog and avoid credentials, network calls, and new dependencies.
-
