@@ -270,6 +270,33 @@ app.get("/api/catalog/products", async (_req, res) => {
   }
 });
 
+app.get("/api/catalog/categories", async (_req, res) => {
+  try {
+    const products = await fetchCatalog();
+    const categories = new Map();
+
+    for (const product of products) {
+      const slug = product.category;
+      if (!categories.has(slug)) {
+        categories.set(slug, {
+          slug,
+          label: product.categoryLabel,
+          productCount: 0,
+        });
+      }
+      categories.get(slug).productCount += 1;
+    }
+
+    res.json({
+      categories: [...categories.values()].sort(
+        (a, b) => b.productCount - a.productCount || a.slug.localeCompare(b.slug)
+      ),
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Catalog unavailable" });
+  }
+});
+
 app.get("/api/catalog/products/:id", async (req, res) => {
   try {
     await fetchCatalog();
@@ -696,11 +723,15 @@ app.get("/api/orders/:id", authMiddleware, (req, res) => {
   res.json(order);
 });
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(
-    `Ecommerce API listening on http://0.0.0.0:${PORT} (${runtimeConfig.runtimeName})`
-  );
-  if (process.env.SKIP_CLIP_WARMUP !== "1") {
-    warmVisualSearchIndex();
-  }
-});
+if (require.main === module) {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(
+      `Ecommerce API listening on http://0.0.0.0:${PORT} (${runtimeConfig.runtimeName})`
+    );
+    if (process.env.SKIP_CLIP_WARMUP !== "1") {
+      warmVisualSearchIndex();
+    }
+  });
+}
+
+module.exports = { app };
