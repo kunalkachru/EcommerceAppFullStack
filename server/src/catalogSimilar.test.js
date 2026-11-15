@@ -113,7 +113,7 @@ test("accepts integer limits from one through ten", async () => {
 });
 
 test("rejects invalid limits with a clear 400 error message", async () => {
-  for (const limit of ["0", "11", "1.5", "nope"]) {
+  for (const limit of ["0", "11", "1.5", "nope", ""]) {
     const response = await request(`/api/catalog/products/1/similar?limit=${limit}`);
     expect(response.status).toBe(400);
     expect(response.body.message).toMatch(/limit.*integer.*1.*10/i);
