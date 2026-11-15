@@ -297,6 +297,54 @@ app.get("/api/catalog/categories", async (_req, res) => {
   }
 });
 
+app.get("/api/catalog/products/:id/similar", async (req, res) => {
+  const rawLimit = req.query.limit;
+  let limit = 5;
+
+  if (rawLimit !== undefined) {
+    if (
+      Array.isArray(rawLimit) ||
+      typeof rawLimit !== "string" ||
+      !/^\d+$/.test(rawLimit) ||
+      !Number.isInteger(Number(rawLimit)) ||
+      Number(rawLimit) < 1 ||
+      Number(rawLimit) > 10
+    ) {
+      return res.status(400).json({
+        message: "limit must be an integer from 1 to 10",
+      });
+    }
+    limit = Number(rawLimit);
+  }
+
+  try {
+    const products = await fetchCatalog();
+    const product = getProductById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    const productPrice = Number(product.price);
+    const similarProducts = products
+      .filter(
+        (candidate) =>
+          String(candidate.id) !== String(product.id) &&
+          candidate.category === product.category
+      )
+      .sort((a, b) => {
+        const distance =
+          Math.abs(Number(a.price) - productPrice) -
+          Math.abs(Number(b.price) - productPrice);
+        return distance || String(a.id).localeCompare(String(b.id));
+      })
+      .slice(0, limit);
+
+    res.json({ products: similarProducts });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Catalog unavailable" });
+  }
+});
+
 app.get("/api/catalog/products/:id", async (req, res) => {
   try {
     await fetchCatalog();
