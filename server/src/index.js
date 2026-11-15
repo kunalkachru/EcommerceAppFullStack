@@ -335,7 +335,14 @@ app.get("/api/catalog/products/:id/similar", async (req, res) => {
         const distance =
           Math.abs(Number(a.price) - productPrice) -
           Math.abs(Number(b.price) - productPrice);
-        return distance || String(a.id).localeCompare(String(b.id));
+        if (distance) return distance;
+
+        const aId = Number(a.id);
+        const bId = Number(b.id);
+        if (Number.isFinite(aId) && Number.isFinite(bId) && aId !== bId) {
+          return aId - bId;
+        }
+        return String(a.id).localeCompare(String(b.id));
       })
       .slice(0, limit);
 
