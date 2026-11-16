@@ -62,8 +62,8 @@
         "men"
       ],
       "sku": "SKU-BLUE-BLACK-CHECK-SHIRT",
-      "inventoryCount": 34,
-      "availability": "in_stock",
+      "inventoryCount": 0,
+      "availability": "out_of_stock",
       "rating": 3.64,
       "slug": "blue-black-check-shirt",
       "image": "assets/products/blue-black-check-shirt/1.webp"
