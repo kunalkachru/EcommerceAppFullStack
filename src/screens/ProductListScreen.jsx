@@ -269,7 +269,7 @@ const ProductListScreen = ({ navigation }) => {
   const handleAddToCart = useCallback(
     (product) => {
       const id = product?.id;
-      if (id == null) {
+      if (id == null || Number(product.inventoryCount) === 0) {
         return;
       }
       const key = String(id);
@@ -303,13 +303,17 @@ const ProductListScreen = ({ navigation }) => {
               {item.title}
             </Text>
             <Text style={styles.productPrice}>${item.price}</Text>
+            {Number(item.inventoryCount) === 0 ? (
+              <Text style={styles.outOfStockLabel}>Out of stock</Text>
+            ) : null}
           </TouchableOpacity>
           <TouchableOpacity
+            testID={`product-list-add-${item.id}`}
             style={[
               styles.addButton,
-              isPending && styles.addButtonDisabled,
+              (isPending || Number(item.inventoryCount) === 0) && styles.addButtonDisabled,
             ]}
-            disabled={isPending}
+            disabled={isPending || Number(item.inventoryCount) === 0}
             onPress={() => handleAddToCart(item)}
           >
             <Text style={styles.addButtonText}>{isPending ? "Adding…" : "Add"}</Text>
@@ -772,6 +776,12 @@ const styles = StyleSheet.create({
   productPrice: {
     fontSize: 13,
     color: colors.textMuted,
+    marginTop: 2,
+  },
+  outOfStockLabel: {
+    color: "#C62828",
+    fontSize: 12,
+    fontWeight: "700",
     marginTop: 2,
   },
   addButton: {
