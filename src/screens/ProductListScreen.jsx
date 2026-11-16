@@ -37,6 +37,9 @@ const sortOptions = ["Default", "Price: Low to High", "Price: High to Low"];
 // permanently unreachable via browse or search.
 const DEFAULT_PRICE_MAX = 2000;
 
+const isOutOfStock = (product) =>
+  Number(product?.inventoryCount) <= 0 || product?.availability === "out_of_stock";
+
 const ProductListScreen = ({ navigation }) => {
   const route = useRoute();
   const { products, isLoading, error, isOfflineFallback, refetch, catalogTotal } =
@@ -269,7 +272,7 @@ const ProductListScreen = ({ navigation }) => {
   const handleAddToCart = useCallback(
     (product) => {
       const id = product?.id;
-      if (id == null || Number(product.inventoryCount) === 0) {
+      if (id == null || isOutOfStock(product)) {
         return;
       }
       const key = String(id);
@@ -285,6 +288,7 @@ const ProductListScreen = ({ navigation }) => {
     ({ item }) => {
       const idKey = String(item.id);
       const isPending = !!pendingByProduct[idKey];
+      const outOfStock = isOutOfStock(item);
       return (
         <View style={styles.productContainer}>
           <TouchableOpacity
@@ -303,7 +307,7 @@ const ProductListScreen = ({ navigation }) => {
               {item.title}
             </Text>
             <Text style={styles.productPrice}>${item.price}</Text>
-            {Number(item.inventoryCount) === 0 ? (
+            {outOfStock ? (
               <Text style={styles.outOfStockLabel}>Out of stock</Text>
             ) : null}
           </TouchableOpacity>
@@ -311,9 +315,9 @@ const ProductListScreen = ({ navigation }) => {
             testID={`product-list-add-${item.id}`}
             style={[
               styles.addButton,
-              (isPending || Number(item.inventoryCount) === 0) && styles.addButtonDisabled,
+              (isPending || outOfStock) && styles.addButtonDisabled,
             ]}
-            disabled={isPending || Number(item.inventoryCount) === 0}
+            disabled={isPending || outOfStock}
             onPress={() => handleAddToCart(item)}
           >
             <Text style={styles.addButtonText}>{isPending ? "Adding…" : "Add"}</Text>
