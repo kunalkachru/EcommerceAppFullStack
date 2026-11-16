@@ -9,7 +9,7 @@ const mockAddToCart = jest.fn((product) => ({
   payload: product,
 }));
 
-const products = [
+const mockProducts = [
   {
     id: 1,
     title: "Zero Stock Tote",
@@ -51,12 +51,12 @@ jest.mock("react-redux", () => ({
 
 jest.mock("../redux/api/catalogApi", () => ({
   useCatalogProducts: () => ({
-    products,
+    products: mockProducts,
     isLoading: false,
     error: null,
     isOfflineFallback: false,
     refetch: jest.fn(),
-    catalogTotal: products.length,
+    catalogTotal: mockProducts.length,
   }),
   getTopCategories: () => ["bags", "women's clothing"],
 }));
@@ -171,10 +171,10 @@ describe("ProductListScreen stock-state cards", () => {
 
     act(() => button.props.onPress());
 
-    expect(mockAddToCart).toHaveBeenCalledWith(products[1]);
+    expect(mockAddToCart).toHaveBeenCalledWith(mockProducts[1]);
     expect(mockDispatch).toHaveBeenCalledWith({
       type: "cart/addToCart",
-      payload: products[1],
+      payload: mockProducts[1],
     });
   });
 
