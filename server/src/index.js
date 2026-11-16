@@ -270,6 +270,31 @@ app.get("/api/catalog/products", async (_req, res) => {
   }
 });
 
+app.get("/api/products", async (req, res) => {
+  const sort = req.query.sort;
+  if (
+    sort !== undefined &&
+    (Array.isArray(sort) || !["price_asc", "price_desc"].includes(sort))
+  ) {
+    return res.status(400).json({
+      message: "sort must be price_asc or price_desc",
+    });
+  }
+
+  try {
+    const products = await fetchCatalog();
+    const orderedProducts = sort
+      ? products.slice().sort((a, b) => {
+          const difference = Number(a.price) - Number(b.price);
+          return sort === "price_desc" ? -difference : difference;
+        })
+      : products;
+    res.json({ products: orderedProducts, meta: getCatalogMeta() });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "Catalog unavailable" });
+  }
+});
+
 app.get("/api/catalog/categories", async (_req, res) => {
   try {
     const products = await fetchCatalog();
