@@ -269,7 +269,8 @@ const ProductListScreen = ({ navigation }) => {
   const handleAddToCart = useCallback(
     (product) => {
       const id = product?.id;
-      if (id == null) {
+      const isOutOfStock = product?.stock != null && Number(product.stock) === 0;
+      if (id == null || isOutOfStock) {
         return;
       }
       const key = String(id);
@@ -285,6 +286,7 @@ const ProductListScreen = ({ navigation }) => {
     ({ item }) => {
       const idKey = String(item.id);
       const isPending = !!pendingByProduct[idKey];
+      const isOutOfStock = item.stock != null && Number(item.stock) === 0;
       return (
         <View style={styles.productContainer}>
           <TouchableOpacity
@@ -303,13 +305,16 @@ const ProductListScreen = ({ navigation }) => {
               {item.title}
             </Text>
             <Text style={styles.productPrice}>${item.price}</Text>
+            {isOutOfStock ? (
+              <Text style={styles.outOfStockLabel}>Out of stock</Text>
+            ) : null}
           </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.addButton,
-              isPending && styles.addButtonDisabled,
+              (isPending || isOutOfStock) && styles.addButtonDisabled,
             ]}
-            disabled={isPending}
+            disabled={isPending || isOutOfStock}
             onPress={() => handleAddToCart(item)}
           >
             <Text style={styles.addButtonText}>{isPending ? "Adding…" : "Add"}</Text>
@@ -772,6 +777,11 @@ const styles = StyleSheet.create({
   productPrice: {
     fontSize: 13,
     color: colors.textMuted,
+    marginTop: 2,
+  },
+  outOfStockLabel: {
+    fontSize: 13,
+    color: colors.error,
     marginTop: 2,
   },
   addButton: {
