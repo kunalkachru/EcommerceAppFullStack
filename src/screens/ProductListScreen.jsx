@@ -38,7 +38,7 @@ const sortOptions = ["Default", "Price: Low to High", "Price: High to Low"];
 const DEFAULT_PRICE_MAX = 2000;
 
 const isOutOfStock = (product) =>
-  Number(product?.inventoryCount) <= 0 || product?.availability === "out_of_stock";
+  Number(product?.inventoryCount) === 0;
 
 const ProductListScreen = ({ navigation }) => {
   const route = useRoute();

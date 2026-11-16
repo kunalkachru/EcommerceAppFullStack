@@ -83,6 +83,16 @@ const inStockProduct = {
   inventoryCount: 3,
 };
 
+const availableInventoryWithStaleAvailability = {
+  id: "stale-availability",
+  title: "Stale Availability Product",
+  price: 55,
+  image: "https://example.com/stale-availability.png",
+  category: "test",
+  inventoryCount: 3,
+  availability: "out_of_stock",
+};
+
 function renderProducts(products) {
   mockProducts = products;
   mockDispatch.mockClear();
@@ -162,6 +172,24 @@ describe("ProductListScreen product-card stock behavior", () => {
     expect(mockDispatch).toHaveBeenCalledWith({
       type: "cart/addToCart",
       payload: inStockProduct,
+    });
+  });
+
+  it("uses inventory count over a stale out-of-stock availability value", () => {
+    const tree = renderProducts([availableInventoryWithStaleAvailability]);
+    const card = productCard(tree, availableInventoryWithStaleAvailability);
+    const addButton = tree.root.findByProps({
+      testID: `product-list-add-${availableInventoryWithStaleAvailability.id}`,
+    });
+
+    expect(cardTexts(card).some((node) => textValue(node) === "Out of stock")).toBe(false);
+    expect(addButton.props.disabled).toBe(false);
+    act(() => {
+      addButton.props.onPress();
+    });
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "cart/addToCart",
+      payload: availableInventoryWithStaleAvailability,
     });
   });
 });
