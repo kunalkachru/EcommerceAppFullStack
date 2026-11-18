@@ -68,69 +68,89 @@ afterEach(() => {
   jest.clearAllMocks();
 });
 
-test("returns the complete product list in nondecreasing numeric price order for price_asc", async () => {
-  const response = await request("/api/products?sort=price_asc");
+describe("AC-9: sorting regression coverage for filtered product lists", () => {
+  describe("AC-5: filtered lists retain numeric price sorting", () => {
+    test("returns filtered products in nondecreasing numeric price order for price_asc", async () => {
+      const response = await request(
+        "/api/products?category=test&minPrice=3&maxPrice=12.5&sort=price_asc"
+      );
 
-  expect(response.status).toBe(200);
-  expect(response.body.products).toHaveLength(products.length);
-  expect(response.body.products.map(({ price }) => Number(price))).toEqual([
-    3,
-    12.5,
-    12.5,
-    99.99,
-  ]);
-});
+      expect(response.status).toBe(200);
+      expect(response.body.products.map(({ price }) => Number(price))).toEqual([
+        3,
+        12.5,
+        12.5,
+      ]);
+      expect(response.body.meta).toEqual(metadata);
+    });
 
-test("returns the complete product list in nonincreasing numeric price order for price_desc", async () => {
-  const response = await request("/api/products?sort=price_desc");
+    test("returns filtered products in nonincreasing numeric price order for price_desc", async () => {
+      const response = await request(
+        "/api/products?q=price&category=test&minPrice=3&maxPrice=12.5&sort=price_desc"
+      );
 
-  expect(response.status).toBe(200);
-  expect(response.body.products).toHaveLength(products.length);
-  expect(response.body.products.map(({ price }) => Number(price))).toEqual([
-    99.99,
-    12.5,
-    12.5,
-    3,
-  ]);
-});
+      expect(response.status).toBe(200);
+      expect(response.body.products.map(({ price }) => Number(price))).toEqual([
+        12.5,
+        12.5,
+        3,
+      ]);
+      expect(response.body.meta).toEqual(metadata);
+    });
 
-test("preserves products and metadata while changing only product order", async () => {
-  const response = await request("/api/products?sort=price_asc");
+    test("retains existing price sorting behavior alongside filtering", async () => {
+      const response = await request(
+        "/api/products?q=Equal&category=test&minPrice=10&maxPrice=20&sort=price_asc"
+      );
 
-  expect(response.body.meta).toEqual(metadata);
-  expect(response.body.products).toHaveLength(products.length);
-  expect(response.body.products.map(({ id }) => id).sort()).toEqual(
-    products.map(({ id }) => id).sort()
-  );
-  expect(response.body.products.map(({ id }) => id)).not.toEqual(
-    products.map(({ id }) => id)
-  );
-});
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
+        products: [products[2]],
+        meta: metadata,
+      });
+    });
+  });
 
-test("preserves the existing product order and response shape without sort", async () => {
-  const response = await request("/api/products");
+  test("preserves products and metadata while changing only product order", async () => {
+    const response = await request("/api/products?sort=price_asc");
 
-  expect(response.status).toBe(200);
-  expect(response.body).toEqual({ products, meta: metadata });
-});
+    expect(response.body.meta).toEqual(metadata);
+    expect(response.body.products).toHaveLength(products.length);
+    expect(response.body.products.map(({ id }) => id).sort()).toEqual(
+      products.map(({ id }) => id).sort()
+    );
+    expect(response.body.products.map(({ id }) => id)).not.toEqual(
+      products.map(({ id }) => id)
+    );
+  });
 
-test("rejects unsupported sort values with a clear 400 JSON error", async () => {
-  const response = await request("/api/products?sort=rating");
+  describe("AC-8: unfiltered product list regression behavior", () => {
+    test("preserves the existing product order and response shape without filters or sort", async () => {
+      const response = await request("/api/products");
 
-  expect(response.status).toBe(400);
-  expect(response.body).toEqual(
-    expect.objectContaining({
-      message: expect.stringMatching(/sort.*price_asc.*price_desc/i),
-    })
-  );
-});
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ products, meta: metadata });
+    });
+  });
 
-test("uses deterministic fixtures including equal prices for sorting coverage", () => {
-  expect(products).toEqual(
-    expect.arrayContaining([
-      expect.objectContaining({ id: "p-1", price: "12.50" }),
-      expect.objectContaining({ id: "p-3", price: "12.50" }),
-    ])
-  );
-  expect(products.filter(({ price }) => Number(price) === 12.5)).toHaveLength(2);
+  test("rejects unsupported sort values with a clear 400 JSON error", async () => {
+    const response = await request("/api/products?sort=rating");
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual(
+      expect.objectContaining({
+        message: expect.stringMatching(/sort.*price_asc.*price_desc/i),
+      })
+    );
+  });
+
+  test("uses deterministic fixtures including equal prices for sorting coverage", () => {
+    expect(products).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: "p-1", price: "12.50" }),
+        expect.objectContaining({ id: "p-3", price: "12.50" }),
+      ])
+    );
+    expect(products.filter(({ price }) => Number(price) === 12.5)).toHaveLength(2);
+  });
 });
