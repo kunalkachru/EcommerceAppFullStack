@@ -172,3 +172,79 @@ test("AC-9: retains established sort behavior without filters", async () => {
   expect(response.status).toBe(200);
   expect(response.body.products.map(({ id }) => id)).toEqual(["p-4", "p-2", "p-1", "p-3"]);
 });
+
+test("filters products by title or brand with a case-insensitive q query", async () => {
+  const response = await request("/api/products?q=aUrOrA");
+
+  expect(response.status).toBe(200);
+  expect(response.body.products.map(({ id }) => id)).toEqual(["p-1", "p-2", "p-3"]);
+});
+
+test("filters products by exact category", async () => {
+  const response = await request("/api/products?category=electronics");
+
+  expect(response.status).toBe(200);
+  expect(response.body.products.map(({ id }) => id)).toEqual(["p-1", "p-3"]);
+});
+
+test("filters products by inclusive minPrice and maxPrice bounds", async () => {
+  const response = await request("/api/products?minPrice=12&maxPrice=79.5");
+
+  expect(response.status).toBe(200);
+  expect(response.body.products.map(({ id }) => id)).toEqual(["p-2", "p-4"]);
+});
+
+test("combines q category and price filters", async () => {
+  const response = await request(
+    "/api/products?q=aurora&category=electronics&minPrice=40&maxPrice=100"
+  );
+
+  expect(response.status).toBe(200);
+  expect(response.body.products.map(({ id }) => id)).toEqual(["p-1"]);
+});
+
+test("sorts the combined filtered result by price_asc and price_desc", async () => {
+  const ascending = await request(
+    "/api/products?q=aurora&category=electronics&minPrice=40&maxPrice=150&sort=price_asc"
+  );
+  const descending = await request(
+    "/api/products?q=aurora&category=electronics&minPrice=40&maxPrice=150&sort=price_desc"
+  );
+
+  expect(ascending.status).toBe(200);
+  expect(ascending.body.products.map(({ id }) => id)).toEqual(["p-1", "p-3"]);
+  expect(descending.status).toBe(200);
+  expect(descending.body.products.map(({ id }) => id)).toEqual(["p-3", "p-1"]);
+});
+
+test("rejects negative price bounds with a clear invalid price range message", async () => {
+  const response = await request("/api/products?minPrice=-1");
+
+  expect(response.status).toBe(400);
+  expect(response.body).toEqual({
+    message: expect.stringMatching(/invalid price range/i),
+  });
+});
+
+test("rejects minPrice greater than maxPrice with a clear minPrice message", async () => {
+  const response = await request("/api/products?minPrice=80&maxPrice=20");
+
+  expect(response.status).toBe(400);
+  expect(response.body).toEqual({
+    message: expect.stringMatching(/minPrice.*cannot be greater than maxPrice/i),
+  });
+});
+
+test("preserves the existing response shape and ordering without filters", async () => {
+  const response = await request("/api/products");
+
+  expect(response.status).toBe(200);
+  expect(response.body).toEqual({ products, meta: metadata });
+});
+
+test("retains established sort behavior without filters", async () => {
+  const response = await request("/api/products?sort=price_asc");
+
+  expect(response.status).toBe(200);
+  expect(response.body.products.map(({ id }) => id)).toEqual(["p-4", "p-2", "p-1", "p-3"]);
+});
