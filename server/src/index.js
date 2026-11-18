@@ -272,6 +272,7 @@ app.get("/api/catalog/products", async (_req, res) => {
 
 app.get("/api/products", async (req, res) => {
   const sort = req.query.sort;
+  const { q, category, minPrice: minPriceQuery, maxPrice: maxPriceQuery } = req.query;
   if (
     sort !== undefined &&
     (Array.isArray(sort) || !["price_asc", "price_desc"].includes(sort))
@@ -281,14 +282,38 @@ app.get("/api/products", async (req, res) => {
     });
   }
 
+  const minPrice = minPriceQuery === undefined ? undefined : Number(minPriceQuery);
+  const maxPrice = maxPriceQuery === undefined ? undefined : Number(maxPriceQuery);
+  if (
+    (minPriceQuery !== undefined && (!Number.isFinite(minPrice) || minPrice < 0)) ||
+    (maxPriceQuery !== undefined && (!Number.isFinite(maxPrice) || maxPrice < 0)) ||
+    (minPrice !== undefined && maxPrice !== undefined && minPrice > maxPrice)
+  ) {
+    return res.status(400).json({
+      message: "invalid price range: prices must be non-negative and minPrice must not exceed maxPrice",
+    });
+  }
+
   try {
     const products = await fetchCatalog();
+    const normalizedQuery = q === undefined ? undefined : String(q).toLowerCase();
+    const filteredProducts = products.filter((product) => {
+      const matchesQuery =
+        normalizedQuery === undefined ||
+        String(product.title || "").toLowerCase().includes(normalizedQuery) ||
+        String(product.brand || "").toLowerCase().includes(normalizedQuery);
+      const matchesCategory = category === undefined || product.category === category;
+      const numericPrice = Number(product.price);
+      const matchesMinPrice = minPrice === undefined || numericPrice >= minPrice;
+      const matchesMaxPrice = maxPrice === undefined || numericPrice <= maxPrice;
+      return matchesQuery && matchesCategory && matchesMinPrice && matchesMaxPrice;
+    });
     const orderedProducts = sort
-      ? products.slice().sort((a, b) => {
+      ? filteredProducts.slice().sort((a, b) => {
           const difference = Number(a.price) - Number(b.price);
           return sort === "price_desc" ? -difference : difference;
         })
-      : products;
+      : filteredProducts;
     res.json({ products: orderedProducts, meta: getCatalogMeta() });
   } catch (err) {
     res.status(500).json({ message: err.message || "Catalog unavailable" });
