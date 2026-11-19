@@ -84,7 +84,7 @@ describe("CartScreen", () => {
     ];
   });
 
-  it("keeps the primary checkout action available when items are present", async () => {
+  it("AC-4: keeps the primary checkout action available when items are present", async () => {
     const tree = await renderCart();
 
     expect(() =>
