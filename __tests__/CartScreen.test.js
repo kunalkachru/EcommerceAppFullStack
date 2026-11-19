@@ -13,6 +13,7 @@ let mockCartItems = [
     image: "https://example.com/coat.png",
   },
 ];
+let mockCartError = null;
 const mockDispatch = jest.fn(() => Promise.resolve({ type: "cart/clearCart/fulfilled" }));
 
 jest.mock("@react-navigation/native", () => ({
@@ -27,7 +28,7 @@ jest.mock("react-redux", () => ({
       cart: {
         cartItems: mockCartItems,
         loading: false,
-        error: null,
+        error: mockCartError,
       },
     }),
 }));
@@ -75,6 +76,7 @@ describe("CartScreen", () => {
   beforeEach(() => {
     mockDispatch.mockClear();
     mockDispatch.mockResolvedValue({ type: "cart/clearCart/fulfilled" });
+    mockCartError = null;
   });
 
   afterEach(() => {
@@ -196,6 +198,32 @@ describe("CartScreen", () => {
     expect(mockDispatch).toHaveBeenCalledTimes(1);
     expect(renderedText(tree)).toContain("Your bag is ready when you are.");
     expect(renderedText(tree)).toContain("Undo");
+    await act(async () => tree.unmount());
+  });
+
+  it("restores cleared items when Undo is selected before the deadline", async () => {
+    const tree = await renderCart();
+    await act(async () => tree.root.findByProps({ testID: "cart-clear" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-clear-all" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-undo" }).props.onPress());
+
+    expect(renderedText(tree)).toContain("Structured Wool Coat");
+    expect(renderedText(tree)).toContain("Qty 2");
+    expect(renderedText(tree)).not.toContain("Undo");
+    await act(async () => tree.unmount());
+  });
+
+  it("shows the existing cart error instead of Undo after a failed clear", async () => {
+    mockCartError = { message: "Clear failed" };
+    mockDispatch.mockResolvedValue({ type: "cart/clearCart/rejected" });
+    const tree = await renderCart();
+
+    await act(async () => tree.root.findByProps({ testID: "cart-clear" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-clear-all" }).props.onPress());
+
+    expect(renderedText(tree)).toContain("Clear failed");
+    expect(renderedText(tree)).not.toContain("Undo");
+    expect(renderedText(tree)).not.toContain("Clear all items?");
     await act(async () => tree.unmount());
   });
 

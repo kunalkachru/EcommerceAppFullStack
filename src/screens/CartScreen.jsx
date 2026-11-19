@@ -14,7 +14,7 @@ import {
   adjustCartItemDelta,
   removeFromCart,
   clearCart,
-  addToCart,
+  restoreCartSnapshot,
   fetchCart,
 } from "../redux/cartSlice";
 import {
@@ -94,6 +94,7 @@ const CartScreen = ({ navigation }) => {
     const snapshot = visibleCartItems.map((item) => ({ ...item }));
     const result = await dispatch(clearCart());
     if (result?.type?.endsWith("/rejected")) {
+      setClearConfirmationOpen(false);
       return;
     }
 
@@ -115,11 +116,7 @@ const CartScreen = ({ navigation }) => {
     setUndoVisible(false);
     setClearSnapshot(null);
 
-    for (const item of snapshot) {
-      for (let quantity = 0; quantity < item.quantity; quantity += 1) {
-        await dispatch(addToCart(item));
-      }
-    }
+    await dispatch(restoreCartSnapshot(snapshot));
     dispatch(fetchCart());
   }, [clearSnapshot, dispatch]);
 
