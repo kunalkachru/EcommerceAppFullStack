@@ -23,7 +23,7 @@ const renderScreen = () => {
 };
 
 describe("ProfileScreen version AC-1", () => {
-  it("renders the package version with the required label", () => {
+  it("AC-1: renders the package version with the required label", () => {
     const tree = renderScreen();
 
     expect(tree.root.findByProps({ testID: "profile-version" }).props.children).toBe(
@@ -33,7 +33,7 @@ describe("ProfileScreen version AC-1", () => {
 });
 
 describe("ProfileScreen version AC-2", () => {
-  it("renders the version after the existing profile actions", () => {
+  it("AC-2: renders the version after the existing profile actions", () => {
     const tree = renderScreen();
     const testIds = tree.root
       .findAll((node) => Boolean(node.props && node.props.testID))
