@@ -141,11 +141,13 @@ export const removeFromCart = createAsyncThunk(
 export const clearCart = createAsyncThunk(
   "cart/clearCart",
   async (_, { getState, rejectWithValue }) => {
+    const cartItems = getState().cart?.cartItems || [];
+    const undoSnapshot = cartItems.map((item) => ({ ...item }));
     try {
       const response = await apiClient.delete("/api/cart/clear", {
         headers: authHeaders(getState),
       });
-      return response.data;
+      return { ...response.data, undoSnapshot };
     } catch (error) {
       console.error("Clear Cart Error:", error.response?.data || error.message);
       return rejectWithValue(
@@ -155,14 +157,51 @@ export const clearCart = createAsyncThunk(
   }
 );
 
+export const restoreCartSnapshot = createAsyncThunk(
+  "cart/restoreCartSnapshot",
+  async (snapshot, { getState, rejectWithValue }) => {
+    const items = snapshot || getState().cart?.undoSnapshot || [];
+
+    try {
+      let response = { data: { items } };
+      for (const item of items) {
+        response = await apiClient.post(
+          "/api/cart/",
+          {
+            productId: String(item.productId ?? item.id),
+            quantity: item.quantity,
+            name: item.title,
+            price: item.price,
+            image: item.image,
+          },
+          { headers: authHeaders(getState) }
+        );
+      }
+      return { items: response.data?.items ?? items };
+    } catch (error) {
+      console.error("Restore Cart Error:", error.response?.data || error.message);
+      return rejectWithValue(
+        mapCartError(error, "Failed to restore cart")
+      );
+    }
+  }
+);
+
 const cartSlice = createSlice({
   name: "cart",
-  initialState: { cartItems: [], loading: false, error: null, pendingByProduct: {} },
+  initialState: {
+    cartItems: [],
+    loading: false,
+    error: null,
+    pendingByProduct: {},
+    undoSnapshot: null,
+  },
   reducers: {
     clearCartLocal: (state) => {
       state.cartItems = [];
       state.error = null;
       state.pendingByProduct = {};
+      state.undoSnapshot = null;
     },
   },
   extraReducers: (builder) => {
@@ -252,13 +291,25 @@ const cartSlice = createSlice({
       .addCase(removeFromCart.fulfilled, setItems)
       .addCase(removeFromCart.rejected, setRejected)
       .addCase(clearCart.pending, setPending)
-      .addCase(clearCart.fulfilled, (state) => {
+      .addCase(clearCart.fulfilled, (state, action) => {
         state.cartItems = [];
         state.loading = false;
         state.error = null;
         state.pendingByProduct = {};
+        state.undoSnapshot = action.payload.undoSnapshot;
       })
-      .addCase(clearCart.rejected, setRejected);
+      .addCase(clearCart.rejected, (state, action) => {
+        setRejected(state, action);
+        state.undoSnapshot = null;
+      })
+      .addCase(restoreCartSnapshot.pending, setPending)
+      .addCase(restoreCartSnapshot.fulfilled, (state, action) => {
+        state.cartItems = action.payload.items ?? [];
+        state.loading = false;
+        state.error = null;
+        state.undoSnapshot = null;
+      })
+      .addCase(restoreCartSnapshot.rejected, setRejected);
   },
 });
 

@@ -1,7 +1,19 @@
+jest.mock("../src/services/apiClient", () => ({
+  get: jest.fn(),
+  post: jest.fn(),
+  patch: jest.fn(),
+  delete: jest.fn(),
+}));
+
 const cartModule = require("../src/redux/cartSlice.jsx");
 
 const cartReducer = cartModule.default;
-const { addToCart, mapCartError } = cartModule;
+const {
+  addToCart,
+  clearCart,
+  mapCartError,
+  restoreCartSnapshot,
+} = cartModule;
 
 describe("mapCartError", () => {
   it("marks auth errors from 401 as auth kind", () => {
@@ -100,3 +112,88 @@ describe("cart pendingByProduct", () => {
   });
 });
 
+describe("cart clear undo", () => {
+  const apiClient = require("../src/services/apiClient");
+  const cartItems = [
+    { id: "p1", productId: "p1", title: "One", price: 10, quantity: 2 },
+    { id: "p2", productId: "p2", title: "Two", price: 20, quantity: 4 },
+  ];
+
+  beforeEach(() => {
+    apiClient.delete.mockReset();
+    apiClient.post.mockReset();
+  });
+
+  it("captures every cleared item and quantity for Undo", async () => {
+    apiClient.delete.mockResolvedValue({ data: { items: [] } });
+    const { configureStore } = require("@reduxjs/toolkit");
+    const store = configureStore({
+      reducer: { cart: cartReducer, auth: () => ({ token: "token-1" }) },
+      preloadedState: {
+        cart: { cartItems, loading: false, error: null, pendingByProduct: {} },
+      },
+    });
+
+    await store.dispatch(clearCart());
+
+    expect(store.getState().cart.cartItems).toEqual([]);
+    expect(store.getState().cart.undoSnapshot).toEqual(cartItems);
+    expect(store.getState().cart.undoSnapshot).not.toBe(cartItems);
+  });
+
+  it("restores the clear snapshot through the cart state and API", async () => {
+    const restoredItems = cartItems.map((item) => ({ ...item }));
+    apiClient.post
+      .mockResolvedValueOnce({ data: { items: [restoredItems[0]] } })
+      .mockResolvedValueOnce({ data: { items: restoredItems } });
+    const { configureStore } = require("@reduxjs/toolkit");
+    const store = configureStore({
+      reducer: { cart: cartReducer, auth: () => ({ token: "token-1" }) },
+      preloadedState: {
+        cart: {
+          cartItems: [],
+          loading: false,
+          error: null,
+          pendingByProduct: {},
+          undoSnapshot: restoredItems,
+        },
+      },
+    });
+
+    await store.dispatch(restoreCartSnapshot());
+
+    expect(apiClient.post).toHaveBeenNthCalledWith(
+      1,
+      "/api/cart/",
+      expect.objectContaining({ productId: "p1", quantity: 2 }),
+      expect.any(Object)
+    );
+    expect(apiClient.post).toHaveBeenNthCalledWith(
+      2,
+      "/api/cart/",
+      expect.objectContaining({ productId: "p2", quantity: 4 }),
+      expect.any(Object)
+    );
+    expect(store.getState().cart.cartItems).toEqual(restoredItems);
+    expect(store.getState().cart.undoSnapshot).toBeNull();
+  });
+
+  it("does not retain a successful Undo snapshot when clear fails", async () => {
+    apiClient.delete.mockRejectedValue({
+      response: { status: 500, data: { message: "Clear failed" } },
+    });
+    const { configureStore } = require("@reduxjs/toolkit");
+    const store = configureStore({
+      reducer: { cart: cartReducer, auth: () => ({ token: "token-1" }) },
+      preloadedState: {
+        cart: { cartItems, loading: false, error: null, pendingByProduct: {} },
+      },
+    });
+
+    await store.dispatch(clearCart());
+
+    expect(store.getState().cart.cartItems).toEqual(cartItems);
+    expect(store.getState().cart.undoSnapshot).toBeNull();
+    expect(store.getState().cart.error).toMatchObject({ message: "Clear failed" });
+  });
+});

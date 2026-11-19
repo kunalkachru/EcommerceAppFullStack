@@ -13,20 +13,22 @@ let mockCartItems = [
     image: "https://example.com/coat.png",
   },
 ];
+let mockCartError = null;
+const mockDispatch = jest.fn(() => Promise.resolve({ type: "cart/clearCart/fulfilled" }));
 
 jest.mock("@react-navigation/native", () => ({
   useFocusEffect: jest.fn(),
 }));
 
 jest.mock("react-redux", () => ({
-  useDispatch: () => jest.fn(),
+  useDispatch: () => mockDispatch,
   useSelector: (selector) =>
     selector({
       auth: { token: "token-1" },
       cart: {
         cartItems: mockCartItems,
         loading: false,
-        error: null,
+        error: mockCartError,
       },
     }),
 }));
@@ -71,6 +73,12 @@ const collectText = (node) => {
 const renderedText = (tree) => collectText(tree.toJSON());
 
 describe("CartScreen", () => {
+  beforeEach(() => {
+    mockDispatch.mockClear();
+    mockDispatch.mockResolvedValue({ type: "cart/clearCart/fulfilled" });
+    mockCartError = null;
+  });
+
   afterEach(() => {
     mockCartItems = [
       {
@@ -157,5 +165,115 @@ describe("CartScreen", () => {
     await act(async () => {
       tree.unmount();
     });
+  });
+
+  it("opens the clear confirmation with Clear all and Keep items without dispatching clearCart", async () => {
+    const tree = await renderCart();
+    const clearButton = tree.root.findByProps({ testID: "cart-clear" });
+
+    await act(async () => clearButton.props.onPress());
+
+    expect(renderedText(tree)).toContain("Clear all");
+    expect(renderedText(tree)).toContain("Keep items");
+    expect(mockDispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: "cart/clearCart" }));
+    await act(async () => tree.unmount());
+  });
+
+  it("keeps cart items unchanged when Keep items is selected", async () => {
+    const tree = await renderCart();
+    await act(async () => tree.root.findByProps({ testID: "cart-clear" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-keep-items" }).props.onPress());
+
+    expect(renderedText(tree)).toContain("Structured Wool Coat");
+    expect(renderedText(tree)).not.toContain("Clear all");
+    expect(mockDispatch).not.toHaveBeenCalledWith(expect.objectContaining({ type: "cart/clearCart" }));
+    await act(async () => tree.unmount());
+  });
+
+  it("clears only after Clear all is selected and renders the empty state with Undo", async () => {
+    const tree = await renderCart();
+    await act(async () => tree.root.findByProps({ testID: "cart-clear" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-clear-all" }).props.onPress());
+
+    expect(mockDispatch).toHaveBeenCalledTimes(1);
+    expect(renderedText(tree)).toContain("Your bag is ready when you are.");
+    expect(renderedText(tree)).toContain("Undo");
+    await act(async () => tree.unmount());
+  });
+
+  it("restores cleared items when Undo is selected before the deadline", async () => {
+    const tree = await renderCart();
+    await act(async () => tree.root.findByProps({ testID: "cart-clear" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-clear-all" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-undo" }).props.onPress());
+
+    expect(renderedText(tree)).toContain("Structured Wool Coat");
+    expect(renderedText(tree)).toContain("Qty 2");
+    expect(renderedText(tree)).not.toContain("Undo");
+    await act(async () => tree.unmount());
+  });
+
+  it("renders later store cart updates after Undo restoration", async () => {
+    let dispatchCount = 0;
+    mockDispatch.mockImplementation(() => {
+      dispatchCount += 1;
+      if (dispatchCount === 2) {
+        mockCartItems = [
+          {
+            ...mockCartItems[0],
+            quantity: 3,
+          },
+        ];
+      }
+      return Promise.resolve({ type: "cart/operation/fulfilled" });
+    });
+
+    const tree = await renderCart();
+    await act(async () => tree.root.findByProps({ testID: "cart-clear" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-clear-all" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-undo" }).props.onPress());
+
+    expect(renderedText(tree)).toContain("Qty 3");
+    expect(renderedText(tree)).not.toContain("Qty 2");
+    await act(async () => tree.unmount());
+  });
+
+  it("shows the existing cart error instead of Undo after a failed clear", async () => {
+    mockCartError = { message: "Clear failed" };
+    mockDispatch.mockResolvedValue({ type: "cart/clearCart/rejected" });
+    const tree = await renderCart();
+
+    await act(async () => tree.root.findByProps({ testID: "cart-clear" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-clear-all" }).props.onPress());
+
+    expect(renderedText(tree)).toContain("Clear failed");
+    expect(renderedText(tree)).not.toContain("Undo");
+    expect(renderedText(tree)).not.toContain("Clear all items?");
+    await act(async () => tree.unmount());
+  });
+
+  it("removes Undo after five seconds without restoring items", async () => {
+    jest.useFakeTimers();
+    const tree = await renderCart();
+    await act(async () => tree.root.findByProps({ testID: "cart-clear" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-clear-all" }).props.onPress());
+
+    await act(async () => jest.advanceTimersByTime(5000));
+    expect(renderedText(tree)).not.toContain("Undo");
+    jest.useRealTimers();
+    await act(async () => tree.unmount());
+  });
+
+  it("keeps checkout, quantity, removal, empty-cart shopping, and free-shipping behavior available", async () => {
+    const tree = await renderCart();
+    expect(tree.root.findByProps({ testID: "cart-proceed-checkout" })).toBeTruthy();
+    expect(tree.root.findByProps({ testID: "cart-qty-plus" })).toBeTruthy();
+    expect(tree.root.findByProps({ testID: "cart-remove" })).toBeTruthy();
+    expect(renderedText(tree)).toContain("Free shipping on orders over $50");
+
+    await act(async () => tree.root.findByProps({ testID: "cart-clear" }).props.onPress());
+    await act(async () => tree.root.findByProps({ testID: "cart-clear-all" }).props.onPress());
+    expect(tree.root.findByProps({ testID: "cart-continue-shopping" })).toBeTruthy();
+    await act(async () => tree.unmount());
   });
 });
