@@ -179,6 +179,12 @@ const CartScreen = ({ navigation }) => {
             <LuxurySectionCard style={styles.totalContainer}>
               <LuxuryEyebrow>Grand total</LuxuryEyebrow>
               <Text style={styles.totalText}>${grandTotal.toFixed(2)}</Text>
+              <Text style={styles.shippingMessage}>Free shipping on orders over $50</Text>
+              {grandTotal < 50 ? (
+                <Text style={styles.shippingProgress}>
+                  Spend ${(50 - grandTotal).toFixed(2)} more for free shipping.
+                </Text>
+              ) : null}
               <Text style={styles.totalHint}>
                 Taxes and final delivery details are confirmed at checkout.
               </Text>
@@ -334,6 +340,19 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "700",
     color: colors.text,
+    textAlign: "right",
+  },
+  shippingMessage: {
+    color: colors.accentStrong,
+    fontSize: 14,
+    fontWeight: "700",
+    marginTop: spacing.xs,
+    textAlign: "right",
+  },
+  shippingProgress: {
+    color: colors.textMuted,
+    fontSize: 13,
+    marginTop: spacing.xs,
     textAlign: "right",
   },
   totalHint: {
