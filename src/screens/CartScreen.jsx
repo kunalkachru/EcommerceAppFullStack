@@ -112,7 +112,7 @@ const CartScreen = ({ navigation }) => {
 
     const snapshot = clearSnapshot;
     setIsCleared(false);
-    setRestoredItems(snapshot);
+    setRestoredItems(null);
     setUndoVisible(false);
     setClearSnapshot(null);
 
