@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import packageJson from "../../package.json";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../redux/authSlice";
 import { MODEL_3D_CREDITS } from "../config/model3DCredits";
@@ -78,6 +79,9 @@ const ProfileScreen = ({ navigation }) => {
           </LuxuryBodyText>
         </LuxurySectionCard>
       )}
+      <Text testID="profile-version" style={styles.version}>
+        {`Version ${packageJson.version}`}
+      </Text>
     </View>
   );
 };
@@ -144,6 +148,12 @@ const styles = StyleSheet.create({
     color: colors.white,
     fontSize: 16,
     fontWeight: "700",
+  },
+  version: {
+    marginTop: spacing.lg,
+    textAlign: "center",
+    color: colors.textMuted,
+    fontSize: 12,
   },
 });
 
