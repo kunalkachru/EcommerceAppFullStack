@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 describe("Appetize demo Android SDK setup", () => {
-  it("AC-1: does not ask sdkmanager for the retired tools package", () => {
+  it("does not ask sdkmanager for the retired tools package", () => {
     const workflow = fs.readFileSync(
       path.join(__dirname, "..", ".github", "workflows", "appetize-demo.yml"),
       "utf8"
@@ -17,7 +17,7 @@ describe("Appetize demo Android SDK setup", () => {
     expect(setupAndroidStep).not.toMatch(/(^|[\s;,])tools([\s;,]|$)/);
   });
 
-  it("AC-2: includes the Android job in the pull-request path before building the demo APK", () => {
+  it("includes the Android job in the pull-request path before building the demo APK", () => {
     const workflow = fs.readFileSync(
       path.join(__dirname, "..", ".github", "workflows", "appetize-demo.yml"),
       "utf8"
@@ -42,7 +42,7 @@ describe("Appetize demo Android SDK setup", () => {
     expect(androidJob).toContain("npm run build:demo:apk");
   });
 
-  it("AC-3: supports the pull-request Android SDK installation and demo APK build", () => {
+  it("supports the pull-request Android SDK installation and demo APK build", () => {
     const workflow = fs.readFileSync(
       path.join(__dirname, "..", ".github", "workflows", "appetize-demo.yml"),
       "utf8"
