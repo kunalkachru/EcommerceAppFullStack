@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import packageJson from "../../package.json";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../redux/authSlice";
@@ -22,66 +22,68 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container} testID="screen-profile">
-      {user ? (
-        <LuxurySectionCard style={styles.panel}>
-          <LuxuryEyebrow>Profile</LuxuryEyebrow>
-          <LuxuryDisplayTitle>Account, trust, and shopping memory.</LuxuryDisplayTitle>
-          <LuxuryBodyText style={styles.body}>
-            ShopEase keeps login simple while your cart, orders, and optional AI session stay
-            connected to the same premium journey.
-          </LuxuryBodyText>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+        {user ? (
+          <LuxurySectionCard style={styles.panel}>
+            <LuxuryEyebrow>Profile</LuxuryEyebrow>
+            <LuxuryDisplayTitle>Account, trust, and shopping memory.</LuxuryDisplayTitle>
+            <LuxuryBodyText style={styles.body}>
+              ShopEase keeps login simple while your cart, orders, and optional AI session stay
+              connected to the same premium journey.
+            </LuxuryBodyText>
 
-          <LuxurySectionCard eyebrow="Primary identity" muted style={styles.identityCard}>
-            <Text style={styles.identityName}>Name: {user.name}</Text>
-            <Text style={styles.identityEmail}>Email: {user.email}</Text>
-          </LuxurySectionCard>
-
-          <View style={styles.detailRow}>
-            <LuxurySectionCard style={styles.detailCard} eyebrow="Session privacy">
-              <LuxuryBodyText style={styles.detailValue}>
-                Live LLM keys stay in session memory only.
-              </LuxuryBodyText>
+            <LuxurySectionCard eyebrow="Primary identity" muted style={styles.identityCard}>
+              <Text style={styles.identityName}>Name: {user.name}</Text>
+              <Text style={styles.identityEmail}>Email: {user.email}</Text>
             </LuxurySectionCard>
-            <LuxurySectionCard style={styles.detailCard} eyebrow="Post-purchase">
-              <LuxuryBodyText style={styles.detailValue}>
-                Orders stay one tap away from this screen.
-              </LuxuryBodyText>
-            </LuxurySectionCard>
-          </View>
 
-          <TouchableOpacity
-            style={styles.secondaryButton}
-            onPress={() => navigation.navigate("Orders")}
-          >
-            <Text style={styles.secondaryButtonText}>Review orders</Text>
-          </TouchableOpacity>
+            <View style={styles.detailRow}>
+              <LuxurySectionCard style={styles.detailCard} eyebrow="Session privacy">
+                <LuxuryBodyText style={styles.detailValue}>
+                  Live LLM keys stay in session memory only.
+                </LuxuryBodyText>
+              </LuxurySectionCard>
+              <LuxurySectionCard style={styles.detailCard} eyebrow="Post-purchase">
+                <LuxuryBodyText style={styles.detailValue}>
+                  Orders stay one tap away from this screen.
+                </LuxuryBodyText>
+              </LuxurySectionCard>
+            </View>
 
-          {MODEL_3D_CREDITS.length > 0 ? (
             <TouchableOpacity
-              testID="profile-credits-link"
               style={styles.secondaryButton}
-              onPress={() => navigation.navigate("Credits")}
+              onPress={() => navigation.navigate("Orders")}
             >
-              <Text style={styles.secondaryButtonText}>3D model credits</Text>
+              <Text style={styles.secondaryButtonText}>Review orders</Text>
             </TouchableOpacity>
-          ) : null}
 
-          <TouchableOpacity testID="profile-logout" style={styles.button} onPress={handleLogout}>
-            <Text style={styles.buttonText}>Logout</Text>
-          </TouchableOpacity>
-        </LuxurySectionCard>
-      ) : (
-        <LuxurySectionCard style={styles.panel}>
-          <LuxuryEyebrow>Profile</LuxuryEyebrow>
-          <LuxuryDisplayTitle>You are currently signed out.</LuxuryDisplayTitle>
-          <LuxuryBodyText style={styles.body}>
-            Sign in to restore your cart, order history, and ambient AI shopping session.
-          </LuxuryBodyText>
-        </LuxurySectionCard>
-      )}
-      <Text testID="profile-version" style={styles.version}>
-        {`Version ${packageJson.version}`}
-      </Text>
+            {MODEL_3D_CREDITS.length > 0 ? (
+              <TouchableOpacity
+                testID="profile-credits-link"
+                style={styles.secondaryButton}
+                onPress={() => navigation.navigate("Credits")}
+              >
+                <Text style={styles.secondaryButtonText}>3D model credits</Text>
+              </TouchableOpacity>
+            ) : null}
+
+            <TouchableOpacity testID="profile-logout" style={styles.button} onPress={handleLogout}>
+              <Text style={styles.buttonText}>Logout</Text>
+            </TouchableOpacity>
+          </LuxurySectionCard>
+        ) : (
+          <LuxurySectionCard style={styles.panel}>
+            <LuxuryEyebrow>Profile</LuxuryEyebrow>
+            <LuxuryDisplayTitle>You are currently signed out.</LuxuryDisplayTitle>
+            <LuxuryBodyText style={styles.body}>
+              Sign in to restore your cart, order history, and ambient AI shopping session.
+            </LuxuryBodyText>
+          </LuxurySectionCard>
+        )}
+        <Text testID="profile-version" style={styles.version}>
+          {`Version ${packageJson.version}`}
+        </Text>
+      </ScrollView>
     </View>
   );
 };
@@ -89,9 +91,16 @@ const ProfileScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
     paddingHorizontal: spacing.lg,
     backgroundColor: colors.background,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingBottom: 120,
   },
   panel: {
     borderRadius: radius.xl,

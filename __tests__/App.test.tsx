@@ -12,7 +12,7 @@ afterEach(async () => {
   });
 });
 
-test('renders correctly', async () => {
+test('AC-3: renders correctly', async () => {
   let tree;
   await act(async () => {
     tree = ReactTestRenderer.create(<App />);

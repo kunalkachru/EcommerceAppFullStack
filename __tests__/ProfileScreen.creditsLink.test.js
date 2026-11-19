@@ -21,7 +21,7 @@ describe("ProfileScreen credits link", () => {
     MODEL_3D_CREDITS.length = 0;
   });
 
-  it("AC-3: preserves the optional credits navigation entry when credited models exist", () => {
+  it("preserves the optional credits navigation entry when credited models exist", () => {
     MODEL_3D_CREDITS.push({ category: "footwear", title: "x", author: "y", license: "z", sourceUrl: "u" });
 
     let tree;
@@ -33,7 +33,7 @@ describe("ProfileScreen credits link", () => {
     expect(() => tree.root.findByProps({ testID: "profile-credits-link" })).not.toThrow();
   });
 
-  it("AC-3: preserves the hidden credits navigation entry when there are no credited models", () => {
+  it("preserves the hidden credits navigation entry when there are no credited models", () => {
     let tree;
     act(() => {
       tree = ReactTestRenderer.create(
@@ -43,7 +43,7 @@ describe("ProfileScreen credits link", () => {
     expect(() => tree.root.findByProps({ testID: "profile-credits-link" })).toThrow();
   });
 
-  it("AC-3: preserves profile identity, order navigation, and logout behavior", () => {
+  it("preserves profile identity, order navigation, and logout behavior", () => {
     const navigate = jest.fn();
     let tree;
     act(() => {
