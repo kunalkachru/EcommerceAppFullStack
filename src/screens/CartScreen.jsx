@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -14,6 +14,7 @@ import {
   adjustCartItemDelta,
   removeFromCart,
   clearCart,
+  addToCart,
   fetchCart,
 } from "../redux/cartSlice";
 import {
@@ -38,6 +39,26 @@ const CartScreen = ({ navigation }) => {
   const { cartItems = [], loading, error } = useSelector((state) => state.cart);
   const token = useSelector((state) => state.auth?.token);
   const dispatch = useDispatch();
+  const [clearConfirmationOpen, setClearConfirmationOpen] = useState(false);
+  const [clearSnapshot, setClearSnapshot] = useState(null);
+  const [undoVisible, setUndoVisible] = useState(false);
+  const [isCleared, setIsCleared] = useState(false);
+  const [restoredItems, setRestoredItems] = useState(null);
+
+  const visibleCartItems = isCleared ? [] : restoredItems || cartItems;
+
+  useEffect(() => {
+    if (!undoVisible) {
+      return undefined;
+    }
+
+    const timeout = setTimeout(() => {
+      setUndoVisible(false);
+      setClearSnapshot(null);
+    }, 5000);
+
+    return () => clearTimeout(timeout);
+  }, [undoVisible]);
 
   const errorMessage =
     !error ? null : typeof error === "string" ? error : error.message || "Cart error";
@@ -54,16 +75,53 @@ const CartScreen = ({ navigation }) => {
     }, [dispatch, token])
   );
 
-  const grandTotal = cartItems.reduce(
+  const grandTotal = visibleCartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
 
-  const totalItems = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const totalItems = visibleCartItems.reduce((total, item) => total + item.quantity, 0);
 
   const lineKey = useCallback((item) => String(item.id ?? item.productId), []);
 
   const lineId = useCallback((item) => item.productId ?? item.id, []);
+
+  const requestClear = useCallback(() => {
+    setClearConfirmationOpen(true);
+  }, []);
+
+  const confirmClear = useCallback(async () => {
+    const snapshot = visibleCartItems.map((item) => ({ ...item }));
+    const result = await dispatch(clearCart());
+    if (result?.type?.endsWith("/rejected")) {
+      return;
+    }
+
+    setClearConfirmationOpen(false);
+    setClearSnapshot(snapshot);
+    setRestoredItems(null);
+    setIsCleared(true);
+    setUndoVisible(true);
+  }, [dispatch, visibleCartItems]);
+
+  const undoClear = useCallback(async () => {
+    if (!clearSnapshot) {
+      return;
+    }
+
+    const snapshot = clearSnapshot;
+    setIsCleared(false);
+    setRestoredItems(snapshot);
+    setUndoVisible(false);
+    setClearSnapshot(null);
+
+    for (const item of snapshot) {
+      for (let quantity = 0; quantity < item.quantity; quantity += 1) {
+        await dispatch(addToCart(item));
+      }
+    }
+    dispatch(fetchCart());
+  }, [clearSnapshot, dispatch]);
 
   const renderItem = useCallback(
     ({ item }) => (
@@ -107,6 +165,7 @@ const CartScreen = ({ navigation }) => {
               <Text style={styles.qtyButtonText}>-</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              testID="cart-remove"
               style={styles.removeButton}
               disabled={loading}
               onPress={() => dispatch(removeFromCart(lineId(item)))}
@@ -120,7 +179,7 @@ const CartScreen = ({ navigation }) => {
     [dispatch, lineId, loading]
   );
 
-  if (cartItems.length === 0) {
+  if (visibleCartItems.length === 0) {
     return (
       <View style={styles.container} testID="screen-cart">
         <LuxurySectionCard style={styles.emptyCard}>
@@ -130,11 +189,20 @@ const CartScreen = ({ navigation }) => {
             Save pieces as you browse, then return here for a cleaner checkout moment.
           </LuxuryBodyText>
           <TouchableOpacity
+            testID="cart-continue-shopping"
             style={styles.catalogButton}
             onPress={() => navigateToProductList(navigation)}
           >
             <Text style={styles.catalogButtonText}>Continue shopping</Text>
           </TouchableOpacity>
+          {undoVisible ? (
+            <View style={styles.undoBanner}>
+              <Text style={styles.undoMessage}>Cart cleared.</Text>
+              <TouchableOpacity testID="cart-undo" onPress={undoClear}>
+                <Text style={styles.undoText}>Undo</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </LuxurySectionCard>
       </View>
     );
@@ -143,7 +211,7 @@ const CartScreen = ({ navigation }) => {
   return (
     <View style={styles.container} testID="screen-cart">
       <FlatList
-        data={cartItems}
+        data={visibleCartItems}
         keyExtractor={lineKey}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
@@ -157,7 +225,7 @@ const CartScreen = ({ navigation }) => {
 
             <View style={styles.metricsRow}>
               <LuxuryMetricCard label="Items" value={String(totalItems)} />
-              <LuxuryMetricCard label="Lines" value={String(cartItems.length)} />
+              <LuxuryMetricCard label="Lines" value={String(visibleCartItems.length)} />
             </View>
 
             {errorMessage ? (
@@ -169,7 +237,7 @@ const CartScreen = ({ navigation }) => {
               />
             ) : null}
 
-            {loading && cartItems.length > 0 ? (
+            {loading && visibleCartItems.length > 0 ? (
               <LuxuryLoadingState label="Updating cart..." />
             ) : null}
           </View>
@@ -190,12 +258,27 @@ const CartScreen = ({ navigation }) => {
               </Text>
             </LuxurySectionCard>
             <TouchableOpacity
+              testID="cart-clear"
               style={styles.clearCartButton}
               disabled={loading}
-              onPress={() => dispatch(clearCart())}
+              onPress={requestClear}
             >
               <Text style={styles.clearCartText}>Clear cart</Text>
             </TouchableOpacity>
+            {clearConfirmationOpen ? (
+              <LuxurySectionCard style={styles.confirmationCard}>
+                <Text style={styles.confirmationTitle}>Clear all items?</Text>
+                <Text style={styles.confirmationMessage}>Choose whether to remove everything from your cart.</Text>
+                <View style={styles.confirmationActions}>
+                  <TouchableOpacity testID="cart-clear-all" style={styles.confirmButton} onPress={confirmClear}>
+                    <Text style={styles.confirmButtonText}>Clear all</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity testID="cart-keep-items" style={styles.keepButton} onPress={() => setClearConfirmationOpen(false)}>
+                    <Text style={styles.keepButtonText}>Keep items</Text>
+                  </TouchableOpacity>
+                </View>
+              </LuxurySectionCard>
+            ) : null}
             <TouchableOpacity
               testID="cart-proceed-checkout"
               style={styles.checkoutButton}
@@ -425,6 +508,57 @@ const styles = StyleSheet.create({
   errorMargin: {
     marginHorizontal: spacing.lg,
     marginBottom: spacing.md,
+  },
+  confirmationCard: {
+    marginTop: spacing.sm,
+  },
+  confirmationTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: colors.text,
+  },
+  confirmationMessage: {
+    color: colors.textMuted,
+    marginTop: spacing.xs,
+  },
+  confirmationActions: {
+    flexDirection: "row",
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  confirmButton: {
+    backgroundColor: colors.error,
+    padding: spacing.sm,
+    borderRadius: radius.pill,
+  },
+  confirmButtonText: {
+    color: colors.white,
+    fontWeight: "700",
+  },
+  keepButton: {
+    backgroundColor: colors.surfaceMuted,
+    padding: spacing.sm,
+    borderRadius: radius.pill,
+  },
+  keepButtonText: {
+    color: colors.text,
+    fontWeight: "700",
+  },
+  undoBanner: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: spacing.md,
+    padding: spacing.sm,
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: radius.md,
+  },
+  undoMessage: {
+    color: colors.text,
+  },
+  undoText: {
+    color: colors.accentStrong,
+    fontWeight: "700",
   },
 });
 
