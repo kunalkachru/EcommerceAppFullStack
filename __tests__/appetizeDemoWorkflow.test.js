@@ -41,4 +41,21 @@ describe("Appetize demo Android SDK setup", () => {
     expect(buildIndex).toBeGreaterThan(setupIndex);
     expect(androidJob).toContain("npm run build:demo:apk");
   });
+
+  it("AC-3: supports the pull-request Android SDK installation and demo APK build", () => {
+    const workflow = fs.readFileSync(
+      path.join(__dirname, "..", ".github", "workflows", "appetize-demo.yml"),
+      "utf8"
+    );
+    const androidJob = workflow.match(
+      /\njobs:\n[\s\S]*?\n  android:\n([\s\S]*?)(?=\n  ios:|$)/
+    )?.[1];
+
+    expect(androidJob).toBeDefined();
+    expect(androidJob).toMatch(
+      /uses: android-actions\/setup-android@v3\n\s+with:\n\s+packages: "platform-tools platforms;android-36 build-tools;36\.0\.0"/
+    );
+    expect(androidJob).toContain("npm run build:demo:apk");
+    expect(androidJob).not.toMatch(/(^|[\s;,])tools([\s;,]|$)/);
+  });
 });
