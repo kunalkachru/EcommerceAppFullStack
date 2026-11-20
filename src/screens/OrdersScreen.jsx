@@ -22,6 +22,7 @@ import {
 
 const OrdersScreen = ({ navigation }) => {
   const [orders, setOrders] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState("all");
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
@@ -125,6 +126,16 @@ const OrdersScreen = ({ navigation }) => {
     return sum + grandTotal;
   }, 0);
   const latestOrder = orders[0];
+  const statusOptions = [
+    { label: "All", value: "all" },
+    { label: "Placed", value: "placed" },
+    { label: "Shipped", value: "shipped" },
+    { label: "Delivered", value: "delivered" },
+  ];
+  const filteredOrders =
+    selectedStatus === "all"
+      ? orders
+      : orders.filter((order) => String(order?.orderStatus || "").toLowerCase() === selectedStatus);
 
   return (
     <View style={styles.container} testID="screen-orders">
@@ -170,15 +181,44 @@ const OrdersScreen = ({ navigation }) => {
           </TouchableOpacity>
         </LuxurySectionCard>
       ) : (
-        <FlatList
-          data={orders}
-          keyExtractor={(item) => String(item.id)}
-          renderItem={renderOrder}
-          contentContainerStyle={styles.listContent}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accentStrong} />
-          }
-        />
+        <>
+          <View style={styles.statusFilter} accessibilityRole="tablist">
+            {statusOptions.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                testID={`status-filter-${option.value}`}
+                style={[
+                  styles.statusFilterOption,
+                  selectedStatus === option.value && styles.statusFilterOptionSelected,
+                ]}
+                accessibilityRole="button"
+                accessibilityState={{ selected: selectedStatus === option.value }}
+                onPress={() => setSelectedStatus(option.value)}
+              >
+                <Text
+                  style={[
+                    styles.statusFilterText,
+                    selectedStatus === option.value && styles.statusFilterTextSelected,
+                  ]}
+                >
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <FlatList
+            data={filteredOrders}
+            keyExtractor={(item) => String(item.id)}
+            renderItem={renderOrder}
+            contentContainerStyle={styles.listContent}
+            ListEmptyComponent={
+              <Text style={styles.filteredEmptyText}>No orders with this status</Text>
+            }
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.accentStrong} />
+            }
+          />
+        </>
       )}
     </View>
   );
@@ -228,6 +268,38 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 120,
+  },
+  statusFilter: {
+    flexDirection: "row",
+    gap: spacing.xs,
+    marginBottom: spacing.sm,
+  },
+  statusFilterOption: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: spacing.sm,
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.surface,
+  },
+  statusFilterOptionSelected: {
+    borderColor: colors.accentStrong,
+    backgroundColor: colors.accentSoft,
+  },
+  statusFilterText: {
+    color: colors.textMuted,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+  statusFilterTextSelected: {
+    color: colors.accentStrong,
+  },
+  filteredEmptyText: {
+    paddingVertical: spacing.xxl,
+    color: colors.textMuted,
+    fontSize: 15,
+    textAlign: "center",
   },
   card: {
     backgroundColor: colors.surface,
