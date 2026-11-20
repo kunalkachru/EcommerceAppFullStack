@@ -67,10 +67,16 @@ describe("OrdersScreen status filter", () => {
       "order-card-delivered-1",
     ]);
 
-    await act(async () => {
-      tree.root.findByProps({ testID: "status-filter-shipped" }).props.onPress();
-    });
-    expect(orderCardIds(tree)).toEqual(["order-card-shipped-1"]);
+    for (const [status, orderId] of [
+      ["placed", "order-card-placed-1"],
+      ["shipped", "order-card-shipped-1"],
+      ["delivered", "order-card-delivered-1"],
+    ]) {
+      await act(async () => {
+        tree.root.findByProps({ testID: `status-filter-${status}` }).props.onPress();
+      });
+      expect(orderCardIds(tree)).toEqual([orderId]);
+    }
 
     await act(async () => {
       tree.root.findByProps({ testID: "status-filter-all" }).props.onPress();
