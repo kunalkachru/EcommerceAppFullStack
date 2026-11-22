@@ -142,4 +142,16 @@ describe("ProductDetailScreen inventory behavior", () => {
       tree.unmount();
     });
   });
+
+  it("keeps products with a null inventory count available", async () => {
+    const tree = await renderProduct(null);
+    const button = addButton(tree);
+
+    expect(button.props.disabled).toBe(false);
+    expect(renderedTexts(tree)).toContain("Add to Cart");
+
+    await act(async () => {
+      tree.unmount();
+    });
+  });
 });

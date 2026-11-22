@@ -49,7 +49,8 @@ const ProductDetailScreen = ({ route }) => {
   const { product } = route.params;
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const inventoryCount = Number(product.inventoryCount);
+  const inventoryCount =
+    product.inventoryCount == null ? Number.NaN : Number(product.inventoryCount);
   const isLowStock = inventoryCount >= 1 && inventoryCount <= 5;
   const isSoldOut = inventoryCount === 0;
   const [expanded, setExpanded] = useState(false);
