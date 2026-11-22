@@ -49,6 +49,9 @@ const ProductDetailScreen = ({ route }) => {
   const { product } = route.params;
   const navigation = useNavigation();
   const dispatch = useDispatch();
+  const inventoryCount = Number(product.inventoryCount);
+  const isLowStock = inventoryCount >= 1 && inventoryCount <= 5;
+  const isSoldOut = inventoryCount === 0;
   const [expanded, setExpanded] = useState(false);
   const [similar, setSimilar] = useState([]);
   const [similarLoading, setSimilarLoading] = useState(true);
@@ -133,7 +136,7 @@ const ProductDetailScreen = ({ route }) => {
   );
 
   const handleAddToCart = async () => {
-    if (adding || isCartPendingForProduct) {
+    if (isSoldOut || adding || isCartPendingForProduct) {
       return;
     }
     try {
@@ -164,7 +167,11 @@ const ProductDetailScreen = ({ route }) => {
     navigation.push("ProductDetail", { product: item });
   };
 
-  const addButtonLabel = adding || isCartPendingForProduct ? "Adding..." : "Add to Cart";
+  const addButtonLabel = isSoldOut
+    ? "Sold out"
+    : adding || isCartPendingForProduct
+      ? "Adding..."
+      : "Add to Cart";
 
   return (
     <ScrollView
@@ -246,6 +253,9 @@ const ProductDetailScreen = ({ route }) => {
 
         <Text style={styles.name}>{product.title}</Text>
         <Text style={styles.price}>${product.price}</Text>
+        {isLowStock ? (
+          <Text style={styles.inventoryMessage}>Only {inventoryCount} left</Text>
+        ) : null}
         {product.category ? (
           <Text style={styles.category}>{String(product.category).replace(/-/g, " ")}</Text>
         ) : null}
@@ -261,10 +271,10 @@ const ProductDetailScreen = ({ route }) => {
             accessibilityRole="button"
             style={[
               styles.addToCartButton,
-              (adding || isCartPendingForProduct) && styles.addToCartButtonDisabled,
+              (isSoldOut || adding || isCartPendingForProduct) && styles.addToCartButtonDisabled,
             ]}
             onPress={handleAddToCart}
-            disabled={adding || isCartPendingForProduct}
+            disabled={isSoldOut || adding || isCartPendingForProduct}
           >
             <Text style={styles.addToCartButtonText}>{addButtonLabel}</Text>
           </TouchableOpacity>
@@ -425,6 +435,12 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 28,
     color: colors.accentStrong,
+    fontWeight: "700",
+    marginTop: spacing.xs,
+  },
+  inventoryMessage: {
+    color: colors.accentStrong,
+    fontSize: 14,
     fontWeight: "700",
     marginTop: spacing.xs,
   },
