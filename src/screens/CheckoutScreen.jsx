@@ -247,7 +247,7 @@ const CheckoutScreen = ({ navigation }) => {
           disabled={isPlacingOrder}
         >
           <Text style={styles.orderButtonText}>
-            {isPlacingOrder ? "Placing Order..." : "Place Order"}
+            {isPlacingOrder ? "Placing Order..." : `Place Order · $${grandTotal.toFixed(2)}`}
           </Text>
         </TouchableOpacity>
       </ScrollView>
