@@ -1,9 +1,18 @@
 const React = require("react");
 const ReactTestRenderer = require("react-test-renderer");
 const { act } = ReactTestRenderer;
+let mockCartItems = [
+  {
+    id: "demo-1",
+    title: "Essence Mascara Lash Princess",
+    price: 9.99,
+    quantity: 1,
+  },
+];
 const {
   KeyboardAvoidingView,
   ScrollView,
+  Text,
   TextInput,
 } = require("react-native");
 
@@ -12,14 +21,7 @@ jest.mock("react-redux", () => ({
   useSelector: (selector) =>
     selector({
       cart: {
-        cartItems: [
-          {
-            id: "demo-1",
-            title: "Essence Mascara Lash Princess",
-            price: 9.99,
-            quantity: 1,
-          },
-        ],
+        cartItems: mockCartItems,
       },
     }),
 }));
@@ -62,6 +64,72 @@ jest.mock("../src/components/LuxuryTextInput", () => {
 const CheckoutScreen = require("../src/screens/CheckoutScreen").default;
 
 describe("CheckoutScreen", () => {
+  afterEach(() => {
+    mockCartItems = [
+      {
+        id: "demo-1",
+        title: "Essence Mascara Lash Princess",
+        price: 9.99,
+        quantity: 1,
+      },
+    ];
+  });
+
+  it("renders the place-order button with the exact formatted cart total", async () => {
+    let tree;
+
+    await act(async () => {
+      tree = ReactTestRenderer.create(
+        React.createElement(CheckoutScreen, {
+          navigation: { navigate: jest.fn() },
+        })
+      );
+    });
+
+    const placeOrderButton = tree.root.findByProps({ testID: "checkout-place-order" });
+    expect(placeOrderButton.findByType(Text).props.children).toBe("Place Order · $9.99");
+
+    await act(async () => {
+      tree.unmount();
+    });
+  });
+
+  it("updates the idle place-order label when cart contents and total change", async () => {
+    let tree;
+
+    await act(async () => {
+      tree = ReactTestRenderer.create(
+        React.createElement(CheckoutScreen, {
+          navigation: { navigate: jest.fn() },
+        })
+      );
+    });
+
+    mockCartItems = [
+      {
+        id: "demo-2",
+        title: "Hydrating Serum",
+        price: 12.5,
+        quantity: 2,
+      },
+    ];
+
+    await act(async () => {
+      tree.update(
+        React.createElement(CheckoutScreen, {
+          navigation: { navigate: jest.fn() },
+        })
+      );
+    });
+
+    const placeOrderButton = tree.root.findByProps({ testID: "checkout-place-order" });
+    expect(placeOrderButton.findByType(Text).props.children).toBe("Place Order · $25.00");
+
+    await act(async () => {
+      tree.unmount();
+    });
+  });
+
   it("renders checkout inside a keyboard-aware scroll container", async () => {
     let tree;
 
