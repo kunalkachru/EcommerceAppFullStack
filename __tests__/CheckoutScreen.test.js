@@ -75,7 +75,7 @@ describe("CheckoutScreen", () => {
     ];
   });
 
-  it("renders the place-order button with the exact formatted cart total", async () => {
+  it("AC-1: renders the place-order button with the exact formatted cart total", async () => {
     let tree;
 
     await act(async () => {
@@ -94,7 +94,7 @@ describe("CheckoutScreen", () => {
     });
   });
 
-  it("updates the idle place-order label when cart contents and total change", async () => {
+  it("AC-2: updates the idle place-order label when cart contents and total change", async () => {
     let tree;
 
     await act(async () => {
